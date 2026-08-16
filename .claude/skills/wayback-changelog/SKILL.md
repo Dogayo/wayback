@@ -1,5 +1,5 @@
 ---
-name: changelog
+name: wayback-changelog
 description: Пишет и обновляет записи в CHANGELOG.md этого проекта — кратко, на русском, в формате, который парсит CI. Use when the user asks to add a changelog entry, describe changes for a release, prepare release notes, bump the version, or mentions CHANGELOG.md / чейнджлог / релизные заметки.
 ---
 
@@ -18,8 +18,8 @@ CI читает `CHANGELOG.md` дословно и подставляет сек
      туда накопленное из `[Unreleased]`, оставив `[Unreleased]` пустым.
 3. Новые секции ставь **сразу под `[Unreleased]`** — порядок от новых к старым.
 4. При релизе версия в заголовке обязана совпадать с `version:` в `pubspec.yaml`
-   и с subject коммита `build(<target>): <x.y.z>+<build>`. Расходятся — CI падает
-   до сборки. Правь оба файла в одном коммите.
+   и с тегом `v<x.y.z>+<build>`, которым запускается сборка. Расходятся — CI
+   падает до сборки. Правь оба файла в одном коммите, тег ставь после.
 5. Дату бери текущую, UTC, `YYYY-MM-DD`.
 
 ## Формат
@@ -71,6 +71,7 @@ CI читает `CHANGELOG.md` дословно и подставляет сек
 - Заголовок ровно `## [<версия>] - <YYYY-MM-DD>`, версия без `v`.
 - Секция непустая.
 - Версия совпадает с `pubspec.yaml`.
+- Тега `v<версия>` ещё не существует: `git tag -l 'v<версия>*'` пусто.
 - Прогони извлечение так же, как это делает CI:
 
 ```bash
