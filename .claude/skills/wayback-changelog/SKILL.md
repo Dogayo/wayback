@@ -1,5 +1,5 @@
 ---
-name: changelog
+name: wayback-changelog
 description: Пишет и обновляет записи в CHANGELOG.md этого проекта — кратко, на русском, в формате, который парсит CI. Use when the user asks to add a changelog entry, describe changes for a release, prepare release notes, bump the version, or mentions CHANGELOG.md / чейнджлог / релизные заметки.
 ---
 
