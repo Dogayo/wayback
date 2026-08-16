@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      build_android:
+        description: 'Build APK'
+        type: boolean
+        default: true
+      build_ios:
+        description: 'Build iOS'
+        type: boolean
+        default: true
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.44.4'
+
+jobs:
+  trigger:
+    name: Resolve triggers
+    runs-on: ubuntu-latest
+    outputs:
+      android: ${{ steps.parse.outputs.android }}
+      ios: ${{ steps.parse.outputs.ios }}
+      message: ${{ steps.parse.outputs.message }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+
+      - name: Parse commit message
+        id: parse
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_ANDROID: ${{ inputs.build_android }}
+          INPUT_IOS: ${{ inputs.build_ios }}
+        run: |
+          set -euo pipefail
+
+          android=false
+          ios=false
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            msg="(manual run)"
+            android="$INPUT_ANDROID"
+            ios="$INPUT_IOS"
+          else
+            msg="$(git log -1 --pretty=%B | tr '[:upper:]' '[:lower:]')"
+
+            # Push to main always produces both builds.
+            if [ "$EVENT" = "push" ] && [ "$REF_NAME" = "main" ]; then
+              android=true
+              ios=true
+            fi
+
+            case "$msg" in
+              *'[build]'*|*'[ci build]'*)  android=true; ios=true ;;
+            esac
+            case "$msg" in
+              *'[build android]'*|*'[apk]'*) android=true ;;
+            esac
+            case "$msg" in
+              *'[build ios]'*|*'[ios]'*)     ios=true ;;
+            esac
+          fi
+
+          {
+            echo "android=$android"
+            echo "ios=$ios"
+            echo "message<<EOM"
+            echo "$msg"
+            echo "EOM"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Summary
+        run: |
+          {
+            echo "### Build triggers"
+            echo ""
+            echo "| Target | Will run |"
+            echo "| --- | --- |"
+            echo "| Analyze & Test | :white_check_mark: always |"
+            echo "| APK | ${{ steps.parse.outputs.android == 'true' && ':white_check_mark: yes' || ':heavy_minus_sign: skipped' }} |"
+            echo "| iOS | ${{ steps.parse.outputs.ios == 'true' && ':white_check_mark: yes' || ':heavy_minus_sign: skipped' }} |"
+            echo ""
+            echo "Add \`[build]\`, \`[build android]\` or \`[build ios]\` to the commit message to force a build."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  analyze:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+
+  build-android:
+    name: Build APK
+    needs: [trigger, analyze]
+    if: needs.trigger.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: wayback-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
+
+  build-ios:
+    name: Build iOS (no codesign)
+    needs: [trigger, analyze]
+    if: needs.trigger.outputs.ios == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign
+
+      - name: Upload iOS app bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: wayback-ios-app
+          path: build/ios/iphoneos/Runner.app
+          retention-days: 14
