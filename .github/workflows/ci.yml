@@ -1,0 +1,387 @@
+# ==============================================================================
+# CI
+#
+# Analyze & Test run on every push and pull request — always, unconditionally.
+#
+# Builds and Releases happen ONLY on `main`, and ONLY when the commit subject
+# matches the grammar below exactly. On any other branch a build trigger is
+# validated but not executed, so a typo is caught before the merge.
+#
+# ------------------------------------------------------------------------------
+# COMMIT SUBJECT GRAMMAR (first line of the commit message, exact match)
+#
+#     build(<target>): <major>.<minor>.<patch>+<build>
+#
+#   <target>  one of: all | android | ios
+#   version   semver triple + '+' + build number, e.g. 1.4.0+12
+#
+#   Valid:
+#     build(all): 1.4.0+12
+#     build(android): 1.4.0+12
+#     build(ios): 0.9.1+3
+#
+#   Invalid — these FAIL the run with an explicit error rather than skipping:
+#     build: 1.4.0+12            <- missing (target)
+#     build(all): 1.4.0          <- missing +build
+#     build(all) 1.4.0+12        <- missing colon
+#     Build(All): 1.4.0+12       <- case-sensitive, must be lowercase
+#     build(all): 1.4.0+12 wip   <- trailing characters
+#
+#   A subject that does not start with `build` is simply not a trigger:
+#   no build, no error. Only the SUBJECT (first line) is read.
+#
+# ------------------------------------------------------------------------------
+# VERSION BINDING — three things must agree, or the run fails before building
+#
+#   1. the version in the commit subject
+#   2. `version:` in pubspec.yaml
+#   3. a `## [<version>] - <date>` section in CHANGELOG.md
+#
+#   The version is passed to Flutter as --build-name / --build-number, so the
+#   shipped binary cannot disagree with the repo. Bump all three together.
+#
+# ------------------------------------------------------------------------------
+# TAGS AND RELEASES — created by CI, never by hand
+#
+#   After the builds succeed on `main`, CI tags the commit `v<version>` and
+#   publishes a GitHub Release with that tag, the CHANGELOG section as its
+#   notes, and the APK + iOS bundle attached.
+#
+#   The tag is created AFTER a green build, so a tag always points at a commit
+#   that actually builds. Re-releasing an existing version is refused: if the
+#   tag already exists, the run fails early. Bump the version instead.
+#
+#   Tags pushed by CI use GITHUB_TOKEN and therefore do not re-trigger CI.
+# ==============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'What to build (main branch only)'
+        type: choice
+        options: [none, all, android, ios]
+        default: all
+      release:
+        description: 'Tag the commit and publish a GitHub Release'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.44.4'
+
+permissions:
+  contents: read
+
+jobs:
+  trigger:
+    name: Resolve trigger
+    runs-on: ubuntu-latest
+    outputs:
+      android: ${{ steps.parse.outputs.android }}
+      ios: ${{ steps.parse.outputs.ios }}
+      release: ${{ steps.parse.outputs.release }}
+      version: ${{ steps.parse.outputs.version }}
+      build_name: ${{ steps.parse.outputs.build_name }}
+      build_number: ${{ steps.parse.outputs.build_number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+
+      - name: Parse trigger
+        id: parse
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_TARGET: ${{ inputs.target }}
+          INPUT_RELEASE: ${{ inputs.release }}
+        run: |
+          set -euo pipefail
+
+          VERSION_RE='(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\+[1-9][0-9]*'
+
+          target=none
+          version=""
+          release=false
+
+          pubspec_version="$(grep -E '^version:' pubspec.yaml | head -1 | sed -E 's/^version:[[:space:]]*//' | tr -d '[:space:]')"
+          echo "pubspec.yaml version: $pubspec_version"
+
+          # Builds and releases are restricted to pushes on main. Everywhere
+          # else a trigger is parsed and validated, but nothing is built.
+          on_main=false
+          if [ "$EVENT" = "push" ] && [ "$REF_NAME" = "main" ]; then
+            on_main=true
+          elif [ "$EVENT" = "workflow_dispatch" ] && [ "$REF_NAME" = "main" ]; then
+            on_main=true
+          fi
+
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            target="$INPUT_TARGET"
+            version="$pubspec_version"
+            release="$INPUT_RELEASE"
+            echo "Manual run: target=$target release=$release version=$version"
+          else
+            subject="$(git log -1 --pretty=%s)"
+            echo "Commit subject: $subject"
+
+            if printf '%s' "$subject" | grep -Eq "^build\((all|android|ios)\): ${VERSION_RE}\$"; then
+              target="$(printf '%s' "$subject" | sed -E 's/^build\((all|android|ios)\):.*$/\1/')"
+              version="$(printf '%s' "$subject" | sed -E 's/^build\((all|android|ios)\): //')"
+              release=true
+              echo "Matched build trigger: target=$target version=$version"
+            elif printf '%s' "$subject" | grep -Eqi '^build'; then
+              echo "::error::Commit subject starts with 'build' but does not match the required grammar."
+              echo "::error::Required: build(all|android|ios): <x.y.z>+<build>   e.g.  build(all): 1.4.0+12"
+              echo "::error::Got:      $subject"
+              exit 1
+            else
+              echo "No build trigger in commit subject — analyze & test only."
+            fi
+          fi
+
+          android=false
+          ios=false
+          case "$target" in
+            all)     android=true; ios=true ;;
+            android) android=true ;;
+            ios)     ios=true ;;
+            none)    release=false ;;
+            *) echo "::error::Unknown target '$target'"; exit 1 ;;
+          esac
+
+          # Validate the version even when we are not going to build, so that a
+          # bad trigger on a feature branch fails now instead of after the merge.
+          if [ "$android" = true ] || [ "$ios" = true ]; then
+            if [ "$version" != "$pubspec_version" ]; then
+              echo "::error::Version mismatch — trigger says '$version' but pubspec.yaml says '$pubspec_version'."
+              echo "::error::Bump pubspec.yaml and the commit subject together."
+              exit 1
+            fi
+            if ! grep -Eq "^## \[${version//+/\\+}\]( |\$)" CHANGELOG.md; then
+              echo "::error::CHANGELOG.md has no section for '$version'."
+              echo "::error::Add a heading '## [$version] - $(date -u +%Y-%m-%d)' with the release notes."
+              exit 1
+            fi
+            if git ls-remote --exit-code --tags origin "refs/tags/v$version" >/dev/null 2>&1; then
+              echo "::error::Tag 'v$version' already exists — version '$version' has been released."
+              echo "::error::Bump pubspec.yaml, CHANGELOG.md and the commit subject to a new version."
+              exit 1
+            fi
+          fi
+
+          if [ "$on_main" != true ]; then
+            if [ "$android" = true ] || [ "$ios" = true ]; then
+              echo "::notice::Trigger is valid, but builds only run on main. Nothing will be built for '$REF_NAME'."
+            fi
+            android=false
+            ios=false
+            release=false
+          fi
+
+          build_name=""
+          build_number=""
+          if [ "$android" = true ] || [ "$ios" = true ]; then
+            build_name="${version%%+*}"
+            build_number="${version##*+}"
+          else
+            version=""
+          fi
+
+          {
+            echo "android=$android"
+            echo "ios=$ios"
+            echo "release=$release"
+            echo "version=$version"
+            echo "build_name=$build_name"
+            echo "build_number=$build_number"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Summary
+        run: |
+          {
+            echo "### CI triggers"
+            echo ""
+            echo "| Job | Status |"
+            echo "| --- | --- |"
+            echo "| Analyze & Test | :white_check_mark: always |"
+            echo "| APK | ${{ steps.parse.outputs.android == 'true' && ':white_check_mark: build' || ':heavy_minus_sign: skipped' }} |"
+            echo "| iOS | ${{ steps.parse.outputs.ios == 'true' && ':white_check_mark: build' || ':heavy_minus_sign: skipped' }} |"
+            echo "| Release | ${{ steps.parse.outputs.release == 'true' && ':white_check_mark: publish' || ':heavy_minus_sign: skipped' }} |"
+            echo ""
+            if [ -n "${{ steps.parse.outputs.version }}" ]; then
+              echo "Version: \`${{ steps.parse.outputs.version }}\` → tag \`v${{ steps.parse.outputs.version }}\`"
+            else
+              echo "To build and release, push to \`main\` with a commit subject of the exact form \`build(all|android|ios): <x.y.z>+<build>\` — e.g. \`build(all): 1.4.0+12\` — matching pubspec.yaml and CHANGELOG.md."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  analyze:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+
+  build-android:
+    name: Build APK ${{ needs.trigger.outputs.version }}
+    needs: [trigger, analyze]
+    if: needs.trigger.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: |
+          flutter build apk --release \
+            --build-name=${{ needs.trigger.outputs.build_name }} \
+            --build-number=${{ needs.trigger.outputs.build_number }}
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             "wayback-${{ needs.trigger.outputs.build_name }}-${{ needs.trigger.outputs.build_number }}.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: wayback-*.apk
+          retention-days: 14
+
+  build-ios:
+    name: Build iOS ${{ needs.trigger.outputs.version }}
+    needs: [trigger, analyze]
+    if: needs.trigger.outputs.ios == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # No codesigning: team PX65354M6J has no Apple Developer Program
+      # membership, so no distribution certificate or App Store profile can be
+      # issued. This proves the iOS target compiles; the .app is NOT installable
+      # on a device. Switch to `flutter build ipa` once the account is enrolled
+      # and the certificates are in repository secrets.
+      - name: Build iOS
+        run: |
+          flutter build ios --release --no-codesign \
+            --build-name=${{ needs.trigger.outputs.build_name }} \
+            --build-number=${{ needs.trigger.outputs.build_number }}
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/ios/iphoneos/Runner.app \
+            "wayback-ios-${{ needs.trigger.outputs.build_name }}-${{ needs.trigger.outputs.build_number }}-unsigned.zip"
+
+      - name: Upload iOS bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios
+          path: wayback-ios-*.zip
+          retention-days: 14
+
+  release:
+    name: Release v${{ needs.trigger.outputs.version }}
+    needs: [trigger, build-android, build-ios]
+    if: |
+      always()
+      && needs.trigger.outputs.release == 'true'
+      && needs.build-android.result != 'failure' && needs.build-android.result != 'cancelled'
+      && needs.build-ios.result != 'failure' && needs.build-ios.result != 'cancelled'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          VERSION: ${{ needs.trigger.outputs.version }}
+        run: |
+          set -euo pipefail
+          awk -v ver="## [$VERSION]" '
+            index($0, ver) == 1 { found = 1; next }
+            found && /^## \[/    { exit }
+            found                { print }
+          ' CHANGELOG.md | sed -e '/./,$!d' > notes.md
+
+          if [ ! -s notes.md ]; then
+            echo "::error::CHANGELOG.md section for '$VERSION' is empty."
+            exit 1
+          fi
+          echo "Release notes:"; cat notes.md
+
+      - name: Create tag and publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.trigger.outputs.version }}
+        run: |
+          set -euo pipefail
+          git tag "v$VERSION" "$GITHUB_SHA"
+          git push origin "v$VERSION"
+
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --notes-file notes.md \
+            --target "$GITHUB_SHA" \
+            dist/*
