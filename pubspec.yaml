@@ -1,5 +1,5 @@
 name: wayback
-description: "Wayback — приложение для сохранения местоположения и возвращения к нему по компасу и GPS."
+description: "Wayback - это приложение для сохранения и восстановления истории веб-страниц."
 publish_to: 'none'
 
 version: 1.0.0+2
