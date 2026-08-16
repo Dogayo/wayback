@@ -2,7 +2,7 @@ name: wayback
 description: "Wayback - это приложение для сохранения и восстановления истории веб-страниц."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.12.2
