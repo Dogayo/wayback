@@ -1,0 +1,24 @@
+name: wayback_design_system
+description: "Дизайн-система Wayback — токены, темы, компоненты и интерактивный каталог."
+version: 0.1.0
+publish_to: 'none'
+
+environment:
+  sdk: ^3.12.2
+  flutter: ">=3.44.0"
+
+dependencies:
+  cupertino_icons: ^1.0.8
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.svg
+    - assets/logo-lockup.svg
