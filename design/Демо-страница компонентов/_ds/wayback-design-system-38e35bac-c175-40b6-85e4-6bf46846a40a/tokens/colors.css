@@ -1,0 +1,96 @@
+/* Color. Primitives build the semantic tokens; components read semantics only. */
+:root {
+  /* --- primitives: neutral, cool blue-grey, hue 215 --- */
+  --wb-neutral-0: #FFFFFF;
+  --wb-neutral-50: #F5F7F9;
+  --wb-neutral-100: #EAEDF1;
+  --wb-neutral-200: #DDE2E7;
+  --wb-neutral-300: #AEB8C2;
+  --wb-neutral-400: #8A97A3;
+  --wb-neutral-500: #6B7885;
+  --wb-neutral-600: #545F6B;
+  --wb-neutral-700: #2B3138;
+  --wb-neutral-800: #1B2025;
+  --wb-neutral-900: #14181D;
+  --wb-neutral-1000: #0B0D10;
+
+  /* --- primitives: brand, orange, hue 26 --- */
+  --wb-brand-50: #FFF1E6;
+  --wb-brand-300: #F97A2E;
+  --wb-brand-500-raw: #E2591A;
+  --wb-brand-600-raw: #C24812;
+  --wb-brand-700: #9E390D;
+
+  /* --- primitives: status --- */
+  --wb-green-500: #1E8E5A;
+  --wb-green-400: #34A873;
+  --wb-green-50: #E6F4EC;
+  --wb-green-900: #10261C;
+  --wb-amber-700: #8F5B08;
+  --wb-amber-600: #B8790A;
+  --wb-amber-400: #E0A030;
+  --wb-red-500: #D53A2E;
+  --wb-red-400: #FF6E5E;
+  --wb-red-50: #FBE9E7;
+  --wb-red-900: #331410;
+
+  /* --- semantic tokens: light (default) --- */
+  --wb-brand-500: #E2591A;
+  --wb-brand-600: #C24812;
+  --wb-surface-default: #FFFFFF;
+  --wb-surface-elevated: #FFFFFF;
+  --wb-surface-container: #F5F7F9;
+  --wb-surface-sunken: #EAEDF1;
+  --wb-content-primary: #1B2025;
+  --wb-content-secondary: #545F6B;
+  --wb-content-tertiary: #6B7885;
+  --wb-content-disabled: #AEB8C2;
+  --wb-content-on-brand: #FFFFFF;
+  --wb-border-default: #6B7885;
+  --wb-border-subtle: #DDE2E7;
+  --wb-border-focus: #C24812;
+  --wb-action-primary-bg: #C24812;
+  --wb-action-primary-fg: #FFFFFF;
+  --wb-action-primary-pressed: #9E390D;
+  --wb-action-secondary-border: #6B7885;
+  --wb-action-secondary-fg: #1B2025;
+  --wb-positive: #1E8E5A;
+  --wb-positive-bg: #E6F4EC;
+  --wb-warning: #8F5B08;
+  --wb-warning-bg: #B8790A;
+  --wb-warning-ink: #1B2025;
+  --wb-negative: #D53A2E;
+  --wb-negative-bg: #FBE9E7;
+  --wb-scrim: rgba(20,24,29,0.48);
+}
+
+/* --- semantic tokens: dark. Same names, second mapping. --- */
+[data-theme="dark"] {
+  --wb-brand-500: #F97A2E;
+  --wb-brand-600: #F97A2E;
+  --wb-surface-default: #0B0D10;
+  --wb-surface-elevated: #1B2025;
+  --wb-surface-container: #14181D;
+  --wb-surface-sunken: #000000;
+  --wb-content-primary: #F5F7F9;
+  --wb-content-secondary: #AEB8C2;
+  --wb-content-tertiary: #8A97A3;
+  --wb-content-disabled: #545F6B;
+  --wb-content-on-brand: #FFFFFF;
+  --wb-border-default: #6B7885;
+  --wb-border-subtle: #2B3138;
+  --wb-border-focus: #F97A2E;
+  --wb-action-primary-bg: #C24812;
+  --wb-action-primary-fg: #FFFFFF;
+  --wb-action-primary-pressed: #9E390D;
+  --wb-action-secondary-border: #6B7885;
+  --wb-action-secondary-fg: #F5F7F9;
+  --wb-positive: #34A873;
+  --wb-positive-bg: #10261C;
+  --wb-warning: #E0A030;
+  --wb-warning-bg: #B8790A;
+  --wb-warning-ink: #1B2025;
+  --wb-negative: #FF6E5E;
+  --wb-negative-bg: #331410;
+  --wb-scrim: rgba(0,0,0,0.64);
+}

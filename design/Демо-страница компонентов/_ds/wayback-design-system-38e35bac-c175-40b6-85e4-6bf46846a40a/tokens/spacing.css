@@ -1,0 +1,17 @@
+/* Spacing — 4pt grid, nine steps. spacingMd (16) is the default screen padding. */
+:root {
+  --wb-space-2xs: 4px;
+  --wb-space-xs: 8px;
+  --wb-space-sm: 12px;
+  --wb-space-md: 16px;
+  --wb-space-lg: 20px;
+  --wb-space-xl: 24px;
+  --wb-space-2xl: 32px;
+  --wb-space-3xl: 40px;
+  --wb-space-4xl: 48px;
+  --wb-space-5xl: 64px;
+
+  --wb-screen-padding: 16px;
+  --wb-content-max-width: 480px;
+  --wb-tap-target: 44px;
+}
