@@ -1,0 +1,9 @@
+/* Webfonts.
+   The Wayback APP ships no font: it uses the platform face (San Francisco on iOS,
+   Roboto on Android) through Flutter defaults — see readme.md > Visual foundations.
+   The fonts below are (a) Roboto, so Android previews render truthfully on the web,
+   (b) the documentation/marketing faces used by the design-system site itself,
+   (c) Material Symbols Outlined, the app's icon set.
+   Loaded from Google Fonts — no binaries were present in the source repo. */
+@import url("https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Roboto:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=block");

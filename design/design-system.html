@@ -1,0 +1,1494 @@
+<title>Wayback Design System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   WAYBACK DESIGN SYSTEM — token architecture
+   Two independent token layers:
+   1. --page-*   → this document's own chrome (nav, prose, cards).
+                   Follows the VIEWER's theme (data-theme / OS).
+   2. --wb-*     → the Wayback app's design tokens, scoped to
+                   [data-preview] wrappers. Toggled in-page by the
+                   Light/Dark and iOS/Android controls, independent
+                   of the viewer's own theme.
+   ============================================================ */
+
+* { box-sizing: border-box; }
+::selection { background: #F97A2E; color: #12161A; }
+
+/* ---------- 1. PAGE CHROME TOKENS (viewer theme aware) ---------- */
+:root {
+  --page-bg: #F5F7F9;
+  --page-surface: #FFFFFF;
+  --page-surface-sunken: #EAEDF1;
+  --page-border: #DDE2E7;
+  --page-text: #1B2025;
+  --page-text-secondary: #545F6B;
+  --page-text-tertiary: #8A97A3;
+  --page-accent: #C24812;
+  --page-accent-ink: #FFFFFF;
+  --page-accent-soft: #FFF1E6;
+  --page-code-bg: #EAEDF1;
+  --page-shadow: 0 1px 2px rgba(20,24,29,0.04), 0 8px 24px rgba(20,24,29,0.06);
+  --page-positive: #1E8E5A;
+  --page-warning: #8F5B08;
+  --page-negative: #D53A2E;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page-bg: #0B0D10;
+    --page-surface: #14181D;
+    --page-surface-sunken: #1B2025;
+    --page-border: #2B3138;
+    --page-text: #F5F7F9;
+    --page-text-secondary: #AEB8C2;
+    --page-text-tertiary: #6B7885;
+    --page-accent: #F97A2E;
+    --page-accent-ink: #12161A;
+    --page-accent-soft: #2B1E14;
+    --page-code-bg: #1B2025;
+    --page-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.4);
+    --page-positive: #34A873;
+    --page-warning: #E0A030;
+    --page-negative: #FF6E5E;
+  }
+}
+:root[data-theme="dark"] {
+  --page-bg: #0B0D10;
+  --page-surface: #14181D;
+  --page-surface-sunken: #1B2025;
+  --page-border: #2B3138;
+  --page-text: #F5F7F9;
+  --page-text-secondary: #AEB8C2;
+  --page-text-tertiary: #6B7885;
+  --page-accent: #F97A2E;
+  --page-accent-ink: #12161A;
+  --page-accent-soft: #2B1E14;
+  --page-code-bg: #1B2025;
+  --page-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.4);
+  --page-positive: #34A873;
+  --page-warning: #E0A030;
+  --page-negative: #FF6E5E;
+}
+
+/* ---------- 2. WAYBACK APP TOKENS (in-page preview toggle) ---------- */
+[data-preview="light"] {
+  --wb-brand-500: #E2591A;
+  --wb-brand-600: #C24812;
+  --wb-surface-default: #FFFFFF;
+  --wb-surface-elevated: #FFFFFF;
+  --wb-surface-container: #F5F7F9;
+  --wb-surface-sunken: #EAEDF1;
+  --wb-content-primary: #1B2025;
+  --wb-content-secondary: #545F6B;
+  --wb-content-tertiary: #6B7885;
+  --wb-content-disabled: #AEB8C2;
+  --wb-content-on-brand: #FFFFFF;
+  --wb-border-default: #6B7885;
+  --wb-border-subtle: #DDE2E7;
+  --wb-border-focus: #C24812;
+  --wb-action-primary-bg: #C24812;
+  --wb-action-primary-fg: #FFFFFF;
+  --wb-action-primary-pressed: #9E390D;
+  --wb-action-secondary-border: #6B7885;
+  --wb-action-secondary-fg: #1B2025;
+  --wb-positive: #1E8E5A;
+  --wb-positive-bg: #E6F4EC;
+  --wb-warning: #8F5B08;
+  --wb-warning-bg: #B8790A;
+  --wb-warning-ink: #1B2025;
+  --wb-negative: #D53A2E;
+  --wb-negative-bg: #FBE9E7;
+  --wb-scrim: rgba(20,24,29,0.48);
+  --wb-shadow-1: 0 1px 3px rgba(20,24,29,0.10), 0 1px 2px rgba(20,24,29,0.08);
+  --wb-shadow-2: 0 4px 12px rgba(20,24,29,0.14), 0 2px 4px rgba(20,24,29,0.08);
+  --wb-shadow-3: 0 12px 32px rgba(20,24,29,0.20), 0 4px 8px rgba(20,24,29,0.10);
+}
+[data-preview="dark"] {
+  --wb-brand-500: #F97A2E;
+  --wb-brand-600: #F97A2E;
+  --wb-surface-default: #0B0D10;
+  --wb-surface-elevated: #1B2025;
+  --wb-surface-container: #14181D;
+  --wb-surface-sunken: #000000;
+  --wb-content-primary: #F5F7F9;
+  --wb-content-secondary: #AEB8C2;
+  --wb-content-tertiary: #8A97A3;
+  --wb-content-disabled: #545F6B;
+  --wb-content-on-brand: #FFFFFF;
+  --wb-border-default: #6B7885;
+  --wb-border-subtle: #2B3138;
+  --wb-border-focus: #F97A2E;
+  --wb-action-primary-bg: #C24812;
+  --wb-action-primary-fg: #FFFFFF;
+  --wb-action-primary-pressed: #9E390D;
+  --wb-action-secondary-border: #6B7885;
+  --wb-action-secondary-fg: #F5F7F9;
+  --wb-positive: #34A873;
+  --wb-positive-bg: #10261C;
+  --wb-warning: #E0A030;
+  --wb-warning-bg: #B8790A;
+  --wb-warning-ink: #1B2025;
+  --wb-negative: #FF6E5E;
+  --wb-negative-bg: #331410;
+  --wb-scrim: rgba(0,0,0,0.64);
+  --wb-shadow-1: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --wb-shadow-2: 0 4px 14px rgba(0,0,0,0.5);
+  --wb-shadow-3: 0 16px 40px rgba(0,0,0,0.6);
+}
+
+/* ---------- 3. SHARED SCALES (used by both layers) ---------- */
+:root {
+  --sp-2xs: 4px; --sp-xs: 8px; --sp-sm: 12px; --sp-md: 16px; --sp-lg: 20px;
+  --sp-xl: 24px; --sp-2xl: 32px; --sp-3xl: 40px; --sp-4xl: 48px; --sp-5xl: 64px;
+  --r-sm: 8px; --r-md: 12px; --r-lg: 20px; --r-full: 999px;
+  --font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", -apple-system, "SF Pro Text", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+/* Wayback app typeface = platform native (proposed decision, see Typography).
+   Approximated here for preview only — this stack is NOT the doc chrome font above. */
+[data-platform-scope="ios"] { --wb-font: -apple-system, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif; --wb-font-num: "SF Pro Rounded", -apple-system, sans-serif; }
+[data-platform-scope="android"] { --wb-font: "Roboto", "Segoe UI", sans-serif; --wb-font-num: "Roboto", sans-serif; }
+
+/* ---------- base ---------- */
+html { color-scheme: light dark; }
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--page-text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em; text-wrap: balance; color: var(--page-text); margin: 0; }
+code, .mono { font-family: var(--font-mono); }
+a { color: var(--page-accent); }
+p { max-width: 68ch; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--page-border); border-radius: 99px; }
+:focus-visible { outline: 2px solid var(--page-accent); outline-offset: 2px; }
+
+/* ---------- layout shell ---------- */
+.shell { display: grid; grid-template-columns: 264px minmax(0,1fr); min-height: 100vh; }
+@media (max-width: 900px) { .shell { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+.sidebar {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  border-right: 1px solid var(--page-border);
+  padding: var(--sp-xl) var(--sp-lg) var(--sp-4xl);
+  background: var(--page-surface);
+}
+.brand { display: flex; align-items: center; gap: var(--sp-sm); margin-bottom: var(--sp-xl); }
+.brand-mark {
+  width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--page-accent);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.brand-mark svg { width: 20px; height: 20px; }
+.brand-name { font-family: var(--font-display); font-weight: 800; font-size: 20px; letter-spacing: 0.02em; text-transform: uppercase; line-height: 1; }
+.brand-sub { font-size: 11px; color: var(--page-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+.nav-group { margin-bottom: var(--sp-lg); }
+.nav-group-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--page-text-tertiary); margin: 0 0 var(--sp-xs) 2px; }
+.nav-link {
+  display: block; padding: 6px 8px; border-radius: 6px; font-size: 13.5px; color: var(--page-text-secondary);
+  text-decoration: none; scroll-margin-top: 90px;
+}
+.nav-link:hover { background: var(--page-surface-sunken); color: var(--page-text); }
+
+.main { min-width: 0; }
+.topbar {
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-md); padding: var(--sp-sm) var(--sp-xl); background: color-mix(in srgb, var(--page-surface) 88%, transparent);
+  backdrop-filter: blur(10px); border-bottom: 1px solid var(--page-border);
+  flex-wrap: wrap;
+}
+.topbar-title { font-size: 12px; color: var(--page-text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; }
+.toggle-row { display: flex; gap: var(--sp-sm); align-items: center; flex-wrap: wrap; }
+.toggle {
+  display: inline-flex; border: 1px solid var(--page-border); border-radius: var(--r-full); padding: 3px; background: var(--page-surface-sunken);
+}
+.toggle button {
+  border: none; background: transparent; font-family: var(--font-body); font-size: 12.5px; font-weight: 600;
+  padding: 6px 14px; border-radius: var(--r-full); color: var(--page-text-secondary); cursor: pointer;
+}
+.toggle button[aria-pressed="true"] { background: var(--page-surface); color: var(--page-text); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+
+.content { padding: var(--sp-4xl) var(--sp-4xl) var(--sp-5xl); max-width: 1180px; }
+@media (max-width: 640px) { .content { padding: var(--sp-xl) var(--sp-md) var(--sp-4xl); } }
+
+section.doc-section { padding-top: var(--sp-4xl); margin-top: var(--sp-4xl); border-top: 1px solid var(--page-border); scroll-margin-top: 80px; }
+section.doc-section:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+.eyebrow { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--page-accent); margin-bottom: var(--sp-xs); }
+.doc-section h2 { font-size: 34px; margin-bottom: var(--sp-sm); }
+.doc-section h3 { font-size: 20px; text-transform: none; letter-spacing: 0; margin: var(--sp-2xl) 0 var(--sp-sm); }
+.doc-section h4 { font-size: 15px; text-transform: none; letter-spacing: 0; margin: var(--sp-xl) 0 var(--sp-xs); color: var(--page-text-secondary); }
+.lede { font-size: 17px; color: var(--page-text-secondary); max-width: 62ch; }
+
+.card {
+  background: var(--page-surface); border: 1px solid var(--page-border); border-radius: var(--r-lg);
+  padding: var(--sp-xl); margin: var(--sp-lg) 0;
+}
+.grid { display: grid; gap: var(--sp-md); }
+.grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.grid-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+@media (max-width: 760px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--page-border); vertical-align: top; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--page-text-tertiary); font-weight: 600; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--page-border); border-radius: var(--r-md); margin: var(--sp-lg) 0; }
+.table-wrap table { margin: 0; }
+.table-wrap th, .table-wrap td { border-bottom: 1px solid var(--page-border); }
+.table-wrap tr:last-child td { border-bottom: none; }
+
+code.tok { background: var(--page-code-bg); border-radius: 4px; padding: 1px 6px; font-size: 12.5px; }
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: var(--r-full); }
+.pill-pass { background: color-mix(in srgb, var(--page-positive) 15%, transparent); color: var(--page-positive); }
+.pill-warn { background: color-mix(in srgb, var(--page-warning) 18%, transparent); color: var(--page-warning); }
+.pill-new { background: var(--page-accent-soft); color: var(--page-accent); }
+.note {
+  border-left: 3px solid var(--page-accent); background: var(--page-accent-soft); border-radius: 0 var(--r-md) var(--r-md) 0;
+  padding: var(--sp-sm) var(--sp-md); font-size: 13.5px; color: var(--page-text); margin: var(--sp-lg) 0;
+}
+.note.risk { border-left-color: var(--page-negative); background: color-mix(in srgb, var(--page-negative) 8%, var(--page-surface)); }
+.note b { display:block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+
+/* specimen frame */
+.frame {
+  border: 1px solid var(--page-border); border-radius: var(--r-lg); overflow: hidden; background: var(--page-surface); margin: var(--sp-lg) 0;
+}
+.frame-label {
+  display: flex; align-items: center; justify-content: space-between; padding: var(--sp-xs) var(--sp-md);
+  border-bottom: 1px solid var(--page-border); font-size: 11px; color: var(--page-text-tertiary); text-transform: uppercase; letter-spacing: 0.06em;
+  background: var(--page-surface-sunken);
+}
+.frame-body { padding: var(--sp-xl); background: var(--wb-surface-container, var(--page-surface-sunken)); }
+
+/* footer */
+.doc-footer { margin-top: var(--sp-5xl); padding-top: var(--sp-xl); border-top: 1px solid var(--page-border); color: var(--page-text-tertiary); font-size: 12.5px; }
+.codeblock { white-space: pre; font-family: var(--font-mono); font-size: 12px; line-height: 1.7; color: var(--page-text); background: var(--page-code-bg); }
+.table-wrap td.codeblock { padding: var(--sp-lg); }
+.swatch-row { display:flex; align-items:center; gap:10px; }
+.swatch-chip { width:28px; height:28px; border-radius:7px; border:1px solid rgba(0,0,0,0.08); flex-shrink:0; }
+</style>
+
+<div class="shell">
+  <nav class="sidebar" aria-label="Разделы дизайн-системы">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white"/></svg>
+      </div>
+      <div>
+        <div class="brand-name">Wayback</div>
+        <div class="brand-sub">Дизайн-система v0.1</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <p class="nav-group-title">Начать отсюда</p>
+      <a class="nav-link" href="#principles">Принципы</a>
+      <a class="nav-link" href="#open-questions">Открытые вопросы</a>
+    </div>
+    <div class="nav-group">
+      <p class="nav-group-title">Основы</p>
+      <a class="nav-link" href="#color">Цвет</a>
+      <a class="nav-link" href="#typography">Типографика</a>
+      <a class="nav-link" href="#spacing">Отступы</a>
+      <a class="nav-link" href="#shape">Форма и высота</a>
+      <a class="nav-link" href="#icons">Иконография</a>
+      <a class="nav-link" href="#a11y">Доступность</a>
+    </div>
+    <div class="nav-group">
+      <p class="nav-group-title">Компоненты</p>
+      <a class="nav-link" href="#actions">Действия</a>
+      <a class="nav-link" href="#inputs">Поля ввода</a>
+      <a class="nav-link" href="#content-components">Контент</a>
+      <a class="nav-link" href="#navigation">Навигация</a>
+      <a class="nav-link" href="#feedback">Обратная связь</a>
+      <a class="nav-link" href="#state-matrix">Матрица состояний</a>
+      <a class="nav-link" href="#architecture">Архитектура компонентов</a>
+    </div>
+    <div class="nav-group">
+      <p class="nav-group-title">Применение</p>
+      <a class="nav-link" href="#patterns">Паттерны</a>
+      <a class="nav-link" href="#platform">Адаптация iOS / Android</a>
+      <a class="nav-link" href="#responsive">Адаптивность и устройства</a>
+      <a class="nav-link" href="#flutter">Передача во Flutter</a>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title">Переключатели превью — влияют только на образцы</span>
+      <div class="toggle-row">
+        <div class="toggle" role="group" aria-label="Тема превью">
+          <button type="button" id="btn-theme-light" aria-pressed="true" onclick="setPreview('theme','light')">☀ Светлая</button>
+          <button type="button" id="btn-theme-dark" aria-pressed="false" onclick="setPreview('theme','dark')">☾ Тёмная</button>
+        </div>
+        <div class="toggle" role="group" aria-label="Платформа превью">
+          <button type="button" id="btn-platform-ios" aria-pressed="true" onclick="setPreview('platform','ios')"> iOS</button>
+          <button type="button" id="btn-platform-android" aria-pressed="false" onclick="setPreview('platform','android')"> Android</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="content" id="top">
+<section class="doc-section" id="principles">
+  <p class="eyebrow">00 — Основа</p>
+  <h2>Принципы дизайна</h2>
+  <p class="lede">Wayback делает одну вещь: сохраняет точку и указывает путь обратно к ней — направление и расстояние, ничего больше, работая без сигнала, читаемо на расстоянии вытянутой руки при дневном свете. Всё нижеизложенное служит этой задаче.</p>
+
+  <div class="note">
+    <b>Источники и рамки этого документа</b>
+    В проекте нет <code class="tok">BRAND.md</code>, <code class="tok">SCREENS.md</code> или <code class="tok">DESIGN_SYSTEM.md</code>, а <code class="tok">lib/app/theme/</code> пуст — сохранять существующий визуальный язык или тему Flutter не от чего. Продуктовый контекст здесь взят из <code class="tok">README.md</code> и <code class="tok">docs/mvp-scope.md</code> (сценарий, объём MVP, UX-принципы); карта маршрутов и правила слоёв — из <code class="tok">docs/architecture.md</code>. Всё визуальное — палитра, шрифты, отступы, компоненты — это <span class="pill pill-new">новое решение</span>, предложенное здесь, в направлении «Точность и инструментальность». Ничто в этом документе не переопределяет существующий код — оно заполняет по-настоящему пустое место.
+  </div>
+
+  <div class="grid grid-2" style="margin-top: var(--sp-xl);">
+    <div class="card">
+      <h4 style="margin-top:0;">Читаемо при дневном свете, а не только в демо</h4>
+      <p style="margin:0; color:var(--page-text-secondary); font-size: 14px;">Основной сценарий использования — на улице, часто на прямом солнце, одной рукой, на ходу. Контраст, размер и иерархия настроены в первую очередь под это условие — экран, который хорошо выглядит только дома на тусклом ноутбуке, не выполнил свою задачу.</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0;">Честность в отношении погрешности</h4>
+      <p style="margin:0; color:var(--page-text-secondary); font-size: 14px;">Точность GPS и надёжность компаса показываются, а не скрываются. Система никогда не создаёт ложного ощущения точности — нестабильный сигнал выглядит визуально нестабильным, согласно собственному правилу продукта «честность в отношении точности».</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0;">Один взгляд — одно решение</h4>
+      <p style="margin:0; color:var(--page-text-secondary); font-size: 14px;">Экран навигации отвечает ровно на два вопроса — куда и сколько осталось. Любой другой элемент визуально подчинён стрелке и показателю расстояния. Плотность — для списка точек; экран навигации остаётся почти пустым.</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0;">Тихо, пока не важно</h4>
+      <p style="margin:0; color:var(--page-text-secondary); font-size: 14px;">Никакого декора ради декора. Цвет, движение и haptics зарезервированы для изменений состояния, которые пользователь должен заметить — прибытие, плохой сигнал, деструктивное действие — чтобы они по-прежнему что-то значили, когда происходят.</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0;">Одна система, две платформы</h4>
+      <p style="margin:0; color:var(--page-text-secondary); font-size: 14px;">Идентичность бренда — цвет, шрифт, форма, иконография — никогда не расходится между iOS и Android. А вот механика взаимодействия расходится там, где нативная конвенция — это то, что уже есть в мышечной памяти пользователя с телефоном в кармане: жест «назад», шторка вместо диалога, движение переключателя.</p>
+    </div>
+    <div class="card">
+      <h4 style="margin-top:0;">У каждого значения есть имя</h4>
+      <p style="margin:0; color:var(--page-text-secondary); font-size: 14px;">Ни один экран не вводит свой собственный цвет, отступ или радиус. Если значения нет среди токенов, компонент не специфицирован как нуждающийся в нём, или исключение не задокументировано здесь — оно не идёт в релиз.</p>
+    </div>
+  </div>
+</section>
+
+<section class="doc-section" id="color">
+  <p class="eyebrow">01 — Основы</p>
+  <h2>Цвет</h2>
+  <p class="lede">Один акцент, используемый умеренно, на холодной графитовой нейтральной шкале — ближе к приборной панели, чем к картографическому приложению. Компоненты используют только <em>семантические</em> токены; примитивы ниже существуют для построения этих токенов и как справочник, но никогда не применяются в компоненте напрямую.</p>
+
+  <h3>Примитивная палитра</h3>
+  <p style="color:var(--page-text-secondary); font-size:14px; max-width:64ch;">Оттенок нейтральных цветов — намеренно холодный сине-серый (215°): читается как шлифованный металл / анодированный алюминий и позволяет тёплому акценту выделяться, не конкурируя со статусными цветами. Оттенок бренда (26°, оранжевый) отделён от предупреждающего (42°, янтарно-золотой) и негативного (4°, красный) на ~15–20° по цветовому кругу в каждую сторону; при этом состояние никогда не передаётся только цветом (см. <a href="#a11y">Доступность</a>).</p>
+
+  <div id="swatch-neutral" class="table-wrap"></div>
+  <div id="swatch-brand" class="table-wrap"></div>
+  <div id="swatch-status" class="table-wrap"></div>
+
+  <h3>Семантические токены</h3>
+  <p style="color:var(--page-text-secondary); font-size:14px;">Именно к ним привязываются компоненты. Светлая и тёмная темы — это два независимых сопоставления одних и тех же имён: компонент никогда не проверяет «это тёмная тема?», он просто читает <code class="tok">surfaceDefault</code>.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Токен</th><th>Светлая</th><th>Тёмная</th><th>Применение</th></tr></thead>
+      <tbody id="semantic-color-table"></tbody>
+    </table>
+  </div>
+
+  <h3>Проверка контраста</h3>
+  <p style="color:var(--page-text-secondary); font-size:14px;">Рассчитано по формуле относительной яркости WCAG 2.1 для точных hex-пар, в которые разрешается каждый токен. Целевые значения: 4.5:1 для основного текста, 3:1 для крупного текста (≥19px или ≥24px жирным) и значимых нетекстовых границ интерфейса (кольца фокуса, функциональные рамки); для отключённого (disabled) контента исключение сделано согласно WCAG.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Пара</th><th>Светлая</th><th>Тёмная</th><th>Цель</th><th></th></tr></thead>
+      <tbody id="contrast-table"></tbody>
+    </table>
+  </div>
+
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Живое превью — семантические токены на фрагменте реального экрана</span><span>Подтверждение сохранения точки</span></div>
+    <div class="frame-body" style="background:var(--wb-surface-container); display:flex; justify-content:center;">
+      <div style="width:min(360px,100%); background:var(--wb-surface-elevated); border-radius:var(--r-lg); box-shadow:var(--wb-shadow-2); padding:var(--sp-xl); font-family:var(--font-body);">
+        <div style="display:flex; align-items:center; gap:var(--sp-sm); margin-bottom:var(--sp-md);">
+          <div style="width:40px;height:40px;border-radius:var(--r-full);background:var(--wb-positive-bg);display:flex;align-items:center;justify-content:center;color:var(--wb-positive);font-size:20px;">✓</div>
+          <div>
+            <div style="color:var(--wb-content-primary); font-weight:600; font-size:16px;">Точка сохранена</div>
+            <div style="color:var(--wb-content-secondary); font-size:13px;">Название «Машина» · точность ±6 м</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--wb-border-subtle); padding-top:var(--sp-md); display:flex; gap:var(--sp-sm);">
+          <button style="flex:1; background:var(--wb-action-primary-bg); color:var(--wb-action-primary-fg); border:none; border-radius:var(--r-md); padding:12px; font-family:var(--font-body); font-weight:600; font-size:14.5px;">Готово</button>
+          <button style="flex:1; background:transparent; color:var(--wb-action-secondary-fg); border:1px solid var(--wb-action-secondary-border); border-radius:var(--r-md); padding:12px; font-family:var(--font-body); font-weight:600; font-size:14.5px;">Переименовать</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="doc-section" id="typography">
+  <p class="eyebrow">01 — Основы</p>
+  <h2>Типографика</h2>
+  <p class="lede">Собственный шрифт приложения — <strong>нативный для платформы</strong>: San Francisco на iOS, Roboto на Android, через дефолты Flutter, без встроенного шрифта. Это задокументированное решение, а не упущение: оно сохраняет приложение по-настоящему офлайновым (не нужно грузить или поставлять файл шрифта — блок fonts в MVP-версии <code class="tok">pubspec.yaml</code> пуст), уважает собственный рендеринг текста и динамическую типографику каждой ОС, а визуальную идентичность переносит в цвет и форму, а не в лицензированный дисплейный шрифт. Единственный типографический акцент: числовые показатели (расстояние, азимут, точность) используют <strong>табличные цифры (tabular figures)</strong>, чтобы ширина не «прыгала» при обновлении на месте.</p>
+
+  <div class="note"><b>Обратите внимание — заголовки этого раздела набраны другим шрифтом</b>Эта страница документации оформлена в Big Shoulders Display / IBM Plex — намеренно отличным от приложения шрифтом, чтобы её никогда не приняли за настоящий экран. В реальной, предложенной для приложения гарнитуре рендерятся только образцы ниже (внутри обрамлённых превью).</div>
+
+  <h3>Шкала</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Слот Flutter TextTheme</th><th>Семантическое имя</th><th>Размер / межстрочный</th><th>Начертание</th><th>Трекинг</th><th>Применение</th></tr></thead>
+      <tbody>
+        <tr><td><code class="tok">displayLarge</code></td><td>Display</td><td>56 / 64</td><td>700</td><td>−0.02em</td><td>Главный показатель на экране навигации — «640 м». Только цифры, табличные цифры.</td></tr>
+        <tr><td><code class="tok">displaySmall</code></td><td>Display Compact</td><td>34 / 40</td><td>700</td><td>−0.01em</td><td>Вторичные показатели расстояния/азимута — детали точки, баннер прибытия.</td></tr>
+        <tr><td><code class="tok">headlineSmall</code></td><td>Headline</td><td>24 / 30</td><td>700</td><td>0</td><td>Заголовок уровня экрана: название сохранённой точки на её экране деталей.</td></tr>
+        <tr><td><code class="tok">titleLarge</code></td><td>Title</td><td>20 / 26</td><td>600</td><td>0</td><td>Заголовки диалогов и нижних шторок, заголовки секций («Сохранённые точки»).</td></tr>
+        <tr><td><code class="tok">titleMedium</code></td><td>Title Compact</td><td>16 / 22</td><td>600</td><td>0</td><td>Заголовок app bar, название точки в элементе списка.</td></tr>
+        <tr><td><code class="tok">bodyLarge</code></td><td>Body</td><td>16 / 24</td><td>400</td><td>0</td><td>Основной текст для чтения — текст диалогов, текст пустого состояния, подписи полей.</td></tr>
+        <tr><td><code class="tok">bodyMedium</code></td><td>Body Compact</td><td>14 / 20</td><td>400</td><td>0</td><td>Вторичный текст — подзаголовок элемента списка (координаты, время).</td></tr>
+        <tr><td><code class="tok">labelLarge</code></td><td>Label</td><td>15 / 20</td><td>600</td><td>0.01em</td><td>Текст кнопок, текст в полях ввода.</td></tr>
+        <tr><td><code class="tok">labelMedium</code></td><td>Label Compact</td><td>13 / 18</td><td>600</td><td>0.02em</td><td>Чипы, вкладки, бейджи, сегментированные переключатели.</td></tr>
+        <tr><td><code class="tok">bodySmall</code></td><td>Caption</td><td>12 / 16</td><td>500</td><td>0.02em</td><td>Мелкий текст точности GPS, вспомогательный текст, время, юридический/футер-текст.</td></tr>
+        <tr><td style="color:var(--page-text-tertiary);"><code class="tok">displayMedium · headlineLarge/Medium · titleSmall · labelSmall</code></td><td colspan="4" style="color:var(--page-text-tertiary); font-style:italic;">Не используются в шкале MVP — оставлены неопределёнными в <code class="tok">ThemeData</code>, а не заполнены произвольным значением. Зарезервированы под будущие потребности в плотности.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Образец</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Образец шрифта · рендерится в нативной для платформы гарнитуре</span><span>переключите платформу выше ↑</span></div>
+    <div class="frame-body" style="font-family:var(--wb-font); background:var(--wb-surface-default);">
+      <div style="font-size:56px; line-height:64px; font-weight:700; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; color:var(--wb-content-primary);">640 м</div>
+      <div style="font-size:13px; line-height:18px; font-weight:500; letter-spacing:0.02em; color:var(--wb-content-secondary); margin-top:2px;">Display · точность GPS ±6 м</div>
+      <div style="height:1px;background:var(--wb-border-subtle);margin:var(--sp-lg) 0;"></div>
+      <div style="font-size:24px; line-height:30px; font-weight:700; color:var(--wb-content-primary);">Машина</div>
+      <div style="font-size:12px; line-height:16px; font-weight:500; letter-spacing:0.02em; color:var(--wb-content-secondary); margin-top:2px;">Headline · сохранено 2 часа назад</div>
+      <div style="height:1px;background:var(--wb-border-subtle);margin:var(--sp-lg) 0;"></div>
+      <div style="font-size:16px; line-height:24px; color:var(--wb-content-primary); max-width:46ch;">Вы почти у цели — осталось 18 м. Держите это направление.</div>
+      <div style="font-size:12px; line-height:16px; font-weight:500; letter-spacing:0.02em; color:var(--wb-content-secondary); margin-top:2px;">Body · текст баннера прибытия</div>
+    </div>
+  </div>
+</section>
+
+<section class="doc-section" id="spacing">
+  <p class="eyebrow">01 — Основы</p>
+  <h2>Отступы</h2>
+  <p class="lede">Сетка 4pt, девять шагов. <code class="tok">spacingMd (16)</code> — рабочая лошадка: отступ экрана по умолчанию, зазор по умолчанию между не связанными друг с другом элементами. Ничто в системе не использует значение вне этой шкалы; если в макете кажется, что нужно 13px или 19px, нужен другой шаг шкалы, а не новое число.</p>
+  <div id="spacing-scale"></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Токен</th><th>Значение</th><th>Типичное применение</th></tr></thead>
+      <tbody>
+        <tr><td><code class="tok">spacing2xs</code></td><td>4</td><td>Микро-корректировки иконка-к-глифу, плотные внутренние отступы бейджей.</td></tr>
+        <tr><td><code class="tok">spacingXs</code></td><td>8</td><td>Зазор между иконкой и её подписью; внутренние отступы чипов/бейджей.</td></tr>
+        <tr><td><code class="tok">spacingSm</code></td><td>12</td><td>Зазор между связанными элементами в плотной группе (иконка элемента списка и текст).</td></tr>
+        <tr><td><code class="tok">spacingMd</code></td><td>16</td><td>Отступ экрана по умолчанию; зазор по умолчанию между не связанными элементами; внутренний отступ карточки.</td></tr>
+        <tr><td><code class="tok">spacingLg</code></td><td>20</td><td>Внутренний отступ карточек/шторок; зазор над заголовком секции.</td></tr>
+        <tr><td><code class="tok">spacingXl</code></td><td>24</td><td>Зазор между крупными секциями экрана.</td></tr>
+        <tr><td><code class="tok">spacing2xl</code></td><td>32</td><td>Верхний отступ под app bar на контентных экранах.</td></tr>
+        <tr><td><code class="tok">spacing3xl</code></td><td>40</td><td>Пространство вокруг главного элемента компаса/стрелки.</td></tr>
+        <tr><td><code class="tok">spacing4xl</code></td><td>48</td><td>Вертикальный ритм пустого состояния; онбординг.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="doc-section" id="shape">
+  <p class="eyebrow">01 — Основы</p>
+  <h2>Форма и высота</h2>
+  <p class="lede">Четыре радиуса, две толщины границ, четыре уровня высоты (elevation). Иерархия опирается на <em>заливку и границу</em> больше, чем на тень — тени размываются на прямом солнце, для которого создано приложение, поэтому система не полагается на них для передачи структуры ни в помещении, ни на улице.</p>
+
+  <h3>Радиус скругления</h3>
+  <div id="radius-scale"></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Токен</th><th>Значение</th><th>Применяется к</th></tr></thead>
+      <tbody>
+        <tr><td><code class="tok">radiusSm</code></td><td>8</td><td>Чипы, бейджи, маленькие иконочные кнопки, угол поля ввода (компактные поля).</td></tr>
+        <tr><td><code class="tok">radiusMd</code></td><td>12</td><td>Кнопки, текстовые поля, элементы списка, снекбары.</td></tr>
+        <tr><td><code class="tok">radiusLg</code></td><td>20</td><td>Карточки, диалоги, нижние шторки (только верхние углы).</td></tr>
+        <tr><td><code class="tok">radiusFull</code></td><td>999</td><td>Аватары, «таблетка»-индикатор прибытия, переключатели, FAB, бегунок сегментированного переключателя.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Границы</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Токен</th><th>Значение</th><th>Применение</th></tr></thead>
+      <tbody>
+        <tr><td><code class="tok">borderThin</code></td><td>1dp</td><td>Толщина границы по умолчанию — карточки, вторичные кнопки, разделители, обводка полей ввода.</td></tr>
+        <tr><td><code class="tok">borderThick</code></td><td>2dp</td><td>Кольца фокуса, состояния выбора (выбранный чип, кольцо активного радио).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Иерархия поверхностей и высота</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Уровень</th><th>Токен</th><th>Тень</th><th>Используется</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td><code class="tok">surfaceDefault</code></td><td>Нет</td><td>Фон экрана.</td></tr>
+        <tr><td>1</td><td><code class="tok">surfaceContainer</code></td><td>Нет (только контраст заливки)</td><td>Сгруппированные секции, поля ввода, чипы в состоянии покоя.</td></tr>
+        <tr><td>2</td><td><code class="tok">surfaceElevated</code> + <code class="tok">shadow1</code></td><td>Едва заметная</td><td>Карточки, строки списка, которым нужно отделение от цветного фона.</td></tr>
+        <tr><td>3</td><td><code class="tok">surfaceElevated</code> + <code class="tok">shadow2</code></td><td>Средняя</td><td>Снекбар, плавающее действие, поповер/контекстное меню.</td></tr>
+        <tr><td>4</td><td><code class="tok">surfaceElevated</code> + <code class="tok">shadow3</code> + <code class="tok">scrim</code></td><td>Сильная + затемнение</td><td>Диалог, нижняя шторка — всё модальное.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="frame" data-preview="light">
+    <div class="frame-label"><span>Уровни высоты (elevation)</span></div>
+    <div class="frame-body" style="display:flex; gap:var(--sp-lg); flex-wrap:wrap; background:var(--wb-surface-container);">
+      <div style="width:96px;height:64px;border-radius:var(--r-md);background:var(--wb-surface-container);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--wb-content-secondary);">L0</div>
+      <div style="width:96px;height:64px;border-radius:var(--r-md);background:var(--wb-surface-default);border:1px solid var(--wb-border-subtle);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--wb-content-secondary);">L1</div>
+      <div style="width:96px;height:64px;border-radius:var(--r-md);background:var(--wb-surface-elevated);box-shadow:var(--wb-shadow-1);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--wb-content-secondary);">L2</div>
+      <div style="width:96px;height:64px;border-radius:var(--r-md);background:var(--wb-surface-elevated);box-shadow:var(--wb-shadow-2);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--wb-content-secondary);">L3</div>
+      <div style="width:96px;height:64px;border-radius:var(--r-md);background:var(--wb-surface-elevated);box-shadow:var(--wb-shadow-3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--wb-content-secondary);">L4</div>
+    </div>
+  </div>
+</section>
+
+<section class="doc-section" id="icons">
+  <p class="eyebrow">01 — Основы</p>
+  <h2>Иконография</h2>
+  <p class="lede"><span class="pill pill-new">Новое решение</span> Одно семейство на обеих платформах: <strong>Material Symbols, Outlined, обводка 2dp</strong>. Смешивание SF Symbols на iOS и Material-иконок на Android разделило бы визуальный язык именно там, где бриф просит этого не делать — единый контурный набор сохраняет одинаковое направление, толщину и обработку углов повсюду. Сама стрелка компаса — единственная авторская графика в приложении и стоит вне шкалы иконок.</p>
+
+  <h3>Размеры</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Токен</th><th>Визуальный размер</th><th>Мин. область нажатия</th><th>Применение</th></tr></thead>
+      <tbody>
+        <tr><td><code class="tok">iconSm</code></td><td>16dp</td><td>—  (в тексте, неинтерактивно)</td><td>В строке с текстом Caption/Label (глиф точности, шевроны).</td></tr>
+        <tr><td><code class="tok">iconMd</code></td><td>20dp</td><td>44×44dp</td><td>Иконка по умолчанию в строке — ведущая иконка элемента списка, украшения полей ввода.</td></tr>
+        <tr><td><code class="tok">iconLg</code></td><td>24dp</td><td>44×44dp</td><td>Действия app bar, отдельные иконочные кнопки, иконки tab bar.</td></tr>
+        <tr><td><code class="tok">iconXl</code></td><td>32dp</td><td>48×48dp</td><td>Глифы типа точки в строках списка и в пикере типа.</td></tr>
+        <tr><td><code class="tok">icon2xl</code></td><td>48dp</td><td>—  (декоративная)</td><td>Иконки масштаба иллюстрации для пустого состояния и онбординга.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><b>Визуальный размер ≠ область нажатия</b>Иконка 20dp или 24dp никогда <em>не является</em> самой зоной нажатия — она центрирована внутри невидимой области ≥44×44dp (<code class="tok">IconButton</code> во Flutter уже делает это по умолчанию; кастомные иконочные элементы должны явно воспроизводить это через padding, а не полагаться на границы самого глифа).</div>
+
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Размер иконки и область нажатия</span></div>
+    <div class="frame-body" style="display:flex; gap:var(--sp-2xl); align-items:flex-end; background:var(--wb-surface-default);">
+      <div style="text-align:center;">
+        <div style="width:44px;height:44px;border:1.5px dashed var(--wb-border-default);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--wb-content-primary)" stroke-width="2"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/></svg>
+        </div>
+        <div style="font-size:11px;color:var(--wb-content-secondary);margin-top:6px;">иконка 20dp / область 44dp</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="width:44px;height:44px;border:1.5px dashed var(--wb-border-default);border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--wb-content-primary)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        </div>
+        <div style="font-size:11px;color:var(--wb-content-secondary);margin-top:6px;">иконка 24dp / область 44dp</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="doc-section" id="a11y">
+  <p class="eyebrow">01 — Основы</p>
+  <h2>Доступность</h2>
+  <p class="lede">Не финальная проверка, а ограничение, под которым уже выбирались токены выше. Шесть правил, по которым строятся компоненты:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Правило</th><th>Конкретное требование</th></tr></thead>
+      <tbody>
+        <tr><td>Контраст</td><td>4.5:1 для основного текста, 3:1 для крупного текста (≥19px или ≥15px жирным) и функциональных границ интерфейса (обводка полей, кольца фокуса). Проверено для каждой пары в разделе <a href="#color">Цвет</a>; отключённый (disabled) контент освобождён от требования по WCAG, но всё равно использует цвет, а не невидимость, чтобы читаться как неактивный.</td></tr>
+        <tr><td>Область нажатия</td><td>≥44×44dp для всего, на что можно нажать, включая иконочные элементы без текста — визуальный глиф может быть меньше (см. <a href="#icons">Иконография</a>), область нажатия — никогда. Строки списков и кнопки никогда не короче 44dp, даже если их текст мелкий.</td></tr>
+        <tr><td>Состояние ≠ только цвет</td><td>Состояние GPS/компаса, прибытие и ошибки валидации всегда сопровождаются иконкой и/или текстом вместе с цветом. Пользователь с нарушением цветовосприятия, читающий баннер прибытия в градациях серого, всё равно получает «рядом с точкой», а не неразличимый цвет.</td></tr>
+        <tr><td>Масштабирование текста</td><td>Макеты используют <code class="tok">MediaQuery.textScaler</code> из Flutter, а не фиксированную высоту в пикселях, вплоть до 200%. Строки фиксированной высоты (элементы списка, кнопки) растут вместе с контентом через <code class="tok">IntrinsicHeight</code>/гибкие ограничения, а не обрезаются; контейнер показателя расстояния рассчитан на самую длинную ожидаемую строку, а не на фиксированный размер.</td></tr>
+        <tr><td>Фокус и клавиатура</td><td>У каждого интерактивного элемента есть видимое состояние фокуса (кольцо <code class="tok">borderFocus</code> 2dp) для внешних клавиатур / switch control, отличное от состояния нажатия.</td></tr>
+        <tr><td>Семантика</td><td>Каждый иконочный элемент без текста несёт метку <code class="tok">Semantics</code> (например, «Сохранить текущее местоположение», а не «кнопка»); обновляющиеся в реальном времени значения (расстояние, азимут) используют вежливую семантику live-region, чтобы скринридер не озвучивал каждый кадр.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note risk"><b>Открытый риск</b>Поведение TalkBack/VoiceOver на <em>непрерывно вращающейся</em> стрелке и значении расстояния, обновляющемся несколько раз в секунду, не решено — озвучивать каждое изменение было бы неюзабельно. Нужна стратегия дросселирования/сводного озвучивания; отмечено повторно в разделе <a href="#open-questions">Открытые вопросы</a>.</div>
+</section>
+
+<section class="doc-section" id="actions">
+  <p class="eyebrow">02 — Компоненты · Действия</p>
+  <h2>Кнопки</h2>
+  <p class="lede">Один API, отображаемый на Flutter, четыре варианта, два размера. Продуктовые экраны выбирают вариант + размер; они никогда не перекрашивают кнопку заново.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Вариант</th><th>Заливка</th><th>Граница</th><th>Текст</th><th>Применение</th></tr></thead>
+      <tbody>
+        <tr><td><b>Primary (основная)</b></td><td><code class="tok">actionPrimary</code></td><td>нет</td><td><code class="tok">contentOnBrand</code></td><td>Единственное рекомендуемое действие на экране — «Сохранить текущее местоположение», «Навигация».</td></tr>
+        <tr><td><b>Secondary (вторичная)</b></td><td>прозрачная</td><td>1dp <code class="tok">borderDefault</code></td><td><code class="tok">contentPrimary</code></td><td>Альтернативное, равноценное действие рядом с Primary — «Переименовать», «Отмена».</td></tr>
+        <tr><td><b>Tertiary (третичная)</b></td><td>прозрачная</td><td>нет</td><td><code class="tok">brand600</code></td><td>Действие низкой значимости — «Пропустить», текстовые ссылки в тексте.</td></tr>
+        <tr><td><b>Destructive (деструктивная)</b></td><td><code class="tok">negative</code> (по умолчанию контур; заливка только внутри диалога подтверждения)</td><td>1dp <code class="tok">negative</code></td><td><code class="tok">negative</code> / белый на заливке</td><td>«Удалить точку» — всегда в паре с паттерном подтверждения, никогда изолированным нажатием.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Состояния</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Кнопка Primary — все состояния</span><span>мин. высота 44dp</span></div>
+    <div class="frame-body" style="display:flex; gap:var(--sp-md); flex-wrap:wrap; background:var(--wb-surface-default);">
+      <button class="btn-spec" style="background:var(--wb-action-primary-bg); color:var(--wb-action-primary-fg);">По умолчанию</button>
+      <button class="btn-spec" style="background:var(--wb-action-primary-pressed); color:var(--wb-action-primary-fg); transform:scale(0.98);">Нажата</button>
+      <button class="btn-spec" style="background:var(--wb-action-primary-bg); color:var(--wb-action-primary-fg); box-shadow:0 0 0 2px var(--wb-surface-default), 0 0 0 4px var(--wb-border-focus);">В фокусе</button>
+      <button class="btn-spec" style="background:var(--wb-content-disabled); color:var(--wb-surface-default); opacity:0.6;" disabled>Отключена</button>
+      <button class="btn-spec" style="background:var(--wb-action-primary-bg); color:var(--wb-action-primary-fg); display:flex; align-items:center; gap:8px; justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" style="animation:spin 0.8s linear infinite;"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="3" fill="none" stroke-dasharray="42" stroke-dashoffset="14" stroke-linecap="round"/></svg>
+        Загрузка
+      </button>
+    </div>
+  </div>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Варианты × размеры</span></div>
+    <div class="frame-body" style="display:flex; flex-direction:column; gap:var(--sp-md); background:var(--wb-surface-default);">
+      <div style="display:flex; gap:var(--sp-sm); align-items:center; flex-wrap:wrap;">
+        <button class="btn-spec" style="background:var(--wb-action-primary-bg); color:var(--wb-action-primary-fg);">Сохранить текущее местоположение</button>
+        <button class="btn-spec btn-sm" style="background:var(--wb-action-primary-bg); color:var(--wb-action-primary-fg);">Сохранить</button>
+      </div>
+      <div style="display:flex; gap:var(--sp-sm); align-items:center; flex-wrap:wrap;">
+        <button class="btn-spec" style="background:transparent; color:var(--wb-action-secondary-fg); border:1px solid var(--wb-action-secondary-border);">Переименовать точку</button>
+        <button class="btn-spec btn-sm" style="background:transparent; color:var(--wb-action-secondary-fg); border:1px solid var(--wb-action-secondary-border);">Отмена</button>
+      </div>
+      <div style="display:flex; gap:var(--sp-sm); align-items:center; flex-wrap:wrap;">
+        <button class="btn-spec" style="background:transparent; color:var(--wb-brand-600); border:none;">Пока пропустить</button>
+        <button class="btn-spec" style="background:transparent; color:var(--wb-negative); border:1px solid var(--wb-negative);">Удалить точку</button>
+      </div>
+    </div>
+  </div>
+
+  <h3>Иконочная кнопка</h3>
+  <p style="color:var(--page-text-secondary); font-size:14px;">Тот же набор состояний, что выше, круглая форма, по умолчанию прозрачная с тональной заливкой при нажатии. Используется для действий app bar и кнопки центрирования карты.</p>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-body" style="display:flex; gap:var(--sp-md); background:var(--wb-surface-default);">
+      <div style="width:44px;height:44px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--wb-content-primary)" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </div>
+      <div style="width:44px;height:44px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center; background:color-mix(in srgb, var(--wb-brand-600) 14%, transparent);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--wb-brand-600)" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </div>
+      <div style="width:44px;height:44px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center; opacity:0.4;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--wb-content-primary)" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </div>
+      <span style="align-self:center; font-size:12px; color:var(--wb-content-tertiary);">по умолчанию · нажата (тональная) · отключена</span>
+    </div>
+  </div>
+
+  <h3>Форма во Flutter</h3>
+  <div class="table-wrap"><table><tbody>
+    <tr><td class="mono" style="white-space:pre; font-family:var(--font-mono); font-size:12.5px; line-height:1.7;">AppButton({
+  required String label,
+  AppButtonVariant variant = .primary, // primary | secondary | tertiary | destructive
+  AppButtonSize size = .medium,        // medium (44dp) | small (36dp, только для плотных контекстов)
+  IconData? icon,
+  bool loading = false,
+  bool enabled = true,
+  required VoidCallback? onPressed,
+})</td></tr>
+  </tbody></table></div>
+</section>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn-spec {
+  font-family: var(--wb-font, var(--font-body)); font-weight:600; font-size:14.5px; border:none;
+  border-radius: var(--r-md); padding: 12px 20px; min-height:44px; cursor:pointer;
+}
+.btn-sm { padding: 8px 16px; min-height:36px; font-size:13.5px; }
+</style>
+
+<section class="doc-section" id="inputs">
+  <p class="eyebrow">02 — Компоненты · Поля ввода</p>
+  <h2>Поля ввода</h2>
+  <p class="lede">Реальная поверхность ввода в MVP небольшая — поле названия точки, переключатель единиц измерения, пара переключателей в настройках. Полный набор ниже всё же специфицирован, чтобы пост-MVP экраны (поле заметки, поиск по большому списку точек) переиспользовали его, а не изобретали заново.</p>
+
+  <h3>Текстовое поле — состояния</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>AppTextField</span><span>подпись «Название точки»</span></div>
+    <div class="frame-body" style="display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-lg); background:var(--wb-surface-default);">
+      <div>
+        <div class="tf-label">Пусто</div>
+        <div class="tf" style="border-color:var(--wb-border-default);"><span class="tf-placeholder">напр. Машина, Стоянка…</span></div>
+      </div>
+      <div>
+        <div class="tf-label">В фокусе</div>
+        <div class="tf" style="border-color:var(--wb-border-focus); border-width:2px; box-shadow:0 0 0 3px color-mix(in srgb, var(--wb-border-focus) 18%, transparent);"><span class="tf-placeholder">напр. Машина, Стоянка…</span><span class="tf-caret"></span></div>
+      </div>
+      <div>
+        <div class="tf-label">Заполнено</div>
+        <div class="tf" style="border-color:var(--wb-border-default);"><span class="tf-value">Машина</span></div>
+        <div class="tf-helper">Необязательно — по умолчанию тип точки + дата.</div>
+      </div>
+      <div>
+        <div class="tf-label">Ошибка</div>
+        <div class="tf" style="border-color:var(--wb-negative); border-width:2px;"><span class="tf-value">Машина / стоянка №2</span></div>
+        <div class="tf-helper" style="color:var(--wb-negative); display:flex; align-items:center; gap:4px;">⚠ Название не может содержать «/»</div>
+      </div>
+      <div>
+        <div class="tf-label">Отключено</div>
+        <div class="tf" style="border-color:var(--wb-border-subtle); background:var(--wb-surface-container); opacity:0.6;"><span class="tf-value">Машина</span></div>
+      </div>
+      <div>
+        <div class="tf-label">Ведущая иконка + кнопка очистки</div>
+        <div class="tf" style="border-color:var(--wb-border-default); display:flex; align-items:center; gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--wb-content-secondary)" stroke-width="2" style="flex-shrink:0;"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+          <span class="tf-value" style="flex:1;">палатка</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--wb-content-tertiary)" stroke-width="2" style="flex-shrink:0;"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </div>
+        <div class="tf-helper">Поле поиска — фильтрация длинного списка сохранённых точек.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Элементы выбора</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Checkbox · Radio · Switch</span></div>
+    <div class="frame-body" style="display:flex; gap:var(--sp-3xl); flex-wrap:wrap; background:var(--wb-surface-default); font-family:var(--wb-font);">
+      <div>
+        <div class="tf-label">Checkbox</div>
+        <label style="display:flex; align-items:center; gap:10px; margin-bottom:8px; color:var(--wb-content-primary); font-size:15px;">
+          <span style="width:20px;height:20px;border-radius:5px;border:2px solid var(--wb-border-default); display:inline-block;"></span> Больше не спрашивать
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; color:var(--wb-content-primary); font-size:15px;">
+          <span style="width:20px;height:20px;border-radius:5px;background:var(--wb-brand-600); display:flex;align-items:center;justify-content:center;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M4 12l6 6L20 6"/></svg>
+          </span> Больше не спрашивать
+        </label>
+      </div>
+      <div>
+        <div class="tf-label">Radio — единицы измерения</div>
+        <label style="display:flex; align-items:center; gap:10px; margin-bottom:8px; color:var(--wb-content-primary); font-size:15px;">
+          <span style="width:20px;height:20px;border-radius:99px;border:2px solid var(--wb-brand-600); display:flex; align-items:center; justify-content:center;"><span style="width:10px;height:10px;border-radius:99px;background:var(--wb-brand-600);"></span></span> Метрические (м / км)
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; color:var(--wb-content-secondary); font-size:15px;">
+          <span style="width:20px;height:20px;border-radius:99px;border:2px solid var(--wb-border-default); display:inline-block;"></span> Имперские (фут / миля)
+        </label>
+      </div>
+      <div>
+        <div class="tf-label">Switch — адаптирован под платформу, см. раздел «Платформа»</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+          <span class="sw-track" data-platform-scope="ios" style="background:var(--wb-brand-600);"><span class="sw-thumb" style="left:22px;"></span></span>
+          <span style="color:var(--wb-content-primary); font-size:15px;">Вибрация при прибытии</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="sw-track" style="background:var(--wb-surface-sunken); border:1px solid var(--wb-border-default);"><span class="sw-thumb" style="left:2px; background:var(--wb-content-tertiary);"></span></span>
+          <span style="color:var(--wb-content-secondary); font-size:15px;">Не гасить экран во время навигации</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Select / пикер</h3>
+  <p style="color:var(--page-text-secondary); font-size:14px;">Пикер типа точки — это сетка иконок 4×2 (одиночный выбор, семантика radio), а не выпадающий список: при всего восьми фиксированных типах показать их все лучше, чем прятать за тапом. Он переиспользует паттерн состояний элементов выбора выше (по умолчанию / выбрано / в фокусе), а не является новым компонентом.</p>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-body" style="background:var(--wb-surface-default);">
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:var(--sp-sm); max-width:360px;">
+        <div class="type-cell" style="background:color-mix(in srgb, var(--wb-brand-600) 14%, transparent); border:1.5px solid var(--wb-brand-600); color:var(--wb-brand-600);">🚗<span>Машина</span></div>
+        <div class="type-cell">⛺<span>Палатка</span></div>
+        <div class="type-cell">🎣<span>Рыбалка</span></div>
+        <div class="type-cell">🎒<span>Вещи</span></div>
+        <div class="type-cell">🏠<span>Домик</span></div>
+        <div class="type-cell">📍<span>Встреча</span></div>
+        <div class="type-cell">🅿️<span>Парковка</span></div>
+        <div class="type-cell">🌲<span>Другое</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.tf-label { font-size:11.5px; font-weight:600; color:var(--wb-content-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; }
+.tf { border:1px solid; border-radius:var(--r-md); padding:12px 14px; min-height:44px; display:flex; align-items:center; background:var(--wb-surface-default); font-family:var(--wb-font); font-size:15px; }
+.tf-placeholder { color:var(--wb-content-tertiary); }
+.tf-value { color:var(--wb-content-primary); }
+.tf-caret { width:1.5px; height:18px; background:var(--wb-brand-600); margin-left:2px; animation:blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity:0; } }
+.tf-helper { font-size:12px; color:var(--wb-content-tertiary); margin-top:6px; }
+.sw-track { width:44px; height:26px; border-radius:99px; position:relative; display:inline-block; }
+.sw-thumb { position:absolute; top:2px; width:22px; height:22px; border-radius:99px; background:white; box-shadow:0 1px 2px rgba(0,0,0,0.25); transition:left .15s; }
+.type-cell { aspect-ratio:1; border-radius:var(--r-md); border:1.5px solid var(--wb-border-subtle); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:20px; color:var(--wb-content-secondary); }
+.type-cell span { font-size:10.5px; font-family:var(--wb-font); font-weight:600; }
+</style>
+
+<section class="doc-section" id="content-components">
+  <p class="eyebrow">02 — Компоненты · Контент</p>
+  <h2>Контент</h2>
+
+  <h3>Элемент списка — рабочая лошадка списка точек</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>AppListItem</span><span>ведущая иконка · заголовок · подзаголовок · хвостовой элемент</span></div>
+    <div class="frame-body" style="padding:0; background:var(--wb-surface-default);">
+      <div class="list-item" style="background:var(--wb-action-primary-bg);">
+        <span class="li-icon" style="background:rgba(255,255,255,0.2); color:white;">🚗</span>
+        <div class="li-text"><div class="li-title" style="color:white;">Машина</div><div class="li-sub" style="color:rgba(255,255,255,0.85);">640 м · сохранено 2 ч назад</div></div>
+        <span class="li-badge" style="background:white; color:var(--wb-action-primary-bg);">Активна</span>
+      </div>
+      <div class="list-item">
+        <span class="li-icon">⛺</span>
+        <div class="li-text"><div class="li-title">Стоянка</div><div class="li-sub">2.1 км · сохранено вчера</div></div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--wb-content-tertiary)" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+      <div class="list-item">
+        <span class="li-icon">🎣</span>
+        <div class="li-text"><div class="li-title">Место рыбалки</div><div class="li-sub">14.8 км · сохранено 3 дня назад</div></div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--wb-content-tertiary)" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <h3>Card, avatar, badge, chip, divider</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-body" style="display:flex; flex-direction:column; gap:var(--sp-lg); background:var(--wb-surface-container);">
+      <div style="background:var(--wb-surface-elevated); border-radius:var(--r-lg); box-shadow:var(--wb-shadow-2); padding:var(--sp-lg); display:flex; gap:var(--sp-md); align-items:center;">
+        <span style="width:44px;height:44px;border-radius:99px;background:var(--wb-brand-600);color:white;display:flex;align-items:center;justify-content:center;font-weight:700; font-family:var(--wb-font);">М</span>
+        <div>
+          <div style="font-family:var(--wb-font); font-weight:600; color:var(--wb-content-primary);">Card — сводка по точке</div>
+          <div style="font-family:var(--wb-font); font-size:13px; color:var(--wb-content-secondary);">Аватар слева: заглушка из первой буквы, без фото в MVP.</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; font-family:var(--wb-font);">
+        <span class="chip">Все типы</span>
+        <span class="chip chip-selected">🚗 Машина</span>
+        <span class="chip">⛺ Палатка</span>
+        <span class="chip">🎣 Рыбалка</span>
+        <span style="width:1px;height:24px;background:var(--wb-border-subtle);"></span>
+        <span class="badge badge-positive">● Хороший сигнал</span>
+        <span class="badge badge-warning">△ Слабый сигнал</span>
+        <span class="badge badge-negative">✕ Нет GPS</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.list-item { display:flex; align-items:center; gap:var(--sp-md); padding:var(--sp-md); border-bottom:1px solid var(--wb-border-subtle); font-family:var(--wb-font); min-height:64px; }
+.li-icon { width:40px; height:40px; border-radius:99px; background:var(--wb-surface-container); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.li-text { flex:1; min-width:0; }
+.li-title { font-weight:600; font-size:15.5px; color:var(--wb-content-primary); }
+.li-sub { font-size:13px; color:var(--wb-content-secondary); margin-top:1px; }
+.li-badge { font-size:11px; font-weight:700; padding:3px 9px; border-radius:99px; }
+.chip { font-size:13px; font-weight:600; padding:7px 13px; border-radius:99px; border:1px solid var(--wb-border-subtle); color:var(--wb-content-secondary); background:var(--wb-surface-default); }
+.chip-selected { background:var(--wb-brand-600); color:white; border-color:var(--wb-brand-600); }
+.badge { font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:99px; }
+.badge-positive { background:var(--wb-positive-bg); color:var(--wb-positive); }
+.badge-warning { background:color-mix(in srgb, var(--wb-warning-bg) 22%, transparent); color:var(--wb-warning); }
+.badge-negative { background:var(--wb-negative-bg); color:var(--wb-negative); }
+</style>
+
+<section class="doc-section" id="navigation">
+  <p class="eyebrow">02 — Компоненты · Навигация</p>
+  <h2>Навигация</h2>
+  <p class="lede">Четыре маршрута в масштабе MVP (<code class="tok">/</code>, <code class="tok">/points</code>, <code class="tok">/navigate/:id</code>, <code class="tok">/settings</code>) не оправдывают постоянный нижний tab bar, конкурирующий за место с компасом. Основное перемещение — через верхний app bar с действием «назад»; нижняя навигация специфицирована на случай роста числа маршрутов.</p>
+
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>App bar — контентный экран (список точек)</span></div>
+    <div class="frame-body" style="padding:0; background:var(--wb-surface-default);">
+      <div class="appbar" data-platform-scope="ios">
+        <span class="appbar-back" data-platform-scope="ios"></span>
+        <span class="appbar-title">Сохранённые точки</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--wb-content-primary)" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Нижняя навигация — зарезервирована на случай роста маршрутов после MVP</span></div>
+    <div class="frame-body" style="padding:0; background:var(--wb-surface-default);">
+      <div class="bottomnav">
+        <div class="bn-item bn-active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3z"/></svg><span>Навигация</span></div>
+        <div class="bn-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/></svg><span>Точки</span></div>
+        <div class="bn-item"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg><span>Настройки</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Вкладки</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-body" style="background:var(--wb-surface-default);">
+      <div style="display:inline-flex; background:var(--wb-surface-container); border-radius:var(--r-full); padding:3px;">
+        <span class="segtab segtab-active">Метрические</span>
+        <span class="segtab">Имперские</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.appbar { display:flex; align-items:center; gap:var(--sp-sm); height:56px; padding:0 var(--sp-md); font-family:var(--wb-font); border-bottom:1px solid var(--wb-border-subtle); }
+.appbar-title { flex:1; font-weight:600; font-size:17px; color:var(--wb-content-primary); }
+.appbar-back { width:24px; height:24px; position:relative; }
+.appbar-back::before { content:''; position:absolute; inset:0; }
+[data-platform-scope="ios"] .appbar-back::after { content:"‹"; font-size:30px; line-height:20px; color:var(--wb-brand-600); position:absolute; left:-4px; top:-7px; }
+[data-platform-scope="android"] .appbar-back::after { content:"←"; font-size:20px; color:var(--wb-content-primary); position:absolute; left:0; top:2px; }
+.bottomnav { display:flex; border-top:1px solid var(--wb-border-subtle); }
+.bn-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 0 8px; color:var(--wb-content-tertiary); font-family:var(--wb-font); font-size:11px; font-weight:600; }
+.bn-active { color:var(--wb-brand-600); }
+.segtab { padding:6px 18px; border-radius:99px; font-family:var(--wb-font); font-size:13px; font-weight:600; color:var(--wb-content-secondary); }
+.segtab-active { background:var(--wb-surface-elevated); color:var(--wb-content-primary); box-shadow:var(--wb-shadow-1); }
+</style>
+
+<section class="doc-section" id="feedback">
+  <p class="eyebrow">02 — Компоненты · Обратная связь</p>
+  <h2>Обратная связь</h2>
+  <p class="lede">Диалоги и шторки — то место, где платформенная конвенция окупается больше всего — см. полное сравнение в разделе <a href="#platform">Адаптация iOS / Android</a>. Переключите контрол вверху страницы, чтобы увидеть, как каждый рендерится в своей нативной форме, сохраняя одни и те же токены бренда.</p>
+
+  <h3>Диалог — деструктивное подтверждение</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Удаление точки — переключите платформу выше ↑</span></div>
+    <div class="frame-body" style="background:var(--wb-scrim); display:flex; justify-content:center;">
+      <div class="dialog" data-platform-scope="ios">
+        <div class="dialog-title">Удалить «Машину»?</div>
+        <div class="dialog-body">Это нельзя отменить. Вы потеряете сохранённое местоположение и его название.</div>
+        <div class="dialog-actions" data-platform-scope="ios">
+          <button class="dialog-btn dialog-btn-cancel" data-platform-scope="ios">Отмена</button>
+          <button class="dialog-btn dialog-btn-destructive" data-platform-scope="ios">Удалить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Нижняя шторка — пикер типа точки</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-body" style="background:var(--wb-scrim); display:flex; justify-content:center; padding:0;">
+      <div class="sheet">
+        <div class="sheet-grabber" data-platform-scope="ios"></div>
+        <div class="sheet-title">Выберите тип</div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:0 var(--sp-lg) var(--sp-lg);">
+          <div class="type-cell" style="aspect-ratio:auto; height:64px;">🚗<span>Машина</span></div>
+          <div class="type-cell" style="aspect-ratio:auto; height:64px; background:color-mix(in srgb, var(--wb-brand-600) 14%, transparent); border-color:var(--wb-brand-600); color:var(--wb-brand-600);">⛺<span>Палатка</span></div>
+          <div class="type-cell" style="aspect-ratio:auto; height:64px;">🎣<span>Рыбалка</span></div>
+          <div class="type-cell" style="aspect-ratio:auto; height:64px;">📍<span>Другое</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Snackbar</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-body" style="background:var(--wb-surface-container);">
+      <div class="snackbar">
+        <span>Точка «Машина» удалена</span>
+        <button class="snackbar-action">Отменить</button>
+      </div>
+    </div>
+  </div>
+
+  <h3>Встроенное уведомление — состояние GPS и компаса</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-body" style="display:flex; flex-direction:column; gap:var(--sp-sm); background:var(--wb-surface-default);">
+      <div class="alert alert-warning">△ <div><b>Низкая точность GPS (±34 м).</b> Выйдите на открытое пространство для лучшего сигнала.</div></div>
+      <div class="alert alert-negative">✕ <div><b>Компасу нужна калибровка.</b> Опишите телефоном восьмёрку в воздухе.</div></div>
+      <div class="alert alert-positive">✓ <div><b>Вы почти у цели</b> — осталось 18 м.</div></div>
+    </div>
+  </div>
+
+  <h3>Progress и skeleton</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-body" style="display:flex; flex-direction:column; gap:var(--sp-lg); background:var(--wb-surface-default);">
+      <div>
+        <div class="tf-label">Определённый / неопределённый — получение GPS-фикса</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" style="animation:spin 1s linear infinite;"><circle cx="12" cy="12" r="9" stroke="var(--wb-border-subtle)" stroke-width="3" fill="none"/><circle cx="12" cy="12" r="9" stroke="var(--wb-brand-600)" stroke-width="3" fill="none" stroke-dasharray="42" stroke-dashoffset="14" stroke-linecap="round"/></svg>
+          <span style="font-family:var(--wb-font); color:var(--wb-content-secondary); font-size:14px;">Определяем местоположение…</span>
+        </div>
+      </div>
+      <div>
+        <div class="tf-label">Skeleton — загрузка списка точек</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; gap:10px; align-items:center;"><span class="skel" style="width:40px;height:40px;border-radius:99px;"></span><span class="skel" style="width:60%;height:14px;border-radius:4px;"></span></div>
+          <div style="display:flex; gap:10px; align-items:center;"><span class="skel" style="width:40px;height:40px;border-radius:99px;"></span><span class="skel" style="width:45%;height:14px;border-radius:4px;"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.dialog { width:280px; background:var(--wb-surface-elevated); border-radius:var(--r-lg); box-shadow:var(--wb-shadow-3); overflow:hidden; font-family:var(--wb-font); margin:var(--sp-4xl) 0; }
+[data-platform-scope="android"] .dialog { border-radius:28px; width:300px; text-align:left; }
+.dialog-title { padding:var(--sp-lg) var(--sp-lg) 4px; font-weight:700; font-size:17px; text-align:center; color:var(--wb-content-primary); }
+[data-platform-scope="android"] .dialog-title { text-align:left; font-size:20px; padding-top:var(--sp-xl); }
+.dialog-body { padding:0 var(--sp-lg) var(--sp-lg); font-size:13px; text-align:center; color:var(--wb-content-secondary); }
+[data-platform-scope="android"] .dialog-body { text-align:left; font-size:14px; padding-bottom:var(--sp-xl); }
+.dialog-actions[data-platform-scope="ios"] { display:flex; border-top:1px solid var(--wb-border-subtle); }
+.dialog-actions[data-platform-scope="android"] { display:flex; justify-content:flex-end; gap:var(--sp-sm); padding:0 var(--sp-md) var(--sp-md); }
+.dialog-btn { flex:1; border:none; background:transparent; padding:13px; font-family:var(--wb-font); font-weight:600; font-size:15px; cursor:pointer; }
+[data-platform-scope="ios"] .dialog-btn-cancel { border-right:1px solid var(--wb-border-subtle); color:var(--wb-brand-600); font-weight:400; }
+[data-platform-scope="ios"] .dialog-btn-destructive { color:var(--wb-negative); font-weight:700; }
+[data-platform-scope="android"] .dialog-btn { flex:none; color:var(--wb-brand-600); text-transform:uppercase; font-size:13px; letter-spacing:0.03em; }
+[data-platform-scope="android"] .dialog-btn-destructive { color:var(--wb-negative); }
+
+.sheet { width:100%; max-width:400px; background:var(--wb-surface-elevated); border-radius:var(--r-lg) var(--r-lg) 0 0; box-shadow:var(--wb-shadow-3); font-family:var(--wb-font); padding-top:var(--sp-sm); }
+.sheet-grabber { width:36px; height:4px; border-radius:99px; background:var(--wb-border-default); margin:0 auto var(--sp-md); opacity:0.6; }
+[data-platform-scope="android"] .sheet-grabber { width:32px; }
+.sheet-title { font-weight:700; font-size:16px; text-align:center; color:var(--wb-content-primary); padding-bottom:var(--sp-md); }
+
+.snackbar { display:flex; align-items:center; justify-content:space-between; gap:var(--sp-md); background:var(--wb-content-primary); color:var(--wb-surface-default); border-radius:var(--r-md); padding:14px 18px; font-family:var(--wb-font); font-size:14px; box-shadow:var(--wb-shadow-2); max-width:420px; }
+.snackbar-action { background:none; border:none; color:var(--wb-brand-500); font-weight:700; font-family:var(--wb-font); font-size:14px; }
+
+.alert { display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:var(--r-md); font-family:var(--wb-font); font-size:13.5px; max-width:440px; }
+.alert div { color: inherit; }
+.alert b { display:block; margin-bottom:1px; }
+.alert-warning { background:color-mix(in srgb, var(--wb-warning-bg) 16%, var(--wb-surface-default)); color:var(--wb-warning); }
+.alert-negative { background:var(--wb-negative-bg); color:var(--wb-negative); }
+.alert-positive { background:var(--wb-positive-bg); color:var(--wb-positive); }
+.skel { display:inline-block; background:linear-gradient(90deg, var(--wb-surface-container) 25%, var(--wb-surface-sunken) 37%, var(--wb-surface-container) 63%); background-size:400% 100%; animation:shimmer 1.4s ease infinite; }
+@keyframes shimmer { 0% { background-position:100% 0; } 100% { background-position:0 0; } }
+</style>
+
+<section class="doc-section" id="state-matrix">
+  <p class="eyebrow">02 — Компоненты</p>
+  <h2>Матрица состояний компонентов</h2>
+  <p class="lede">Одна таблица, каждый интерактивный компонент, каждое поддерживаемое им состояние — так пропущенное состояние видно как пустая ячейка, а не обнаруживается в баг-репорте. «—» означает, что состояние неприменимо к этому компоненту, а не что оно было пропущено.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Компонент</th><th>По умолчанию</th><th>Нажат</th><th>В фокусе</th><th>Отключён</th><th>Загрузка</th><th>Ошибка</th><th>Выбран</th></tr></thead>
+      <tbody>
+        <tr><td>Кнопка Primary / Secondary</td><td>✓</td><td>✓ тональный сдвиг</td><td>✓ кольцо</td><td>✓ 60% прозрачности</td><td>✓ спиннер вместо подписи</td><td>—</td><td>—</td></tr>
+        <tr><td>Кнопка Tertiary / Destructive</td><td>✓</td><td>✓ тональный сдвиг</td><td>✓ кольцо</td><td>✓ 60% прозрачности</td><td>✓</td><td>—</td><td>—</td></tr>
+        <tr><td>Иконочная кнопка</td><td>✓</td><td>✓ тональная заливка</td><td>✓ кольцо</td><td>✓ 40% прозрачности</td><td>—</td><td>—</td><td>✓ тональная заливка сохраняется</td></tr>
+        <tr><td>Текстовое поле</td><td>✓ (пусто)</td><td>—</td><td>✓ кольцо 2dp</td><td>✓ утопленная заливка, 60% прозрачности</td><td>—</td><td>✓ красная граница + сообщение</td><td>—</td></tr>
+        <tr><td>Checkbox / Radio</td><td>✓</td><td>✓ ripple/тональное</td><td>✓ кольцо</td><td>✓ 40% прозрачности</td><td>—</td><td>✓ красный контур (обязательное поле)</td><td>✓ заполнено</td></tr>
+        <tr><td>Switch</td><td>✓ (выкл.)</td><td>✓ бегунок слегка увеличивается</td><td>✓ кольцо</td><td>✓ 40% прозрачности</td><td>—</td><td>—</td><td>✓ (вкл.) заливка брендом</td></tr>
+        <tr><td>Chip</td><td>✓</td><td>✓ тональный сдвиг</td><td>✓ кольцо</td><td>✓ 40% прозрачности</td><td>—</td><td>—</td><td>✓ заливка + галочка</td></tr>
+        <tr><td>Элемент списка</td><td>✓</td><td>✓ тональная заливка</td><td>✓ кольцо</td><td>—</td><td>✓ вариант skeleton</td><td>—</td><td>✓ заливка брендом (активная точка)</td></tr>
+        <tr><td>Ячейка пикера типа</td><td>✓</td><td>✓ тональный сдвиг</td><td>✓ кольцо</td><td>—</td><td>—</td><td>—</td><td>✓ контур бренда + подсветка</td></tr>
+        <tr><td>Вкладка / сегментированный переключатель</td><td>✓</td><td>✓</td><td>✓ кольцо</td><td>—</td><td>—</td><td>—</td><td>✓ приподнятый бегунок</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note"><b>Как читать матрицу</b>Два пробела намеренные: у кнопок нет состояния «выбрано» (они выполняют действие, а не удерживают его), а у большинства контентных компонентов нет собственного состояния «загрузка» — вместо этого их контейнер показывает skeleton. Если будущему компоненту понадобится состояние, которого нет в этой таблице, — это сигнал сначала расширить матрицу здесь, а не изобретать разовое решение на нужном экране.</div>
+</section>
+
+<section class="doc-section" id="architecture">
+  <p class="eyebrow">02 — Компоненты</p>
+  <h2>Архитектура компонентов</h2>
+  <p class="lede">Любая продуктовая поверхность — это композиция компонентов выше, названных по тому, <em>чем они являются</em>, а не по экрану, на котором впервые появились.</p>
+
+  <h3>Иерархия решений</h3>
+  <div class="grid grid-3">
+    <div class="card"><b style="font-family:var(--font-display); text-transform:uppercase; font-size:13px; letter-spacing:0.04em; color:var(--page-accent);">1. Переиспользовать</b><p style="font-size:13.5px; color:var(--page-text-secondary); margin:6px 0 0;">Ответ по умолчанию. Строка «Вибрация при прибытии» на экране настроек — это <code class="tok">ListItem</code> + <code class="tok">Switch</code>, без изменений.</p></div>
+    <div class="card"><b style="font-family:var(--font-display); text-transform:uppercase; font-size:13px; letter-spacing:0.04em; color:var(--page-accent);">2. Расширить</b><p style="font-size:13.5px; color:var(--page-text-secondary); margin:6px 0 0;">Добавить переиспользуемый вариант. Подсветка «Активной» точки в списке — не новый компонент, а <code class="tok">ListItem(selected: true)</code>.</p></div>
+    <div class="card"><b style="font-family:var(--font-display); text-transform:uppercase; font-size:13px; letter-spacing:0.04em; color:var(--page-accent);">3. Создать</b><p style="font-size:13.5px; color:var(--page-text-secondary); margin:6px 0 0;">Только для действительно новой семантики. Стрелка компаса — новый компонент: ничто выше не моделирует непрерывно вращающийся индикатор направления.</p></div>
+  </div>
+
+  <h3>Именование</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Хорошо</th><th>Почему</th><th>Избегать</th><th>Почему нет</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">AppButton(variant: .destructive)</td><td>Описывает назначение; экран, который его использует, не важен для компонента.</td><td class="mono">RedDeleteButton</td><td>Называет цвет и экран вместо роли.</td></tr>
+        <tr><td class="mono">contentSecondary</td><td>Описывает семантическую роль цвета.</td><td class="mono">gray2</td><td>Описывает сегодняшний внешний вид, ломается в момент смены палитры.</td></tr>
+        <tr><td class="mono">spacingMd</td><td>Описывает ранг в шкале.</td><td class="mono">margin16</td><td>Зашивает значение в пикселях прямо в имя.</td></tr>
+        <tr><td class="mono">CompassArrow</td><td>Новое, конкретное, честно говорит, что это не обобщённая иконка.</td><td class="mono">HomeScreenGraphic</td><td>Названо по месту расположения, а не по сути.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="doc-section" id="patterns">
+  <p class="eyebrow">03 — Применение</p>
+  <h2>Паттерны</h2>
+  <p class="lede">Композиции, а не новые стили. Там, где список примеров паттернов из брифа не подходит продукту — у Wayback нет аккаунтов, поэтому нет «формы аутентификации» — он заменён на паттерн, который продукту действительно нужен, и замена явно названа, чтобы не читаться как упущение.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Паттерн</th><th>Состоит из</th><th>Где встречается</th></tr></thead>
+      <tbody>
+        <tr><td><b>Запрос разрешения</b> <span class="pill pill-new">заменяет форму аутентификации</span></td><td>Диалог + текст Body + кнопки Primary/Tertiary</td><td>Первый запуск, перед первым чтением GPS. iOS и Android здесь различаются — см. <a href="#platform">Платформа</a>.</td></tr>
+        <tr><td><b>Сценарий сохранения точки</b></td><td>Кнопка Primary (главный экран) → Snackbar или встроенная карточка подтверждения → опциональное текстовое поле для переименования</td><td>Ключевой сценарий «в один тап» из продуктового брифа — сам поток является ограничением спецификации (≤1 тап для сохранения), а не только визуальным.</td></tr>
+        <tr><td><b>Деструктивное подтверждение</b></td><td>Dialog(variant: destructive) + кнопка Destructive, всегда с названными последствиями («Вы потеряете сохранённое местоположение»), никогда голое «Вы уверены?»</td><td>Удаление сохранённой точки.</td></tr>
+        <tr><td><b>Пустое состояние</b></td><td>Иконка 2xl + Headline + Body + кнопка Primary</td><td>Список точек без сохранённых точек — «Пока нет сохранённых точек» + «Сохраните первую точку».</td></tr>
+        <tr><td><b>Состояние ошибки</b></td><td>Встроенное уведомление (negative) + текст Body, называющий failure.code простым языком + действие повтора там, где применимо</td><td>Отказ в разрешении на геолокацию, ошибка записи в хранилище, компас недоступен — каждый <code class="tok">Failure</code> из <code class="tok">architecture.md</code> сводится к этому паттерну.</td></tr>
+        <tr><td><b>Состояние загрузки</b></td><td>Skeleton (списки) или индикатор прогресса + Caption (единичные значения, напр. «Определяем местоположение…»)</td><td>Первая отрисовка списка точек; получение GPS-фикса до того, как сможет отрисоваться стрелка.</td></tr>
+        <tr><td><b>Секция настроек</b></td><td>Заголовок + сгруппированные элементы списка (Switch / Radio / шеврон перехода), <code class="tok">spacingXl</code> между группами</td><td>Экран настроек — единицы измерения, вибрация, не гасить экран.</td></tr>
+        <tr><td><b>Фильтр / поиск в списке</b> <span class="pill pill-new">пост-MVP, специфицировано заранее</span></td><td>Поле поиска + ряд чипов (фильтр по типу) + элемент списка</td><td>Не входит в объём MVP (малое число точек), но текстовое поле и элемент списка уже это поддерживают — новый компонент не понадобится, когда придёт время.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Пустое состояние — паттерн, целиком составленный из существующих компонентов</span></div>
+    <div class="frame-body" style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:var(--sp-sm); padding:var(--sp-4xl) var(--sp-xl); background:var(--wb-surface-default);">
+      <div style="font-size:48px;">📍</div>
+      <div style="font-family:var(--wb-font); font-weight:700; font-size:20px; color:var(--wb-content-primary);">Пока нет сохранённых точек</div>
+      <div style="font-family:var(--wb-font); font-size:14px; color:var(--wb-content-secondary); max-width:36ch;">Сохраните место, где вы сейчас стоите — машину, лагерь, любое место, которое захотите найти снова.</div>
+      <button class="btn-spec" style="background:var(--wb-action-primary-bg); color:var(--wb-action-primary-fg); margin-top:var(--sp-sm);">Сохранить текущее местоположение</button>
+    </div>
+  </div>
+</section>
+
+<section class="doc-section" id="platform">
+  <p class="eyebrow">03 — Применение</p>
+  <h2>Адаптация iOS / Android</h2>
+  <p class="lede">Бренд — цвет, шрифт, форма, иконография — никогда не меняется между платформами; каждый образец выше использует одни и те же токены при переключении платформы. Меняется механика взаимодействия, там, где нативная конвенция — это то, что уже есть в мышечной памяти пользователя с телефоном в кармане. Переключите контрол вверху страницы, чтобы увидеть каждую строку.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Аспект</th><th> iOS</th><th> Android</th><th>Почему различается</th></tr></thead>
+      <tbody>
+        <tr><td><b>Переход между экранами</b></td><td>Горизонтальный слайд, новый экран частично перекрывает старый</td><td>Shared-axis fade-through (Material 3)</td><td><code class="tok">CustomTransitionPage</code> у <code class="tok">go_router</code> для каждой платформы; соответствует ощущению переключения приложений на каждой ОС.</td></tr>
+        <tr><td><b>Навигация назад</b></td><td>Жест смахивания от левого края + опциональный шеврон в nav-bar</td><td>Системный жест «назад» / кнопка «назад»; предпросмотр predictive-back на Android 14+</td><td>Оба — это жесты уровня ОС, на которые пользователь уже полагается за пределами этого приложения — переопределение любого из них ломает привычку, а не только экран.</td></tr>
+        <tr><td><b>Диалоги</b></td><td>Карточка по центру, без иконки, заголовок не выровнен по левому краю, кнопки на всю ширину в нижней строке, разделённые тонкими линиями</td><td>Заголовок слева, текст, кнопки внизу справа как текстовые кнопки</td><td>См. живое сравнение в разделе <a href="#feedback">Обратная связь</a> — точно повторяет форму <code class="tok">CupertinoAlertDialog</code> и Material <code class="tok">AlertDialog</code>, перекрашенных в токены Wayback.</td></tr>
+        <tr><td><b>Нижние шторки</b></td><td>Ручка-грабер, скруглённые верхние углы, открывается с пружинным эффектом</td><td>Ручка-грабер (M3), скруглённые верхние углы, стандартное плавное движение</td><td>Сегодня достаточно сблизились на обеих платформах, чтобы работала одна форма — грабер и радиус общие, различается только кривая анимации открытия/закрытия.</td></tr>
+        <tr><td><b>Switch</b></td><td>Трек-таблетка, круглый бегунок скользит на всю ширину, окрашен в цвет бренда при включении</td><td>Трек + бегунок по Material 3 (бегунок слегка увеличивается при включении, внутри маленькая галочка)</td><td>Показано вживую в разделе <a href="#inputs">Поля ввода</a> — каждый сводится к <code class="tok">CupertinoSwitch</code> / <code class="tok">Switch</code>, оба перекрашены в цвет бренда, но никогда не отрисованы с нуля.</td></tr>
+        <tr><td><b>Пикер даты / времени</b></td><td>Встроенное колесо прокрутки (<code class="tok">CupertinoDatePicker</code>)</td><td>Календарь / циферблат Material</td><td>Не используется в объёме MVP (нет контента с датами, кроме отметки времени сохранённой точки, которая только отображается) — паттерн специфицирован заранее, чтобы будущая функция не изобретала третий стиль.</td></tr>
+        <tr><td><b>Контекстное меню</b></td><td>Долгое нажатие на строку точки → плавающее размытое меню (Переименовать / Навигация / Удалить), закреплённое у строки</td><td>Долгое нажатие → нижняя шторка с теми же тремя действиями в виде списка</td><td>Одни и те же действия, нативная форма представления — плавающее меню в стиле iOS на Android читается как баг, а не как фича.</td></tr>
+        <tr><td><b>Жесты</b></td><td>Смахивание для удаления в строках списка (задний край, красное раскрытие) дополняет, а не заменяет диалог подтверждения</td><td>Тот же жест смахивания, Material-рябь при раскрытии</td><td>Смахивание — это быстрый путь к тому же паттерну <em>деструктивного подтверждения</em> — он никогда не пропускает диалог, поскольку удаление необратимо на обеих платформах.</td></tr>
+        <tr><td><b>Безопасные зоны</b></td><td><code class="tok">SafeArea</code> учитывает вырез/Dynamic Island и home-индикатор; основные действия никогда не оказываются под зоной жеста home-индикатора</td><td><code class="tok">SafeArea</code> учитывает статус-бар и навигационную панель с 3 кнопками/жестами; включён режим edge-to-edge с затемнением за системными панелями</td><td>Обе платформы всё чаще рендерятся edge-to-edge по умолчанию — токен один и тот же (<code class="tok">SafeArea</code>), ОС просто подставляет разные значения отступов.</td></tr>
+        <tr><td><b>Клавиатура</b></td><td>Контент меняет размер над клавиатурой; панель «Готово» закрывает её</td><td>Контент меняет размер над клавиатурой; закрывается системной кнопкой «назад» / тапом снаружи</td><td>Поле названия точки — единственный ввод текста в MVP — на обеих платформах нужно лишь, чтобы кнопка «Сохранить» оставалась видимой и нажимаемой, пока открыта клавиатура.</td></tr>
+        <tr><td><b>Системные панели</b></td><td>Стиль статус-бара (светлый/тёмный контент) переключается вместе с активной темой через <code class="tok">SystemUiOverlayStyle</code></td><td>Цвет иконок статус-бара и навигационной панели переключается вместе с темой; навигационная панель прозрачна поверх контента (edge-to-edge)</td><td>Яркий экран компаса в тёмной теме с «залипшим» светлым статус-баром — самый частый баг «это приложение выглядит недоделанным» — задаётся явно на каждом экране, никогда не оставляется по умолчанию.</td></tr>
+        <tr><td><b>Haptics (вибро­отклик)</b></td><td><code class="tok">HapticFeedback.lightImpact()</code> при сохранении; <code class="tok">.mediumImpact()</code> один раз при входе в радиус прибытия (никогда не повторяется)</td><td><code class="tok">HapticFeedback.lightImpact()</code> / вибро-клик при сохранении; один вибро-паттерн подтверждения при прибытии</td><td>Один и тот же триггер, одна и та же сдержанность (один импульс, а не цикл вибрации) — <code class="tok">docs/mvp-scope.md</code> явно называет это требованием MVP, поэтому оно специфицировано здесь, а не оставлено на усмотрение того, кто подключит событие Bloc для прибытия.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Контекстное меню — живое сравнение</h3>
+  <div class="frame" data-preview="light" data-platform-scope="ios">
+    <div class="frame-label"><span>Долгое нажатие на строку «Стоянка»</span></div>
+    <div class="frame-body" style="background:var(--wb-surface-container); display:flex; justify-content:center;">
+      <div class="ctxwrap" data-platform-scope="ios">
+        <div class="list-item" style="background:var(--wb-surface-elevated); border-radius:var(--r-md); width:280px; box-shadow:var(--wb-shadow-1);">
+          <span class="li-icon">⛺</span><div class="li-text"><div class="li-title">Стоянка</div><div class="li-sub">2.1 км</div></div>
+        </div>
+        <div class="ctxmenu" data-platform-scope="ios">
+          <div class="ctxitem">Навигация</div><div class="ctxitem">Переименовать</div><div class="ctxitem" style="color:var(--wb-negative);">Удалить</div>
+        </div>
+        <div class="ctxsheet" data-platform-scope="android">
+          <div class="ctxitem">Навигация</div><div class="ctxitem">Переименовать</div><div class="ctxitem" style="color:var(--wb-negative);">Удалить</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.ctxwrap { position:relative; display:flex; flex-direction:column; align-items:center; gap:12px; padding-bottom:8px; }
+.ctxmenu { display:none; flex-direction:column; width:200px; background:color-mix(in srgb, var(--wb-surface-elevated) 85%, transparent); backdrop-filter:blur(6px); border-radius:var(--r-md); box-shadow:var(--wb-shadow-3); overflow:hidden; font-family:var(--wb-font); }
+[data-platform-scope="ios"] .ctxmenu { display:flex; }
+.ctxsheet { display:none; flex-direction:column; width:280px; background:var(--wb-surface-elevated); border-radius:var(--r-lg) var(--r-lg) 0 0; box-shadow:var(--wb-shadow-3); overflow:hidden; font-family:var(--wb-font); }
+[data-platform-scope="android"] .ctxsheet { display:flex; }
+.ctxitem { padding:12px 16px; font-size:14.5px; font-weight:500; color:var(--wb-content-primary); border-bottom:1px solid var(--wb-border-subtle); }
+.ctxitem:last-child { border-bottom:none; }
+</style>
+
+<section class="doc-section" id="responsive">
+  <p class="eyebrow">03 — Применение</p>
+  <h2>Адаптивность и диапазон устройств</h2>
+  <p class="lede">Один макет, управляемый ограничениями (constraints), протестированный на крайних случаях, а не спроектированный под единственный артборд.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Условие</th><th>Правило</th></tr></thead>
+      <tbody>
+        <tr><td>Маленькие телефоны (класс iPhone SE, ~375×667, маленький Android ~360×640)</td><td>Главный элемент компаса/стрелки масштабируется под доступную ширину через <code class="tok">FittedBox</code>/размер с фиксированным соотношением сторон и заданным минимумом (200dp); вертикальный ритм сжимается шагами <code class="tok">spacingLg</code>, прежде чем что-либо будет обрезано.</td></tr>
+        <tr><td>Большие телефоны (Pro Max / крупный Android, ≥428dp шириной)</td><td>Контент ограничен максимальной шириной (~480dp) и центрирован, а не растянут — гигантская стрелка или кнопка шириной в 15 см читается как недоделка, а не премиум.</td></tr>
+        <tr><td>Видима клавиатура</td><td>Контент экрана прокручивается/меняет размер над клавиатурой (<code class="tok">resizeToAvoidBottomInset</code>); редактируемое поле и его подтверждающее действие остаются на экране вместе — никогда не только поле.</td></tr>
+        <tr><td>Длинный локализованный текст (строки на ru длиннее, чем на en)</td><td>Никаких контейнеров текста фиксированной ширины для подписей/кнопок; кнопки переносятся на две строки, прежде чем обрезаться, заголовки элементов списка обрезаются многоточием, а подзаголовки — никогда (в подзаголовке важное число).</td></tr>
+        <tr><td>Длинный пользовательский контент</td><td>Названия точек ограничены по длине (разумный максимум символов, закреплённый в сущности <code class="tok">domain</code>, а не только в UI) и обрезаются многоточием, с полным значением по долгому нажатию/подсказке.</td></tr>
+        <tr><td>Динамический размер текста (до 200%)</td><td>См. раздел <a href="#a11y">Доступность</a> — обрезанный текст недопустим при любых настройках размера текста ОС.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="doc-section" id="flutter">
+  <p class="eyebrow">04 — Передача</p>
+  <h2>Передача во Flutter</h2>
+  <p class="lede">Вписывается в слоение, уже заданное в <code class="tok">docs/architecture.md</code>: тема живёт в <code class="tok">app/theme/</code>, собирается один раз в <code class="tok">bootstrap.dart</code>/<code class="tok">app.dart</code>, а переиспользуемые виджеты живут в <code class="tok">core/widgets/</code> — <code class="tok">core</code> не импортирует <code class="tok">features</code>, поэтому эти компоненты остаются доступны любой feature без того, чтобы зависимость хоть раз указала в неправильную сторону.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Концепция системы</th><th>Механизм Flutter</th><th>Расположение</th></tr></thead>
+      <tbody>
+        <tr><td>Семантические цветовые токены</td><td><code class="tok">ThemeExtension&lt;WaybackColors&gt;</code> — у Flutter-овского <code class="tok">ColorScheme</code> нет имён вида <code class="tok">contentSecondary</code>/<code class="tok">actionPrimary</code>, поэтому он дополняется, а не перегружается посторонними значениями.</td><td><code class="tok">app/theme/wayback_colors.dart</code></td></tr>
+        <tr><td>Шкала типографики</td><td><code class="tok">TextTheme</code> — 10 слотов, используемых в разделе <a href="#typography">Типографика</a>, собираются один раз на каждую яркость темы.</td><td><code class="tok">app/theme/wayback_text_theme.dart</code></td></tr>
+        <tr><td>Отступы / радиус / высота</td><td>Простой <code class="tok">ThemeExtension&lt;WaybackTokens&gt;</code> (или простой класс <code class="tok">static const</code>, если накладные расходы extension не нужны) — эти значения не зависят от яркости темы, поэтому им вообще не нужен поиск через тему, только общий источник констант.</td><td><code class="tok">app/theme/wayback_tokens.dart</code></td></tr>
+        <tr><td>Базовая совместимость с Material</td><td>Без <code class="tok">ColorScheme.fromSeed</code> — <code class="tok">ColorScheme</code> заполняется явно, поле за полем, из семантических токенов, чтобы сторонние Material-виджеты (читающие <code class="tok">Theme.of(context).colorScheme</code>) наследовали цвет бренда, а не сгенерированный.</td><td><code class="tok">app/theme/app_theme.dart</code></td></tr>
+        <tr><td>Компоненты</td><td>Stateless/stateful-виджеты — <code class="tok">AppButton</code>, <code class="tok">AppTextField</code>, <code class="tok">AppListItem</code>… — читают токены через <code class="tok">context.waybackColors</code> / <code class="tok">Theme.of(context).textTheme</code>, никогда не через жёстко заданное значение.</td><td><code class="tok">core/widgets/</code></td></tr>
+        <tr><td>Адаптация под платформу</td><td><code class="tok">Theme.of(context).platform</code> (или <code class="tok">defaultTargetPlatform</code>) — ветвление внутри самого компонента; один вызов <code class="tok">AppDialog.confirm(...)</code> выбирает оформление в стиле Cupertino или Material — точка вызова никогда не ветвится.</td><td>Внутри каждого компонента в <code class="tok">core/widgets/</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Цветовое расширение (extension)</h3>
+  <div class="table-wrap"><table><tbody><tr><td class="mono codeblock">@immutable
+class WaybackColors extends ThemeExtension&lt;WaybackColors&gt; {
+  const WaybackColors({
+    required this.surfaceDefault,
+    required this.surfaceElevated,
+    required this.surfaceContainer,
+    required this.contentPrimary,
+    required this.contentSecondary,
+    required this.contentDisabled,
+    required this.borderDefault,
+    required this.borderSubtle,
+    required this.actionPrimaryBg,
+    required this.actionPrimaryFg,
+    required this.positive,
+    required this.warning,
+    required this.negative,
+  });
+
+  final Color surfaceDefault, surfaceElevated, surfaceContainer;
+  final Color contentPrimary, contentSecondary, contentDisabled;
+  final Color borderDefault, borderSubtle;
+  final Color actionPrimaryBg, actionPrimaryFg;
+  final Color positive, warning, negative;
+
+  static const light = WaybackColors(
+    surfaceDefault: Color(0xFFFFFFFF),
+    surfaceElevated: Color(0xFFFFFFFF),
+    surfaceContainer: Color(0xFFF5F7F9),
+    contentPrimary: Color(0xFF1B2025),
+    contentSecondary: Color(0xFF545F6B),
+    contentDisabled: Color(0xFFAEB8C2),
+    borderDefault: Color(0xFF6B7885),
+    borderSubtle: Color(0xFFDDE2E7),
+    actionPrimaryBg: Color(0xFFC24812),
+    actionPrimaryFg: Color(0xFFFFFFFF),
+    positive: Color(0xFF1E8E5A),
+    warning: Color(0xFF8F5B08),
+    negative: Color(0xFFD53A2E),
+  );
+
+  static const dark = WaybackColors(
+    surfaceDefault: Color(0xFF0B0D10),
+    surfaceElevated: Color(0xFF1B2025),
+    surfaceContainer: Color(0xFF14181D),
+    contentPrimary: Color(0xFFF5F7F9),
+    contentSecondary: Color(0xFFAEB8C2),
+    contentDisabled: Color(0xFF545F6B),
+    borderDefault: Color(0xFF6B7885),
+    borderSubtle: Color(0xFF2B3138),
+    actionPrimaryBg: Color(0xFFC24812),
+    actionPrimaryFg: Color(0xFFFFFFFF),
+    positive: Color(0xFF34A873),
+    warning: Color(0xFFE0A030),
+    negative: Color(0xFFFF6E5E),
+  );
+
+  @override
+  WaybackColors copyWith({/* ...field-by-field, omitted */}) =&gt; this;
+
+  @override
+  WaybackColors lerp(WaybackColors? other, double t) {
+    if (other is! WaybackColors) return this;
+    return WaybackColors(
+      surfaceDefault: Color.lerp(surfaceDefault, other.surfaceDefault, t)!,
+      // ...remaining fields lerp the same way
+      surfaceElevated: Color.lerp(surfaceElevated, other.surfaceElevated, t)!,
+      surfaceContainer: Color.lerp(surfaceContainer, other.surfaceContainer, t)!,
+      contentPrimary: Color.lerp(contentPrimary, other.contentPrimary, t)!,
+      contentSecondary: Color.lerp(contentSecondary, other.contentSecondary, t)!,
+      contentDisabled: Color.lerp(contentDisabled, other.contentDisabled, t)!,
+      borderDefault: Color.lerp(borderDefault, other.borderDefault, t)!,
+      borderSubtle: Color.lerp(borderSubtle, other.borderSubtle, t)!,
+      actionPrimaryBg: Color.lerp(actionPrimaryBg, other.actionPrimaryBg, t)!,
+      actionPrimaryFg: Color.lerp(actionPrimaryFg, other.actionPrimaryFg, t)!,
+      positive: Color.lerp(positive, other.positive, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      negative: Color.lerp(negative, other.negative, t)!,
+    );
+  }
+}
+
+extension WaybackThemeContext on BuildContext {
+  WaybackColors get waybackColors =&gt; Theme.of(this).extension&lt;WaybackColors&gt;()!;
+}</td></tr></tbody></table></div>
+
+  <h3>Тема типографики (фрагмент)</h3>
+  <div class="table-wrap"><table><tbody><tr><td class="mono codeblock">TextTheme buildWaybackTextTheme(Color onSurface) =&gt; TextTheme(
+  displayLarge: TextStyle(fontSize: 56, height: 64/56, fontWeight: FontWeight.w700,
+      letterSpacing: -0.02 * 56, color: onSurface,
+      fontFeatures: const [FontFeature.tabularFigures()]),
+  headlineSmall: TextStyle(fontSize: 24, height: 30/24, fontWeight: FontWeight.w700, color: onSurface),
+  titleLarge: TextStyle(fontSize: 20, height: 26/20, fontWeight: FontWeight.w600, color: onSurface),
+  bodyLarge: TextStyle(fontSize: 16, height: 24/16, fontWeight: FontWeight.w400, color: onSurface),
+  labelLarge: TextStyle(fontSize: 15, height: 20/15, fontWeight: FontWeight.w600,
+      letterSpacing: 0.01 * 15, color: onSurface),
+  bodySmall: TextStyle(fontSize: 12, height: 16/12, fontWeight: FontWeight.w500,
+      letterSpacing: 0.02 * 12, color: onSurface),
+  // fontFamily намеренно не задан — наследует платформенный шрифт
+  // по умолчанию (San Francisco / Roboto) согласно решению из раздела «Типографика».
+);</td></tr></tbody></table></div>
+
+  <h3>Ветвление по платформе, спрятанное внутри компонента</h3>
+  <div class="table-wrap"><table><tbody><tr><td class="mono codeblock">Future&lt;bool&gt; showDestructiveConfirm(BuildContext context, {required String title, required String body}) {
+  final platform = Theme.of(context).platform;
+  if (platform == TargetPlatform.iOS) {
+    return showCupertinoDialog&lt;bool&gt;(
+      context: context,
+      builder: (_) =&gt; CupertinoAlertDialog(
+        title: Text(title), content: Text(body),
+        actions: [
+          CupertinoDialogAction(onPressed: () =&gt; Navigator.pop(context, false), child: const Text('Отмена')),
+          CupertinoDialogAction(isDestructiveAction: true, onPressed: () =&gt; Navigator.pop(context, true), child: const Text('Удалить')),
+        ],
+      ),
+    ).then((v) =&gt; v ?? false);
+  }
+  return showDialog&lt;bool&gt;(
+    context: context,
+    builder: (_) =&gt; AlertDialog(
+      title: Text(title), content: Text(body),
+      actions: [
+        TextButton(onPressed: () =&gt; Navigator.pop(context, false), child: const Text('Отмена')),
+        TextButton(onPressed: () =&gt; Navigator.pop(context, true),
+            child: Text('Удалить', style: TextStyle(color: context.waybackColors.negative))),
+      ],
+    ),
+  ).then((v) =&gt; v ?? false);
+}</td></tr></tbody></table></div>
+  <p style="color:var(--page-text-secondary); font-size:13.5px;">Каждая платформо-адаптивная строка в разделе <a href="#platform">Адаптация iOS / Android</a> следует этой форме: одна точка вызова (<code class="tok">AppDialog.confirm(...)</code>, <code class="tok">AppSwitch(...)</code>, <code class="tok">AppBackButton()</code>), ветвление спрятано внутри <code class="tok">core/widgets/</code>. Экран сам никогда не пишет <code class="tok">if (Platform.isIOS)</code>.</p>
+</section>
+
+<section class="doc-section" id="open-questions">
+  <p class="eyebrow">05 — Перед продуктовыми экранами</p>
+  <h2>Открытые вопросы и риски</h2>
+  <p class="lede">Согласно брифу: этот документ останавливается на основах, компонентах, паттернах и этом плейграунде — продуктовых экранов пока нет. Прежде чем <code class="tok">SCREENS.md</code> будет выстроен на основе этой системы, на эти вопросы нужен ответ.</p>
+
+  <h3>Недостающие продуктовые решения</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Вопрос</th><th>Почему это блокирует работу над экранами</th></tr></thead>
+    <tbody>
+      <tr><td>Есть ли в MVP хоть какой-то вид карты, пусть минимальный?</td><td><code class="tok">README.md</code> прямо говорит, что приложение показывает направление + расстояние <em>вместо</em> карты, а «карта с пользователем и сохранённой точкой» указана в Future Ideas — но нужно подтвердить, что для v1 это действительно ноль карты, поскольку это влияет на то, нужен ли экрану навигации вторичный/альтернативный макет.</td></tr>
+      <tr><td>Как запускается «Сохранить текущее местоположение» — есть ли отдельный маршрут, или это действие на <code class="tok">/</code>?</td><td>В таблице маршрутов <code class="tok">architecture.md</code> нет <code class="tok">/points/new</code>; паттерн сохранения точки выше предполагает, что это действие на месте + шторка на главном экране, а не переход.</td></tr>
+      <tr><td>Единицы измерения по умолчанию — по локали устройства или явный выбор при первом запуске?</td><td>Определяет, нужен ли паттерну Radio в разделе <a href="#inputs">Поля ввода</a> вариант для первого запуска, или он живёт только в настройках.</td></tr>
+      <tr><td>Несколько сохранённых точек в MVP или ровно одна «активная» точка одновременно?</td><td><code class="tok">mvp-scope.md</code> говорит «выбор активной точки» (в единственном числе), но при этом перечисляет полный CRUD + экран списка — стоит подтвердить, действительно ли список — это только <em>управление</em> точками, а навигация всегда идёт по одной активной точке.</td></tr>
+      <tr><td>Что происходит с состоянием прибытия после того, как оно достигнуто — остаётся «прибыли», сбрасывается, или предлагает удалить/очистить активную точку?</td><td>Финальное состояние после прибытия не определено; паттерн прибытия сейчас просто бессрочно показывает баннер.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Недостающие компоненты</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Компонент</th><th>Примечание</th></tr></thead>
+    <tbody>
+      <tr><td>Главный элемент компаса/стрелки</td><td>Намеренно не спроектирован здесь — это самый важный и самый авторский элемент продукта, заслуживающий отдельного сфокусированного прохода (плавность вращения, визуализация кольца точности, переход прибытия), а не наспех сделанного угла в документе основ.</td></tr>
+      <tr><td>Онбординг / пояснение к запросу разрешения при первом запуске</td><td>Паттерн запроса разрешения покрывает системный диалог; экран(ы), объясняющие <em>зачем</em> перед его запуском, не спроектированы.</td></tr>
+      <tr><td>Иконка приложения и splash-экран</td><td><code class="tok">mvp-scope.md</code> указывает их как блокирующие релиз; пока не существует никакого фирменного знака, кроме плейсхолдер-глифа компаса, используемого в боковой панели этого документа.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Спорные решения, принятые здесь — отмечены для пересмотра</h3>
+  <div class="note risk"><b>Единый оттенок акцента для бренда и интерактивного состояния</b>Оранжевый бренда, янтарный предупреждения и красный негативного состояния находятся в пределах ~35° по цветовому кругу (обосновано в разделе <a href="#color">Цвет</a> разделением по светлоте/насыщенности и жёстким правилом, что состояние никогда не передаётся только цветом). Стоит пересмотреть, когда появятся реальные экраны — блики прямого солнца на улице особенно снижают различимость оттенков.</div>
+  <div class="note risk"><b>Нет встроенного дисплейного шрифта</b>Нативный для платформы шрифт делает приложение лёгким по зависимостям и безопасным офлайн, но также означает, что у бренда почти нет собственного типографического почерка — два приложения с шрифтами San Francisco/Roboto по умолчанию могут выглядеть похоже. Приемлемо для MVP; пересмотреть, если дифференциация бренда станет приоритетом.</div>
+  <div class="note risk"><b>Нижняя навигация специфицирована, но не используется</b>Спроектирована в разделе <a href="#navigation">Навигация</a> под число маршрутов, которого у Wayback пока нет. Если продукт надолго останется на четырёх маршрутах, этот компонент стоит пометить как deprecated, а не оставлять как соблазн добавить его «для единообразия».</div>
+
+  <h3>Риски доступности</h3>
+  <div class="note risk"><b>Частота озвучивания скринридером</b>Повторено в разделе <a href="#a11y">Доступность</a> — непрерывно обновляющееся значение азимута/расстояния нуждается в стратегии дросселирования или озвучивания по запросу (например, озвучивание по действию Semantics «прочитать текущий статус», а не на каждый кадр), пока не спроектировано.</div>
+  <div class="note risk"><b>Надёжность компаса сама по себе — вопрос доступности</b>У пользователя, который не может визуально сверить стрелку с реальным миром (слабое зрение), нет запасной модальности, кроме числа расстояния. Нужен продуктовый ответ на вопрос, нужен ли произносимый азимут («поверните направо», направления по циферблату) в MVP или после него.</div>
+
+  <h3>Требует продуктового уточнения</h3>
+  <p style="color:var(--page-text-secondary); font-size:14px; max-width:66ch;">Всё вышеперечисленное, плюс: этот документ предполагает только телефоны, соответствуя стеку <code class="tok">docs/architecture.md</code> — макет для планшета/iPad явно вне рамок, пока это не станет заявленной целью. И поскольку <code class="tok">BRAND.md</code> не существует, направление «Точность и инструментальность» и оранжево-графитовая палитра — это предложение данного документа, а не штамп поверх уже существующей работы над брендом: их стоит рассматривать как решение, которое нужно утвердить, а не как данность.</p>
+</section>
+
+<div class="doc-footer">
+  Дизайн-система Wayback · v0.1 · основы и плейграунд компонентов, первая часть поставки согласно брифу дизайн-системы.<br>
+  Источники: README.md, docs/mvp-scope.md, docs/architecture.md. На момент создания документа в репозитории не существовало BRAND.md / SCREENS.md / DESIGN_SYSTEM.md.
+</div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function setPreview(kind, value){
+  if(kind === 'theme'){
+    document.querySelectorAll('[data-preview]').forEach(function(el){ el.setAttribute('data-preview', value); });
+    document.getElementById('btn-theme-light').setAttribute('aria-pressed', value === 'light');
+    document.getElementById('btn-theme-dark').setAttribute('aria-pressed', value === 'dark');
+  } else {
+    document.querySelectorAll('[data-platform-scope]').forEach(function(el){ el.setAttribute('data-platform-scope', value); });
+    document.getElementById('btn-platform-ios').setAttribute('aria-pressed', value === 'ios');
+    document.getElementById('btn-platform-android').setAttribute('aria-pressed', value === 'android');
+  }
+}
+
+/* ---------- token data + contrast verification (renders the Color tables) ---------- */
+function lin(c){ c/=255; return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4); }
+function lum(hex){ hex=hex.replace('#',''); var r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16); return 0.2126*lin(r)+0.7152*lin(g)+0.0722*lin(b); }
+function contrast(a,b){ var la=lum(a),lb=lum(b); var hi=Math.max(la,lb),lo=Math.min(la,lb); return (hi+0.05)/(lo+0.05); }
+function chip(hex){ return '<div class="swatch-row"><span class="swatch-chip" style="background:'+hex+';"></span><code class="mono" style="font-size:12px;">'+hex+'</code></div>'; }
+
+var neutral = [
+  ['neutral-0','#FFFFFF'],['neutral-50','#F5F7F9'],['neutral-100','#EAEDF1'],['neutral-150','#DDE2E7'],
+  ['neutral-200','#C9D0D8'],['neutral-300','#AEB8C2'],['neutral-400','#8A97A3'],['neutral-500','#6B7885'],
+  ['neutral-600','#545F6B'],['neutral-700','#3F4750'],['neutral-800','#2B3138'],['neutral-900','#1B2025'],
+  ['neutral-950','#12161A'],['neutral-1000','#0B0D10']
+];
+var brand = [
+  ['brand-50','#FFF1E6'],['brand-100','#FFDEC2'],['brand-200','#FFBD8A'],['brand-300','#FF9A54'],
+  ['brand-400','#F97A2E'],['brand-500','#E2591A'],['brand-600','#C24812'],['brand-700','#9E390D'],
+  ['brand-800','#7A2C0A'],['brand-900','#4F1C07']
+];
+var statusColors = [
+  ['positive-400','#34A873'],['positive-500','#1E8E5A'],
+  ['warning-400','#E0A030'],['warning-500','#B8790A'],['warning-600','#8F5B08'],
+  ['negative-400','#FF6E5E'],['negative-500','#D53A2E']
+];
+
+function renderSwatchTable(id, rows, title){
+  var html = '<table><thead><tr><th colspan="2">'+title+'</th></tr></thead><tbody>';
+  rows.forEach(function(r){ html += '<tr><td style="width:40%;">'+r[0]+'</td><td>'+chip(r[1])+'</td></tr>'; });
+  html += '</tbody></table>';
+  document.getElementById(id).innerHTML = html;
+}
+renderSwatchTable('swatch-neutral', neutral, 'Нейтральные (графит, оттенок 215°)');
+renderSwatchTable('swatch-brand', brand, 'Бренд (сигнальный оранжевый, оттенок 26°)');
+renderSwatchTable('swatch-status', statusColors, 'Статусные (позитивный 150° · предупреждение 42° · негативный 4°)');
+
+var semantic = [
+  ['surfaceDefault','#FFFFFF','#0B0D10','Фон экрана.'],
+  ['surfaceElevated','#FFFFFF','#1B2025','Карточки, диалоги, шторки, snackbar.'],
+  ['surfaceContainer','#F5F7F9','#14181D','Сгруппированные секции, поля ввода в покое, фон рамок.'],
+  ['contentPrimary','#1B2025','#F5F7F9','Основной текст, показатель расстояния/азимута.'],
+  ['contentSecondary','#545F6B','#AEB8C2','Вторичный текст — подзаголовки, вспомогательный текст.'],
+  ['contentDisabled','#AEB8C2','#545F6B','Отключённые (disabled) подписи (освобождены от минимума контраста по WCAG).'],
+  ['borderDefault','#6B7885','#6B7885','Функциональные границы — обводка полей ввода, разделители, которые должны читаться как граница.'],
+  ['borderSubtle','#DDE2E7','#2B3138','Декоративные разделители — тонкие линии строк списка, контуры карточек.'],
+  ['actionPrimary','#C24812 / белый','#C24812 / белый','Заливка/подпись кнопки Primary — одинаковая пара в обеих темах, см. раздел «Действия».'],
+  ['positive','#1E8E5A','#34A873','Хороший фикс GPS, подтверждение прибытия.'],
+  ['warning','текст #8F5B08 · заливка #B8790A','#E0A030','Слабый сигнал, некалиброванный компас.'],
+  ['negative','#D53A2E','#FF6E5E','Ошибки, деструктивные действия.']
+];
+document.getElementById('semantic-color-table').innerHTML = semantic.map(function(r){
+  return '<tr><td><code class="tok">'+r[0]+'</code></td><td>'+r[1]+'</td><td>'+r[2]+'</td><td style="max-width:32ch;">'+r[3]+'</td></tr>';
+}).join('');
+
+var pairs = [
+  ['contentPrimary на surfaceDefault','#1B2025','#FFFFFF','#F5F7F9','#0B0D10','4.5:1'],
+  ['contentSecondary на surfaceDefault','#545F6B','#FFFFFF','#AEB8C2','#0B0D10','4.5:1'],
+  ['Белая подпись на заливке actionPrimary','#FFFFFF','#C24812','#FFFFFF','#C24812','4.5:1'],
+  ['borderDefault на surfaceDefault (функциональная)','#6B7885','#FFFFFF','#6B7885','#0B0D10','3:1'],
+  ['текст positive на surfaceDefault','#1E8E5A','#FFFFFF','#34A873','#0B0D10','4.5:1'],
+  ['текст warning на surfaceDefault','#8F5B08','#FFFFFF','#E0A030','#0B0D10','4.5:1'],
+  ['текст negative на surfaceDefault','#D53A2E','#FFFFFF','#FF6E5E','#0B0D10','4.5:1']
+];
+document.getElementById('contrast-table').innerHTML = pairs.map(function(p){
+  var target = parseFloat(p[5]);
+  var cl = contrast(p[1],p[2]), cd = contrast(p[3],p[4]);
+  var pillL = cl>=target ? '<span class="pill pill-pass">'+cl.toFixed(2)+':1 ✓</span>' : '<span class="pill pill-warn">'+cl.toFixed(2)+':1</span>';
+  var pillD = cd>=target ? '<span class="pill pill-pass">'+cd.toFixed(2)+':1 ✓</span>' : '<span class="pill pill-warn">'+cd.toFixed(2)+':1</span>';
+  return '<tr><td>'+p[0]+'</td><td>'+pillL+'</td><td>'+pillD+'</td><td>'+p[5]+'</td><td></td></tr>';
+}).join('');
+
+var spacing = [['2xs',4],['xs',8],['sm',12],['md',16],['lg',20],['xl',24],['2xl',32],['3xl',40],['4xl',48]];
+document.getElementById('spacing-scale').innerHTML =
+  '<div style="display:flex; align-items:flex-end; gap:14px; padding:var(--sp-lg) 0; flex-wrap:wrap;">' +
+  spacing.map(function(s){
+    return '<div style="text-align:center;"><div style="width:28px; height:'+(s[1]*1.6)+'px; background:var(--page-accent); border-radius:4px 4px 0 0; margin:0 auto;"></div>' +
+      '<div style="font-size:11px; margin-top:6px; color:var(--page-text-secondary);" class="mono">'+s[1]+'</div>' +
+      '<div style="font-size:10px; color:var(--page-text-tertiary);">spacing'+s[0]+'</div></div>';
+  }).join('') + '</div>';
+
+var radii = [['radiusSm',8],['radiusMd',12],['radiusLg',20],['radiusFull',999]];
+document.getElementById('radius-scale').innerHTML =
+  '<div style="display:flex; align-items:center; gap:24px; padding:var(--sp-lg) 0; flex-wrap:wrap;">' +
+  radii.map(function(r){
+    var size = r[1] > 60 ? 56 : 56;
+    var rad = r[1] > 60 ? 999 : r[1];
+    return '<div style="text-align:center;"><div style="width:'+size+'px; height:'+size+'px; border-radius:'+rad+'px; background:var(--page-surface-sunken); border:2px solid var(--page-accent);"></div>' +
+      '<div style="font-size:11px; margin-top:8px; color:var(--page-text-secondary);" class="mono">'+r[0]+' · '+r[1]+'</div></div>';
+  }).join('') + '</div>';
+</script>

@@ -1,0 +1,12 @@
+/* Elevation — L0 flat, L1 fill only, L2 card, L3 popover, L4 dialog + scrim.
+   Shadow is secondary: hierarchy is carried by fill and border (shadows read poorly in sun). */
+:root {
+  --wb-shadow-1: 0 1px 3px rgba(20,24,29,0.10), 0 1px 2px rgba(20,24,29,0.08);
+  --wb-shadow-2: 0 4px 12px rgba(20,24,29,0.14), 0 2px 4px rgba(20,24,29,0.08);
+  --wb-shadow-3: 0 12px 32px rgba(20,24,29,0.20), 0 4px 8px rgba(20,24,29,0.10);
+}
+[data-theme="dark"] {
+  --wb-shadow-1: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --wb-shadow-2: 0 4px 14px rgba(0,0,0,0.5);
+  --wb-shadow-3: 0 16px 40px rgba(0,0,0,0.6);
+}
