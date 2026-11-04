@@ -7,8 +7,8 @@
 # the text of a commit message. A tag is therefore the only way to say "run
 # now" without producing a run for every commit.
 #
-# One consequence worth knowing: pushing broken code to a branch produces no
-# signal at all. The tag build is the first and only check.
+# Pull requests into develop/main are checked separately by pr.yml (format,
+# analyze, tests — no builds). A plain push without a PR still gets no signal.
 #
 # ------------------------------------------------------------------------------
 # TAG GRAMMAR (exact match, lowercase)
