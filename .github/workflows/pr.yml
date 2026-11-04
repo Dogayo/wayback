@@ -1,8 +1,11 @@
 # ==============================================================================
 # PR CHECKS
 #
-# Runs on every pull request into develop or main: formatting, analysis and
+# Runs on every pull request into main: formatting, analysis and
 # tests for the app and for each local package under packages/.
+#
+# Pull requests into develop are not checked: develop is the working branch,
+# main is where the gate sits.
 #
 # Release logic lives in ci.yml and is untouched by this file: nothing here
 # builds, tags or publishes.
@@ -16,7 +19,7 @@ name: PR checks
 
 on:
   pull_request:
-    branches: [develop, main]
+    branches: [main]
 
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
