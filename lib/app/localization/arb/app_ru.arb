@@ -14,5 +14,21 @@
   "homeAllPoints": "Все точки",
   "pointsOpenSample": "Открыть точку",
   "pointNavigate": "Вести к точке",
-  "screenStub": "Экран в разработке"
+  "screenStub": "Экран в разработке",
+  "distanceMeters": "{value} м",
+  "distanceKilometers": "{value} км",
+  "@distanceMeters": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@distanceKilometers": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  }
 }

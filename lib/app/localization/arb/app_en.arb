@@ -11,5 +11,7 @@
   "homeAllPoints": "All points",
   "pointsOpenSample": "Open point",
   "pointNavigate": "Navigate",
-  "screenStub": "Screen in progress"
+  "screenStub": "Screen in progress",
+  "distanceMeters": "{value} m",
+  "distanceKilometers": "{value} km"
 }
