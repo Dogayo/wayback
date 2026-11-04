@@ -799,7 +799,7 @@ class _ContentSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Section(
     title: 'Content',
-    components: 'ListItem · Card · Badge · Chip · Avatar',
+    components: 'ListItem · PointCard · Card · Badge · Chip · Avatar',
     children: [
       _Specimen(
         title: 'Сохранённые точки',
@@ -826,6 +826,21 @@ class _ContentSection extends StatelessWidget {
               leading: Icon(Icons.phishing_outlined),
               trailing: WbBadge(label: 'Слабый сигнал', tone: WbTone.warning),
             ),
+          ],
+        ),
+      ),
+      const _Specimen(
+        title: 'PointCard · активная точка на главном',
+        child: Column(
+          children: [
+            WbPointCard(
+              title: 'Машина',
+              distance: '640 м',
+              typeIcon: Icons.directions_car_outlined,
+              rotation: 35,
+            ),
+            SizedBox(height: 12),
+            WbPointCardSkeleton(),
           ],
         ),
       ),

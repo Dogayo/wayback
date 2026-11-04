@@ -49,11 +49,15 @@ class _TypeTile extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         decoration: BoxDecoration(
-          color: selected ? context.wbColors.brand600 : Colors.transparent,
+          // actionPrimaryBg, not brand600: the dark brand600 is too light
+          // for white text (2.6:1), the action fill stays at 4.97:1.
+          color: selected
+              ? context.wbColors.actionPrimaryBg
+              : Colors.transparent,
           borderRadius: WbRadius.medium,
           border: Border.all(
             color: selected
-                ? context.wbColors.brand600
+                ? context.wbColors.actionPrimaryBg
                 : context.wbColors.borderSubtle,
             width: 1.5,
           ),
@@ -65,7 +69,7 @@ class _TypeTile extends StatelessWidget {
               type.icon,
               size: WbIconSize.lg,
               color: selected
-                  ? context.wbColors.contentOnBrand
+                  ? context.wbColors.actionPrimaryFg
                   : context.wbColors.contentSecondary,
             ),
             const SizedBox(height: 4),
@@ -73,7 +77,7 @@ class _TypeTile extends StatelessWidget {
               type.label,
               style: context.wbText.labelMedium?.copyWith(
                 color: selected
-                    ? context.wbColors.contentOnBrand
+                    ? context.wbColors.actionPrimaryFg
                     : context.wbColors.contentSecondary,
                 fontSize: 10.5,
               ),

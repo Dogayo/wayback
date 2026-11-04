@@ -88,9 +88,9 @@ Material Symbols, Outlined, обводка 2dp — единый набор на 
 
 **Кнопки** (`AppButton(variant, size, icon?, loading, enabled, onPressed)`): `primary` (заливка `actionPrimaryBg`) · `secondary` (контур `borderDefault`) · `tertiary` (текст `brand600`, без фона/границы) · `destructive` (контур `negative`, заливка только в диалоге подтверждения). Размеры: `medium` (44dp), `small` (36dp, плотные контексты). Состояния: default / pressed (тональный сдвиг) / focused (кольцо) / disabled (60% прозрачности) / loading (спиннер вместо подписи).
 
-**Поля ввода**: `AppTextField` (+ password/search-варианты), `AppTextArea`, `Checkbox`, `Radio`, `Switch` (платформо-адаптивный), пикер типа точки — сетка иконок 4×2, а не dropdown. Состояния текстового поля: empty / focused / filled / error (красная граница + сообщение) / disabled / с ведущей иконкой / с хвостовым действием / с helper-текстом.
+**Поля ввода**: `AppTextField` (+ password/search-варианты), `AppTextArea`, `Checkbox`, `Radio`, `Switch` (платформо-адаптивный), пикер типа точки (`WbTypePicker`) — сетка иконок 4×2, а не dropdown; выбранная плитка залита `actionPrimaryBg` с текстом `actionPrimaryFg`, а не `brand600`: в тёмной теме `brand600` слишком светлый для белой подписи (2,6:1). Состояния текстового поля: empty / focused / filled / error (красная граница + сообщение) / disabled / с ведущей иконкой / с хвостовым действием / с helper-текстом.
 
-**Контент**: `AppListItem` (ведущая иконка · заголовок · подзаголовок · хвостовой элемент, min-height 64dp, есть `selected`-состояние для активной точки), `Card`, `Avatar` (заглушка — первая буква, фото нет в MVP), `Badge`, `Chip` (с `selected`-состоянием), `Divider`.
+**Контент**: `AppListItem` (ведущая иконка · заголовок · подзаголовок · хвостовой элемент, min-height 64dp, есть `selected`-состояние для активной точки), `WbPointCard` (активная точка на главном: круг со стрелкой-направлением · имя с иконкой типа · расстояние `headlineSmall` · шеврон; без `rotation` стрелка скрыта) и `WbPointCardSkeleton` той же высоты для загрузки, `Card`, `Avatar` (заглушка — первая буква, фото нет в MVP), `Badge`, `Chip` (с `selected`-состоянием), `Divider`.
 
 **Навигация**: верхний `AppBar` с адаптивной кнопкой «назад» (`AppBackButton`), нижняя навигация специфицирована, но не используется в MVP (всего 4 маршрута), вкладки/сегментированный переключатель.
 
