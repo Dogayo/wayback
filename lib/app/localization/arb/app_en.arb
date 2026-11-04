@@ -1,0 +1,15 @@
+{
+  "@@locale": "en",
+  "appTitle": "Wayback",
+  "homeTitle": "Wayback",
+  "pointCreateTitle": "New point",
+  "pointsListTitle": "Points",
+  "pointDetailsTitle": "Point",
+  "navigateTitle": "Navigate",
+  "settingsTitle": "Settings",
+  "homeSaveLocation": "Save location",
+  "homeAllPoints": "All points",
+  "pointsOpenSample": "Open point",
+  "pointNavigate": "Navigate",
+  "screenStub": "Screen in progress"
+}

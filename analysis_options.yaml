@@ -21,6 +21,7 @@ analyzer:
     - "build/**"
     - "docs/**"
     - "**/*.g.dart"
+    - lib/app/localization/generated/**
     - android/**
     - ios/**
     - web/**

@@ -242,6 +242,7 @@ Future<Result<List<SavedPoint>>> getAll() async {
 
 ```text
 /                    главный экран (сохранить / активная точка)
+/points/new          создание точки по текущей позиции
 /points              список сохранённых точек
 /points/:id          детали точки
 /navigate/:id        экран навигации на точку
