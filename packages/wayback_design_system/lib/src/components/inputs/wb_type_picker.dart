@@ -6,9 +6,17 @@ import 'package:wayback_design_system/src/foundations/app_spacing.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
 
 class WbTypePicker extends StatelessWidget {
-  const WbTypePicker({required this.value, required this.onChanged, super.key});
+  const WbTypePicker({
+    required this.value,
+    required this.onChanged,
+    this.labelOf,
+    super.key,
+  });
   final WbPointType value;
   final ValueChanged<WbPointType> onChanged;
+
+  /// Localized tile label; defaults to [WbPointTypeData.label].
+  final String Function(WbPointType type)? labelOf;
   @override
   Widget build(BuildContext context) => GridView.count(
     crossAxisCount: 4,
@@ -21,6 +29,7 @@ class WbTypePicker extends StatelessWidget {
       for (final type in WbPointType.values)
         _TypeTile(
           type: type,
+          label: labelOf?.call(type) ?? type.label,
           selected: type == value,
           onTap: () => onChanged(type),
         ),
@@ -31,17 +40,19 @@ class WbTypePicker extends StatelessWidget {
 class _TypeTile extends StatelessWidget {
   const _TypeTile({
     required this.type,
+    required this.label,
     required this.selected,
     required this.onTap,
   });
   final WbPointType type;
+  final String label;
   final bool selected;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => Semantics(
     selected: selected,
     button: true,
-    label: type.label,
+    label: label,
     child: InkWell(
       key: ValueKey('wb-type-${type.name}'),
       onTap: onTap,
@@ -74,7 +85,7 @@ class _TypeTile extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              type.label,
+              label,
               style: context.wbText.labelMedium?.copyWith(
                 color: selected
                     ? context.wbColors.actionPrimaryFg

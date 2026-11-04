@@ -36,6 +36,36 @@ void main() {
     },
   );
 
+  testWidgets('labels can be localized by the app', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: WbTheme.light,
+        home: Scaffold(
+          body: SizedBox(
+            width: 400,
+            child: WbTypePicker(
+              value: WbPointType.car,
+              onChanged: (_) {},
+              labelOf: (type) => type == WbPointType.car ? 'Car' : type.name,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Car'), findsOneWidget);
+    expect(find.text('Машина'), findsNothing);
+    final semantics = tester.widget<Semantics>(
+      find
+          .ancestor(
+            of: find.byKey(const ValueKey('wb-type-car')),
+            matching: find.byType(Semantics),
+          )
+          .first,
+    );
+    expect(semantics.properties.label, 'Car');
+  });
+
   test(
     'selected tile keeps text contrast of at least 4.5:1 in both themes',
     () {

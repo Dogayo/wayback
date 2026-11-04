@@ -2,7 +2,7 @@ import 'package:wayback/app/localization/generated/app_localizations.dart';
 import 'package:wayback/core/utils/geo/distance_formatter.dart';
 
 extension DistanceL10n on AppLocalizations {
-  /// Distance with a localized unit, e.g. `850 м` or `1,2 км`.
+  /// Distance with a localized unit and a non-breaking space, e.g. `850 м`.
   String distance(double meters) {
     final formatted = formatDistance(meters, locale: localeName);
     return switch (formatted.unit) {
