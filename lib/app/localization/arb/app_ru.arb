@@ -1,22 +1,46 @@
 {
   "@@locale": "ru",
-  "appTitle": "Wayback",
-  "@appTitle": {
-    "description": "Название приложения"
+  "accuracyValue": "±{value} м",
+  "@accuracyValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
   },
-  "homeTitle": "Wayback",
-  "pointCreateTitle": "Новая точка",
-  "pointsListTitle": "Точки",
-  "pointDetailsTitle": "Точка",
-  "navigateTitle": "Навигация",
-  "settingsTitle": "Настройки",
-  "homeSaveLocation": "Сохранить место",
-  "homeAllPoints": "Все точки",
-  "pointsOpenSample": "Открыть точку",
-  "pointNavigate": "Вести к точке",
-  "screenStub": "Экран в разработке",
-  "distanceMeters": "{value} м",
-  "distanceKilometers": "{value} км",
+  "accuracyValueFeet": "±{value} фт",
+  "@accuracyValueFeet": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "actionAllow": "Разрешить",
+  "actionCancel": "Отмена",
+  "actionDelete": "Удалить",
+  "actionOpenSettings": "Открыть настройки",
+  "actionRename": "Переименовать",
+  "actionRetry": "Повторить",
+  "actionSave": "Сохранить",
+  "appTitle": "Wayback",
+  "distanceFeet": "{value} фт",
+  "@distanceFeet": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceKilometers": "{value} км",
+  "@distanceKilometers": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "distanceMeters": "{value} м",
   "@distanceMeters": {
     "placeholders": {
       "value": {
@@ -24,11 +48,201 @@
       }
     }
   },
-  "@distanceKilometers": {
+  "distanceMiles": "{value} ми",
+  "@distanceMiles": {
     "placeholders": {
       "value": {
         "type": "String"
       }
     }
-  }
+  },
+  "error_generic": "Что-то пошло не так",
+  "error_generic_body": "Попробуйте ещё раз.",
+  "error_location_permission_denied": "Нет доступа к геолокации",
+  "error_location_permission_denied_body": "Без него Wayback не знает, где вы.",
+  "error_location_permission_denied_forever": "Доступ к геолокации запрещён",
+  "error_location_permission_denied_forever_body": "Включите его в настройках телефона.",
+  "error_location_service_disabled": "Геолокация выключена",
+  "error_location_service_disabled_body": "Включите её, чтобы сохранять и находить точки.",
+  "error_location_unavailable": "Не получается определить, где вы",
+  "error_location_unavailable_body": "Выйдите на открытое место.",
+  "error_navigation_compass_unavailable": "Компас недоступен",
+  "error_navigation_compass_unavailable_body": "На этом телефоне нет компаса, поэтому направление не показать.",
+  "error_points_not_found": "Точка не найдена",
+  "error_points_not_found_body": "Возможно, её удалили.",
+  "error_points_storage_read_failed": "Не удалось загрузить точки",
+  "error_points_storage_read_failed_body": "Попробуйте ещё раз.",
+  "error_points_storage_write_failed": "Не удалось сохранить точку",
+  "error_points_storage_write_failed_body": "Попробуйте ещё раз.",
+  "error_settings_storage_failed": "Не удалось сохранить настройки",
+  "error_settings_storage_failed_body": "Попробуйте ещё раз.",
+  "homeAllPoints": "Все точки",
+  "homeEmptyBody": "Сохраните место, куда хотите вернуться, — например, где оставили машину.",
+  "homeEmptyTitle": "Пока нет точек",
+  "homeNoActiveAction": "Выбрать точку",
+  "homeNoActiveBody": "Выберите, к каким точкам сейчас идёте.",
+  "homeNoActiveTitle": "Нет активных точек",
+  "homePointSemantics": "{name}, {distance}",
+  "@homePointSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSaveLocation": "Сохранить место",
+  "homeSettingsTooltip": "Настройки",
+  "homeTitle": "Wayback",
+  "navigateArrived": "Вы на месте",
+  "navigateCompassCalibration": "Компас неточен. Поводите телефоном восьмёркой.",
+  "navigateLocating": "Ждём GPS и компас…",
+  "navigateSemantics": "До «{name}» {distance}",
+  "@navigateSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "navigateTitle": "Навигация",
+  "navigateWeakSignal": "Слабый сигнал GPS — расстояние может быть неточным.",
+  "permissionBody": "Wayback запоминает, где вы были, и показывает дорогу обратно. Данные остаются на телефоне.",
+  "permissionTitle": "Доступ к геолокации",
+  "pointAccuracy": "Точность {accuracy}",
+  "@pointAccuracy": {
+    "placeholders": {
+      "accuracy": {
+        "type": "String"
+      }
+    }
+  },
+  "pointActiveLabel": "Активна",
+  "pointActiveToggleSemantics": "Показывать на главном экране",
+  "pointBackToList": "К списку точек",
+  "pointCoordinatesLabel": "Координаты",
+  "pointCreateLocating": "Определяем местоположение…",
+  "pointCreateTitle": "Новая точка",
+  "pointDefaultNameNumbered": "{type} {number}",
+  "@pointDefaultNameNumbered": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "pointDeleteBody": "Точка пропадёт из списка и с главного экрана. Вернуть её не получится.",
+  "pointDeleteTitle": "Удалить «{name}»?",
+  "@pointDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pointDeletedSnackbar": "Точка «{name}» удалена",
+  "@pointDeletedSnackbar": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pointDetailsTitle": "Точка",
+  "pointDistanceFromYou": "{distance} от вас",
+  "@pointDistanceFromYou": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "pointNameHelper": "Можно оставить как есть",
+  "pointNameLabel": "Название",
+  "pointNavigate": "Вести к точке",
+  "pointRenameTitle": "Название точки",
+  "pointSavedAt": "Сохранена {date}",
+  "@pointSavedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pointSavedLabel": "Сохранена",
+  "pointSavedSnackbar": "Точка «{name}» сохранена",
+  "@pointSavedSnackbar": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pointTypeBackpack": "Вещи",
+  "pointTypeCar": "Машина",
+  "pointTypeFishing": "Рыбалка",
+  "pointTypeGeneric": "Точка",
+  "pointTypeHouse": "Домик",
+  "pointTypeLabel": "Иконка",
+  "pointTypeMeeting": "Встреча",
+  "pointTypeParking": "Парковка",
+  "pointTypeTent": "Лагерь",
+  "pointsAddTooltip": "Новая точка",
+  "pointsEmptyBody": "Сохраните первое место — стрелка приведёт вас обратно.",
+  "pointsEmptyTitle": "Нет сохранённых точек",
+  "pointsListSubtitle": "{distance} · сохранено {when}",
+  "@pointsListSubtitle": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "pointsListTitle": "Точки",
+  "pointsOpenSample": "Открыть точку",
+  "@pointsOpenSample": {
+    "description": "Temporary: used by stub screens only."
+  },
+  "screenStub": "Экран в разработке",
+  "@screenStub": {
+    "description": "Temporary: used by stub screens only."
+  },
+  "settingsLanguage": "Язык",
+  "settingsLanguageEn": "English",
+  "settingsLanguageRu": "Русский",
+  "settingsLanguageSystem": "Как в системе",
+  "settingsTitle": "Настройки",
+  "settingsUnits": "Единицы измерения",
+  "settingsUnitsImperial": "Футы и мили",
+  "settingsUnitsMetric": "Метры и километры",
+  "settingsVibration": "Вибрация при прибытии",
+  "timeHoursAgo": "{n} ч назад",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "timeJustNow": "только что",
+  "timeMinutesAgo": "{n} мин назад",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "timeYesterday": "вчера"
 }
