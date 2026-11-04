@@ -174,22 +174,41 @@
 
 ### 11.2 Ошибки по кодам
 
-Ключ — `error_<code>`. Текст отвечает на «что случилось» и «что делать»; действие — отдельной кнопкой.
+Ошибка показывается компонентом Alert: короткий **заголовок** (что случилось) и **пояснение** (почему это важно или что делать). Ключи — `error_<code>` для заголовка и `error_<code>_body` для пояснения; действие — отдельной кнопкой.
 
-| Код | ru | en | Действие |
+Заголовок — до ~30 символов, без точки в конце. Пояснение — одна фраза с точкой. Пояснение можно не показывать там, где места мало (Snackbar): заголовок понятен сам по себе.
+
+**ru**
+
+| Код | Заголовок | Пояснение | Действие |
 | --- | --- | --- | --- |
-| `generic` | Что-то пошло не так. Попробуйте ещё раз. | Something went wrong. Try again. | Повторить |
-| `location_permission_denied` | Нет доступа к геолокации — без него Wayback не знает, где вы. | No location access — Wayback needs it to know where you are. | Разрешить |
-| `location_permission_denied_forever` | Доступ к геолокации запрещён. Включите его в настройках телефона. | Location access is blocked. Turn it on in your phone settings. | Открыть настройки |
-| `location_service_disabled` | Геолокация выключена. Включите её, чтобы сохранять и находить точки. | Location is off. Turn it on to save and find places. | Открыть настройки |
-| `location_unavailable` | Не получается определить, где вы. Выйдите на открытое место. | Can't find your location. Try moving into the open. | Повторить |
-| `navigation_compass_unavailable` | На этом телефоне нет компаса, поэтому направление не показать. | This phone has no compass, so direction can't be shown. | — |
-| `points_storage_read_failed` | Не удалось загрузить точки. | Couldn't load your places. | Повторить |
-| `points_storage_write_failed` | Не удалось сохранить точку. | Couldn't save the place. | Повторить |
-| `points_not_found` | Эта точка удалена или не найдена. | This place was deleted or can't be found. | К списку точек |
-| `settings_storage_failed` | Не удалось сохранить настройки. | Couldn't save settings. | Повторить |
+| `generic` | Что-то пошло не так | Попробуйте ещё раз. | Повторить |
+| `location_permission_denied` | Нет доступа к геолокации | Без него Wayback не знает, где вы. | Разрешить |
+| `location_permission_denied_forever` | Доступ к геолокации запрещён | Включите его в настройках телефона. | Открыть настройки |
+| `location_service_disabled` | Геолокация выключена | Включите её, чтобы сохранять и находить точки. | Открыть настройки |
+| `location_unavailable` | Не получается определить, где вы | Выйдите на открытое место. | Повторить |
+| `navigation_compass_unavailable` | Компас недоступен | На этом телефоне нет компаса, поэтому направление не показать. | — |
+| `points_storage_read_failed` | Не удалось загрузить точки | Попробуйте ещё раз. | Повторить |
+| `points_storage_write_failed` | Не удалось сохранить точку | Попробуйте ещё раз. | Повторить |
+| `points_not_found` | Точка не найдена | Возможно, её удалили. | К списку точек |
+| `settings_storage_failed` | Не удалось сохранить настройки | Попробуйте ещё раз. | Повторить |
 
-`error_generic` показывается для любого кода без перевода; сам код при этом логируется (architecture.md §4.2).
+**en**
+
+| Код | Title | Body |
+| --- | --- | --- |
+| `generic` | Something went wrong | Try again. |
+| `location_permission_denied` | No location access | Wayback needs it to know where you are. |
+| `location_permission_denied_forever` | Location access is blocked | Turn it on in your phone settings. |
+| `location_service_disabled` | Location is off | Turn it on to save and find places. |
+| `location_unavailable` | Can't find your location | Try moving into the open. |
+| `navigation_compass_unavailable` | No compass | This phone has no compass, so direction can't be shown. |
+| `points_storage_read_failed` | Couldn't load your places | Try again. |
+| `points_storage_write_failed` | Couldn't save the place | Try again. |
+| `points_not_found` | Place not found | It may have been deleted. |
+| `settings_storage_failed` | Couldn't save settings | Try again. |
+
+Пара `error_generic` / `error_generic_body` показывается для любого кода без перевода; сам код при этом логируется (architecture.md §4.2).
 
 У настроек свой код `settings_storage_failed`, а не `points_storage_write_failed`: иначе текст ошибки настроек говорил бы о точках.
 
