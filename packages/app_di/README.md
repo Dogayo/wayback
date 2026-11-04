@@ -8,7 +8,8 @@
 - Граф собирается только в `lib/app/dependencies/`; feature и `core` сами
   ничего не регистрируют.
 - `domain` не обращается к контейнеру: зависимости передаются в конструкторы.
-- Экран получает Bloc из контейнера один раз, при создании `BlocProvider`.
+- Bloc/Cubit в контейнере не регистрируются: их создаёт `BlocProvider`, а из
+  контейнера берутся только их зависимости.
   Вложенные виджеты используют `context.read` / `context.watch`.
 - Async-зависимости инициализируются в `bootstrap.dart` до регистрации и
   передаются фабрике через замыкание. `getAsync` контейнеру не нужен.
@@ -64,9 +65,6 @@ final class PointsDependencies extends DependencyCollection {
     RegFactory<PointsRepository>(
       (i) => PointsRepositoryImpl(i.get<PointsLocalDatasource>()),
       isSingleton: true,
-    ),
-    RegFactory<PointsBloc>(
-      (i) => PointsBloc(i.get<PointsRepository>()),
     ),
   ];
 }

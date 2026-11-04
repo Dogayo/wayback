@@ -146,6 +146,8 @@ Exception (data)                    Failure (domain/view)
     └── ServerException                 └── ServerFailure
 ```
 
+Отдельно от двух иерархий стоит `UnexpectedFailure` (коды `unexpected` и `timeout`): так `ResultHandler` возвращает всё, что не является `AppException` — ошибку программы, неизвестную ошибку плагина, истёкший таймаут. Пользователь видит общий текст, сама ошибка уходит в `onError`.
+
 `RemoteException` / `RemoteFailure` в MVP не используются (приложение offline), но иерархия заводится сразу, чтобы post-MVP функции не ломали контракт.
 
 ### 4.1 Контракт
@@ -180,7 +182,7 @@ abstract class Failure {
 - Код — это обычное строковое поле внутри самой ошибки. Отдельного реестра кодов (`error_codes.dart`) нет: код задаётся там, где ошибка создаётся.
 - Формат: `snake_case`, с префиксом области — `location_permission_denied`, `points_storage_write_failed`, `navigation_compass_unavailable`.
 - Отсюда следует дисциплина: код пишется осмысленно и стабильно, потому что компилятор его не проверяет. Ключ в ARB — единственная связка, и она проверяется глазами и тестом на полноту переводов.
-- Feature может объявить свои коды константами рядом со своими ошибками (`features/{area}/data/...`), если их много и они повторяются. В `core` они не выносятся.
+- Коды, которые может вернуть репозиторий или data-сервис, объявляются константами **рядом с его интерфейсом** — в том же файле `features/{area}/domain/repositories/…`, например `LocationErrorCodes` возле `LocationRepository`. Datasource бросает исключения с этими кодами, view сравнивает с ними `failure.code`. В `core` специфичные коды не выносятся.
 - Для каждого кода существует ключ в ARB-файлах локализации: `error_location_permission_denied` (заголовок) и `error_location_permission_denied_body` (пояснение) — тексты в [copy.md](copy.md) §11.2.
 - Если для кода нет перевода — показывается общее сообщение об ошибке, а сам код логируется. Приложение не показывает пользователю сырой код или технический `description`.
 
@@ -188,24 +190,39 @@ abstract class Failure {
 
 ```text
 datasource  →  бросает Exception (с code)
-repository  →  ловит и мапит в Result.failure(Failure) прямо в своей реализации
+repository  →  оборачивает вызов в handle()/handleStream() из ResultHandler
 bloc        →  переводит Failure в состояние экрана
 view        →  показывает локализованный текст по failure.code
 ```
 
-Обработка и маппинг ошибок — ответственность **реализации репозитория** в `features/{area}/data/repositories/`. Общего `error_mapper` в `core` нет: каждый репозиторий знает свои источники данных и свои ошибки лучше, чем универсальный маппер, а попытка обобщить их сводится к `switch` по типам, который всё равно приходится дополнять под каждую feature.
+Единый механизм для всех репозиториев — mixin `ResultHandler` из `core/result/result_handler.dart`. Реализация репозитория подмешивает его и оборачивает **каждый** вызов datasource:
+
+- `handle(() => …)` — одиночный вызов → `Result<T>`;
+- `handleStream(stream)` — поток → поток `Result<T>`.
+
+Гарантия: из `handle`/`handleStream` не выходит ни одно исключение — ни `AppException`, ни ошибка программы, ни исключение внутри хука или маппера. Всё становится `Failure`. Поэтому **каждый** метод интерфейса репозитория возвращает `Result` (в том числе действия без значения — `Future<Result<void>>`).
+
+Поведение настраивается объектом `ResultHandlerOptions`. Общий экземпляр регистрируется в `app/dependencies/core_module.dart` и передаётся в конструктор репозитория (`resultOptions:`); для одного вызова его можно заменить параметром `options:` или `copyWith`.
+
+| Настройка | Что делает |
+| --- | --- |
+| `onError` | видит каждую пойманную ошибку со стеком — логирование, crash-репортер |
+| `onFailure` | видит каждый `Failure`, который вернул обработчик |
+| `mapException` | свой маппинг `AppException → Failure`; `null` — маппинг по умолчанию |
+| `mapUnexpected` | свой маппинг остальных ошибок; `null` — `UnexpectedFailure` |
+| `timeout` | лимит одной попытки `handle`; по истечении — код `timeout` |
+| `maxAttempts`, `retryIf`, `retryDelay` | повтор вызова, пока `retryIf` разрешает и попытки не кончились |
+| `cancelStreamOnFailure` | закрыть поток после первого `Failure` вместо продолжения |
+
+Маппинг по умолчанию (методы `mapException` / `mapUnexpected` миксина) сохраняет `code` и `description` и выбирает `Failure` того же вида; репозиторий может переопределить их целиком.
 
 Типичная форма:
 
 ```dart
-@override
-Future<Result<List<SavedPoint>>> getAll() async {
-  try {
-    final models = await _local.readAll();
-    return Result.success(models.map(_mapper.toEntity).toList());
-  } on LocalException catch (e) {
-    return Result.failure(StorageFailure(code: e.code, description: e.description));
-  }
+final class PointsRepositoryImpl with ResultHandler implements PointsRepository {
+  @override
+  Future<Result<List<SavedPoint>>> getAll() =>
+      handle(() async => (await _local.readAll()).map(_mapper.toEntity).toList());
 }
 ```
 
@@ -219,7 +236,7 @@ Future<Result<List<SavedPoint>>> getAll() async {
 - Регистрация — в `app/dependencies/`, разбитая по модулям на каждую feature (`location_module`, `points_module`, ...).
 - Инфраструктурные регистрации (storage, logger, форматтеры) — тоже в `app/dependencies/`; `core` только предоставляет реализации, но сам ничего не регистрирует.
 - Запрещено: глобальные синглтоны, статические фабрики, обращение к контейнеру из `domain`. Домен получает зависимости через конструктор.
-- `view` получает свой Bloc из контейнера в одной точке — в `BlocProvider` на уровне экрана. Виджеты глубже получают его через `context.read` / `context.watch` или данные через параметры.
+- Bloc/Cubit **не регистрируются в DI**. Их создаёт `BlocProvider` на уровне экрана, а зависимости (репозитории) берёт из контейнера: `BlocProvider(create: (context) => PointsBloc(context.di<PointsRepository>()))`. Виджеты глубже получают Bloc через `context.read` / `context.watch` или данные через параметры.
 
 Порядок инициализации в `bootstrap.dart`:
 
@@ -301,6 +318,9 @@ arrowRotation = bearing - heading  // нормализуется в 0..360
 - `throw` выше слоя `data`;
 - сетевые вызовы в MVP-критическом пути;
 - глобальные синглтоны в обход `app_di`;
+- регистрация Bloc/Cubit в `app_di` вместо создания в `BlocProvider`;
+- `try/catch` с ручным маппингом в репозитории вместо `ResultHandler`;
+- метод репозитория, который возвращает не `Result` или вызывает datasource мимо `handle`/`handleStream`;
 - магические числа в геовычислениях и порогах;
 - бизнес-логика и вычисления внутри `build()` виджета вместо Bloc;
 - состояние экрана набором отдельных булевых флагов вместо sealed-состояния.

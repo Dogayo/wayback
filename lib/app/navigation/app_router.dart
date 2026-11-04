@@ -1,6 +1,10 @@
+import 'package:app_di/app_di.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:wayback/app/navigation/routes.dart';
+import 'package:wayback/features/location/domain/repositories/location_repository.dart';
+import 'package:wayback/features/location/view/bloc/location_cubit.dart';
+import 'package:wayback/features/location/view/widgets/gps_status.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
@@ -15,7 +19,14 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
   routes: [
     GoRoute(
       path: Routes.home,
-      builder: (_, _) => const HomeScreen(),
+      builder: (_, _) => HomeScreen(
+        gpsStatus: BlocProvider(
+          lazy: false,
+          create: (context) =>
+              LocationCubit(context.di<LocationRepository>())..start(),
+          child: const GpsStatus(),
+        ),
+      ),
       routes: [
         GoRoute(
           path: 'points/new',

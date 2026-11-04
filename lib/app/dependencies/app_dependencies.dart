@@ -1,5 +1,6 @@
 import 'package:app_di/app_di.dart';
 
+import 'package:wayback/app/dependencies/core_module.dart';
 import 'package:wayback/app/dependencies/location_module.dart';
 import 'package:wayback/app/dependencies/navigation_module.dart';
 import 'package:wayback/app/dependencies/points_module.dart';
@@ -11,6 +12,7 @@ final class AppDependencies extends DependencyCollection {
 
   @override
   Iterable<RegType> get dependencies => [
+    ...const CoreModule().dependencies,
     ...const LocationModule().dependencies,
     ...const PointsModule().dependencies,
     ...const NavigationModule().dependencies,
