@@ -153,7 +153,7 @@ Deep link на `/points/:id` должен открываться напряму�
 | --- | --- |
 | loading | Skeleton-список секций (значения читаются из локального хранилища) |
 | empty | Не применимо (список настроек статичен, не зависит от данных пользователя) |
-| error | Alert negative при сбое чтения/записи настроек (`points_storage_write_failed` и аналоги) |
+| error | Alert negative при сбое чтения/записи настроек (`settings_storage_failed`, тексты — docs/copy.md §11.2) |
 | content | Сгруппированные `AppListItem`: единицы измерения, язык, вибрация |
 
 ---
