@@ -64,7 +64,7 @@
 | `pointNameLabel` | Название | Name | |
 | `pointNameHelper` | Можно оставить как есть | Optional | под полем, дефолт уже подставлен (§7) |
 | `pointTypeLabel` | Иконка | Icon | заголовок пикера 4×2 |
-| `pointCoordinatesLabel` | Координаты | Coordinates | превью координат |
+| `pointCoordinatesLabel` | Координаты | Coordinates | превью координат; та же подпись в карточке деталей |
 | `pointAccuracy` | Точность {accuracy} | Accuracy {accuracy} | `{accuracy}` = `±8 м`, §9 |
 | `pointSavedSnackbar` | Точка «{name}» сохранена | “{name}” saved | Snackbar после сохранения |
 
@@ -78,13 +78,26 @@
 | `pointsEmptyBody` | Сохраните первое место — стрелка приведёт вас обратно. | Save your first place and the arrow will lead you back. | |
 | `pointActiveLabel` | Активна | Active | бейдж / подпись переключателя |
 | `pointActiveToggleSemantics` | Показывать на главном экране | Show on home screen | метка Switch для скринридера |
+| `pointsListSubtitle` | {distance} · сохранено {when} | {distance} · saved {when} | подзаголовок строки списка: `640 м · сохранено 12 мин назад` |
+
+**Когда сохранено** (`{when}`) — относительное время, по возрасту точки:
+
+| Ключ | ru | en | Когда |
+| --- | --- | --- | --- |
+| `timeJustNow` | только что | just now | меньше минуты |
+| `timeMinutesAgo` | {n} мин назад | {n} min ago | меньше часа |
+| `timeHoursAgo` | {n} ч назад | {n} h ago | сегодня |
+| `timeYesterday` | вчера | yesterday | вчера по местному времени |
+| — | `2 нояб.` | `Nov 2` | раньше: дата через `intl` (`d MMM`), без года в текущем году |
 
 ## 6. Point Details (`/points/:id`)
 
 | Ключ | ru | en | Примечание |
 | --- | --- | --- | --- |
 | `pointDetailsTitle` | Точка | Place | запасной заголовок, обычно — имя точки |
-| `pointSavedAt` | Сохранена {date} | Saved {date} | `{date}` — локальный формат даты и времени |
+| `pointDistanceFromYou` | {distance} от вас | {distance} away | под именем точки |
+| `pointSavedAt` | Сохранена {date} | Saved {date} | `{date}` — локальный формат даты и времени; для одной строки |
+| `pointSavedLabel` | Сохранена | Saved | подпись строки в карточке деталей, значение — дата отдельной строкой |
 | `pointNavigate` | Вести к точке | Navigate | Primary |
 | `pointRenameTitle` | Название точки | Place name | диалог переименования |
 | `pointDeleteTitle` | Удалить «{name}»? | Delete “{name}”? | диалог подтверждения |
