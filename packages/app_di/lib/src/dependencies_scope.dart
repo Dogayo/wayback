@@ -34,8 +34,11 @@ final class DependenciesScope extends StatefulWidget {
   }
 
   static _DependenciesInherited _scopeOf(BuildContext context) {
+    // Lookup without a dependency: the container is created once in bootstrap
+    // and never swapped, and a dependency would forbid reads from initState
+    // or a BlocProvider's create.
     final scope = context
-        .dependOnInheritedWidgetOfExactType<_DependenciesInherited>();
+        .getInheritedWidgetOfExactType<_DependenciesInherited>();
     if (scope == null) {
       throw FlutterError(
         'DependenciesScope.of() called with a context that does not contain '

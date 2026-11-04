@@ -1,9 +1,13 @@
+import 'package:app_di/app_di.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:wayback/app/app.dart';
 import 'package:wayback/app/navigation/app_router.dart';
 import 'package:wayback/app/navigation/routes.dart';
+import 'package:wayback/core/result/result.dart';
+import 'package:wayback/features/location/domain/entities/location_access.dart';
+import 'package:wayback/features/location/domain/repositories/location_repository.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
@@ -12,10 +16,29 @@ import 'package:wayback/features/points/view/screens/points_list_screen.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
+import '../../features/location/fake_location_repository.dart';
+
+var _containers = 0;
+
 Future<GoRouter> pumpApp(WidgetTester tester, String location) async {
   final router = createRouter(initialLocation: location);
   addTearDown(router.dispose);
-  await tester.pumpWidget(App(router: router));
+  // Denied access keeps Home static: no system dialog, no progress spinner.
+  final repository = FakeLocationRepository(
+    access: const Result.success(LocationAccess.denied),
+  );
+  final container = DependencyContainer(
+    injectorName: 'router-test-${_containers++}',
+    commonDependencies: DependencyList([
+      RegFactory<LocationRepository>((_) => repository),
+    ]),
+  );
+  await tester.pumpWidget(
+    DependenciesScope(
+      container: container,
+      child: App(router: router),
+    ),
+  );
   await tester.pumpAndSettle();
   return router;
 }

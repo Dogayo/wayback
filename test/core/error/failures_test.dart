@@ -58,6 +58,7 @@ void main() {
     String kind(Failure f) => switch (f) {
       LocalFailure() => 'local',
       RemoteFailure() => 'remote',
+      UnexpectedFailure() => 'unexpected',
     };
 
     expect(failures.map(kind), [

@@ -6,7 +6,11 @@ import 'package:wayback/core/widgets/stub_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({this.gpsStatus, super.key});
+
+  /// Location state, supplied by the app so this feature does not depend on
+  /// the location feature directly.
+  final Widget? gpsStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +19,7 @@ class HomeScreen extends StatelessWidget {
       title: l10n.homeTitle,
       message: l10n.screenStub,
       actions: [
+        ?gpsStatus,
         WbButton(
           label: l10n.homeSaveLocation,
           onPressed: () => context.push(Routes.pointCreate),

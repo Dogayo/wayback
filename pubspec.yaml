@@ -21,6 +21,7 @@ dependencies:
     path: packages/wayback_design_system
   flutter_localizations:
     sdk: flutter
+  geolocator: ^14.1.2
 
 dev_dependencies:
   flutter_test:

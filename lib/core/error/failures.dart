@@ -35,6 +35,25 @@ sealed class Failure {
       ['$runtimeType($code)', if (description != null) description].join(': ');
 }
 
+/// An error that is not an `AppException`: a bug or an unknown plugin error
+/// caught by `ResultHandler`, so it still reaches the view as a [Failure]
+/// instead of an exception. Shown with the generic text.
+final class UnexpectedFailure extends Failure {
+  const UnexpectedFailure({
+    super.code = unexpectedErrorCode,
+    super.description,
+    super.cause,
+    super.stackTrace,
+  });
+}
+
+/// Code of [UnexpectedFailure] for an error that is neither a timeout nor
+/// otherwise classified.
+const unexpectedErrorCode = 'unexpected';
+
+/// Code of [UnexpectedFailure] when a call ran out of time.
+const timeoutErrorCode = 'timeout';
+
 sealed class LocalFailure extends Failure {
   const LocalFailure({
     required super.code,
