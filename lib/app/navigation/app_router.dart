@@ -28,6 +28,10 @@ import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
+import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
+import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 
 /// Every screen is a child of `/`, so a deep link to `/points/:id` keeps
@@ -147,7 +151,27 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
             child: const NavigateScreen(),
           ),
         ),
-        GoRoute(path: 'settings', builder: (_, _) => const SettingsScreen()),
+        // SettingsBloc is above every route, in App.
+        GoRoute(
+          path: 'settings',
+          builder: (_, _) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) =>
+                    SetUnitsBloc(context.di<SettingsRepository>()),
+              ),
+              BlocProvider(
+                create: (context) =>
+                    SetLanguageBloc(context.di<SettingsRepository>()),
+              ),
+              BlocProvider(
+                create: (context) =>
+                    SetVibrationOnArrivalBloc(context.di<SettingsRepository>()),
+              ),
+            ],
+            child: const SettingsScreen(),
+          ),
+        ),
       ],
     ),
   ],

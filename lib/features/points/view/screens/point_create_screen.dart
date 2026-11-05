@@ -6,6 +6,7 @@ import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/localization/point_type_l10n.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/utils/geo/geo_format.dart';
 import 'package:wayback/features/location/domain/entities/location_fix.dart';
@@ -207,7 +208,9 @@ class _Position extends StatelessWidget {
         ),
         Text(formatCoordinates(fix.point), style: context.wbText.bodyLarge),
         Text(
-          l10n.pointAccuracy(l10n.accuracy(fix.accuracyMeters)),
+          l10n.pointAccuracy(
+            l10n.accuracy(fix.accuracyMeters, units: context.settings.units),
+          ),
           style: context.wbText.bodySmall?.copyWith(
             color: fix.isWeakSignal ? context.wbColors.warning : secondary,
           ),

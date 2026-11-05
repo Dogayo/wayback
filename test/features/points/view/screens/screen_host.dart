@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wayback/app/localization/localization.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// Pumps [screen] at `/screen` in a router whose other routes only print
-/// where navigation went, e.g. `route /points/a`.
-Future<GoRouter> pumpScreen(WidgetTester tester, Widget screen) async {
+/// where navigation went, e.g. `route /points/a`. [settings] are what the
+/// app would hand down from the settings screen.
+Future<GoRouter> pumpScreen(
+  WidgetTester tester,
+  Widget screen, {
+  AppSettings settings = AppSettings.defaults,
+}) async {
   // A phone-sized window, so lazily built lists show whole screens.
   tester.view
     ..physicalSize = const Size(1080, 3000)
@@ -42,6 +48,7 @@ Future<GoRouter> pumpScreen(WidgetTester tester, Widget screen) async {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: router,
+      builder: (_, child) => SettingsScope(settings: settings, child: child!),
     ),
   );
   await tester.pump();

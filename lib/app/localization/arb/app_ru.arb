@@ -214,10 +214,6 @@
     }
   },
   "pointsListTitle": "Точки",
-  "screenStub": "Экран в разработке",
-  "@screenStub": {
-    "description": "Temporary: used by stub screens only."
-  },
   "settingsLanguage": "Язык",
   "settingsLanguageEn": "English",
   "settingsLanguageRu": "Русский",

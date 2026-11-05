@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
 import 'package:wayback/app/localization/localization.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/navigation/domain/entities/navigation_guidance.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/widgets/navigation_error_view.dart';
@@ -12,7 +13,8 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 /// Direction and distance to a point in real time (SCREENS.md §4.5).
 ///
 /// Needs [NavigationGuidanceBloc] above it. Vibrates once when the user
-/// first enters the arrival radius (mvp-scope.md §2.4).
+/// first enters the arrival radius, unless the user turned it off
+/// (mvp-scope.md §2.4).
 class NavigateScreen extends StatelessWidget {
   const NavigateScreen({super.key});
 
@@ -29,7 +31,11 @@ class NavigateScreen extends StatelessWidget {
     final bloc = context.read<NavigationGuidanceBloc>();
     return BlocListener<NavigationGuidanceBloc, DataState<NavigationGuidance>>(
       listenWhen: _arrivedNow,
-      listener: (_, _) => HapticFeedback.mediumImpact(),
+      listener: (context, _) {
+        if (context.settings.vibrationOnArrival) {
+          HapticFeedback.mediumImpact();
+        }
+      },
       child: BlocBuilder<NavigationGuidanceBloc, DataState<NavigationGuidance>>(
         builder: (context, state) => Scaffold(
           appBar: WbAppBar(
