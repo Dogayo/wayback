@@ -11,7 +11,7 @@
 | Область | Решение |
 | --- | --- |
 | Платформа | Flutter (Dart SDK `^3.12.2`, Flutter `>=3.44.0`) |
-| State management | `Bloc` (`flutter_bloc`) — Bloc/Cubit на экран |
+| State management | `Bloc` (`flutter_bloc` + `bloc_concurrency`) — только Bloc, один блок на действие или компонент (§3.4) |
 | Навигация | `go_router` (на текущем этапе; слой изолирован, замена возможна) |
 | Локализация | `l10n` (Flutter gen-l10n, ARB-файлы) |
 | DI | собственный пакет `app_di` |
@@ -90,7 +90,7 @@ features/
     └── view/
         ├── screens/         # экраны, привязанные к маршрутам
         ├── widgets/         # виджеты этой feature
-        └── bloc/            # Bloc/Cubit: события, состояния, логика экрана
+        └── bloc/            # блоки: *_bloc.dart + part *_event.dart / *_state.dart
 ```
 
 Планируемые areas для MVP:
@@ -122,10 +122,36 @@ features/
 ### 3.3 `view`
 
 - Работает только с `domain` (entity + интерфейсы репозиториев). Импорт `data` из `view` **запрещён**.
-- Управление состоянием — **Bloc** (пакет `flutter_bloc`). Bloc или Cubit на экран, файлы лежат в `view/bloc/`.
+- Управление состоянием — **Bloc** (пакет `flutter_bloc`), правила — §3.4. Файлы лежат в `view/bloc/`.
 - Экран не содержит бизнес-логики и вычислений — только отображение состояния и отправка событий в Bloc.
-- Состояние Bloc явно моделирует loading / content / empty / error — sealed-класс с вариантами, а не набор булевых флагов.
+- Состояние Bloc явно моделирует loading / content / empty / error — sealed-класс с вариантами, а не набор булевых флагов. Экран читает его только через `map` / `mapOrElse` / `mapOrNull`.
 - Все строки берутся из `l10n`. Хардкод пользовательского текста запрещён.
+
+### 3.4 Блоки и quality gate
+
+**Только Bloc, Cubit запрещён**: у Bloc есть события, поэтому каждое действие видно и трассируется.
+
+**Один блок — одно действие или один компонент.** Экран деталей точки — это данные (`PointDetailsBloc`) и три действия (`RenamePointBloc`, `SetPointActiveBloc`, `DeletePointBloc`), а не один блок «на экран».
+
+**Базовые блоки** (`lib/core/bloc/`); блок фичи наследует один из них:
+
+| Блок | Для чего | Что реализует фича | События | Конкурентность |
+| --- | --- | --- | --- | --- |
+| `DataBloc<T>` | получить данные и показать: fetch, refresh, retry | `Stream<Result<T>> watch()` (разовая загрузка — `load().asStream()`) | `fetch()`, `refresh()` | `restartable` — новый запрос отменяет старый |
+| `ActionBloc<P, T>` | одно действие пользователя | `Future<Result<T>> perform(P params)` | `run(params)`, `reset()` | `droppable` — повторный запуск во время выполнения игнорируется |
+| `ListBloc<T>` | постраничный список: fetch, refresh, fetch more | `Future<Result<ListPage<T>>> fetchPage(Object? cursor)` | `fetch()`, `refresh()`, `fetchMore()` | перезагрузка — `restartable`, подгрузка — `droppable` |
+
+Их состояния — `DataState<T>`, `ActionState<T>`, `ListState<T>`: sealed-классы с `map`, `mapOrElse`, `mapOrNull`. Исключение внутри `watch`/`perform`/`fetchPage` тоже становится `UnexpectedFailure` в состоянии, а не падением.
+
+**Свой блок на `Bloc`** допустим, когда форма не ложится ни в один базовый (например, `PointFormBloc`). Тогда:
+
+- три файла: `x_bloc.dart` — логика и импорты, `x_event.dart` и `x_state.dart` — `part of 'x_bloc.dart';`, без своих импортов;
+- корень событий — `sealed class XEvent`;
+- если корень состояния `sealed`, он объявляет `map`, `mapOrElse`, `mapOrNull`. Состояние с одной формой — `final class` без них.
+
+**Ещё правила:** один блок на файл; имя класса оканчивается на `Bloc`, файл — на `_bloc.dart`, лежит в `view/bloc/` фичи; блок не импортирует `data/` и виджеты; блоки создаются в `BlocProvider` (§5), в DI их нет.
+
+**Quality gate** — архитектурные тесты в `test/architecture/`: `bloc_rules.dart` (правила как функции над исходником), `bloc_rules_test.dart` (каждое правило на правильном и неправильном примере), `bloc_gate_test.dart` (все правила по `lib/`). Они идут в обычном `flutter test`, локально и в CI; нарушение валит тест с файлом и правилом. Новое правило добавляется туда же — функцией и тестом на неё.
 
 ---
 
@@ -236,7 +262,7 @@ final class PointsRepositoryImpl with ResultHandler implements PointsRepository 
 - Регистрация — в `app/dependencies/`, разбитая по модулям на каждую feature (`location_module`, `points_module`, ...).
 - Инфраструктурные регистрации (storage, logger, форматтеры) — тоже в `app/dependencies/`; `core` только предоставляет реализации, но сам ничего не регистрирует.
 - Запрещено: глобальные синглтоны, статические фабрики, обращение к контейнеру из `domain`. Домен получает зависимости через конструктор.
-- Bloc/Cubit **не регистрируются в DI**. Их создаёт `BlocProvider` на уровне экрана, а зависимости (репозитории) берёт из контейнера: `BlocProvider(create: (context) => PointsBloc(context.di<PointsRepository>()))`. Виджеты глубже получают Bloc через `context.read` / `context.watch` или данные через параметры.
+- Блоки **не регистрируются в DI**. Их создаёт `BlocProvider` на уровне экрана, а зависимости (репозитории) берёт из контейнера: `BlocProvider(create: (context) => PointsBloc(context.di<PointsRepository>()))`. Виджеты глубже получают Bloc через `context.read` / `context.watch` или данные через параметры.
 
 Порядок инициализации в `bootstrap.dart`:
 
@@ -303,7 +329,7 @@ arrowRotation = bearing - heading  // нормализуется в 0..360
 1. Определи area. Новый функционал почти всегда идёт в существующую или новую `features/{area}/`, а не в `core`.
 2. Начни с `domain`: entity → интерфейс репозитория.
 3. Затем `data`: datasource → model → mapper → реализация репозитория.
-4. Затем `view`: события и состояния Bloc → сам Bloc → экран → виджеты.
+4. Затем `view`: выбрать базовый блок (`DataBloc` / `ActionBloc` / `ListBloc`, §3.4) на каждые данные и каждое действие → экран → виджеты.
 5. Зарегистрируй новое в соответствующем модуле в `app/dependencies/`.
 6. Маршрут — только в `app/navigation/`.
 7. Любая новая ошибка — строковый `code` в месте её создания **и** ключ `error_<code>` в ARB. Забыл ключ — пользователь увидит общее сообщение вместо внятного.
@@ -318,7 +344,9 @@ arrowRotation = bearing - heading  // нормализуется в 0..360
 - `throw` выше слоя `data`;
 - сетевые вызовы в MVP-критическом пути;
 - глобальные синглтоны в обход `app_di`;
-- регистрация Bloc/Cubit в `app_di` вместо создания в `BlocProvider`;
+- Cubit вместо Bloc и один блок «на весь экран» вместо блока на действие или компонент;
+- регистрация блоков в `app_di` вместо создания в `BlocProvider`;
+- `is`/`switch` по конкретным состояниям базовых блоков в экране вместо `map` / `mapOrElse` / `mapOrNull`;
 - `try/catch` с ручным маппингом в репозитории вместо `ResultHandler`;
 - метод репозитория, который возвращает не `Result` или вызывает datasource мимо `handle`/`handleStream`;
 - магические числа в геовычислениях и порогах;
@@ -339,7 +367,8 @@ flutter analyze && dart format --set-exit-if-changed . && flutter test
 | --- | --- | --- |
 | `core/utils` | distance, bearing, rotation, форматтеры | unit |
 | `core/error` | контракт ошибок, полнота ключей ARB для используемых кодов | unit |
-| `view/bloc` | переходы состояний на моках репозиториев (`bloc_test`) | unit |
+| `view/bloc` | переходы состояний на фейковых репозиториях | unit |
+| `test/architecture` | правила блоков (quality gate, §3.4) | unit по исходникам |
 | `data` | репозиторий: успех, ошибка, маппинг Exception → Failure, маппинг DTO | unit + фейковые datasource |
 | `view` | отрисовка состояний, реакция на Failure | widget |
 

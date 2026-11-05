@@ -3,16 +3,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/core/error/failures.dart';
+import 'package:wayback/core/result/result.dart';
+import 'package:wayback/features/location/domain/entities/location_access.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
-import 'package:wayback/features/location/view/bloc/location_cubit.dart';
+import 'package:wayback/features/location/view/bloc/location_fix_bloc.dart';
+import 'package:wayback/features/location/view/bloc/open_location_settings_bloc.dart';
+import 'package:wayback/features/location/view/bloc/request_location_permission_bloc.dart';
 import 'package:wayback/features/location/view/widgets/gps_status.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../fake_location_repository.dart';
 
-Future<void> _pump(WidgetTester tester, LocationState state) async {
-  final cubit = LocationCubit(FakeLocationRepository())..emit(state);
-  addTearDown(cubit.close);
+Future<FakeLocationRepository> _pump(
+  WidgetTester tester, {
+  Result<LocationAccess> access = const Result.success(LocationAccess.granted),
+}) async {
+  final repository = FakeLocationRepository(access: access);
   await tester.pumpWidget(
     MaterialApp(
       theme: WbTheme.light,
@@ -20,53 +26,101 @@ Future<void> _pump(WidgetTester tester, LocationState state) async {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
-        body: BlocProvider.value(value: cubit, child: const GpsStatus()),
+        body: MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => LocationFixBloc(repository)..fetch()),
+            BlocProvider(
+              create: (_) => RequestLocationPermissionBloc(repository),
+            ),
+            BlocProvider(create: (_) => OpenLocationSettingsBloc(repository)),
+          ],
+          child: const GpsStatus(),
+        ),
       ),
     ),
   );
+  await tester.pump();
+  return repository;
 }
 
+/// The app goes to the background and comes back, through every state the
+/// lifecycle listener expects.
+void _leaveAndReturn(WidgetTester tester) => [
+  AppLifecycleState.inactive,
+  AppLifecycleState.hidden,
+  AppLifecycleState.paused,
+  AppLifecycleState.hidden,
+  AppLifecycleState.inactive,
+  AppLifecycleState.resumed,
+].forEach(tester.binding.handleAppLifecycleStateChanged);
+
 void main() {
-  testWidgets('shows accuracy without a warning for a good fix', (
-    tester,
-  ) async {
-    await _pump(tester, LocationReady(fixWithAccuracy(8.4)));
+  testWidgets('accuracy without a warning for a good fix', (tester) async {
+    final repository = await _pump(tester);
+    repository.fixes.add(Result.success(fixWithAccuracy(8.4)));
+    await tester.pump();
 
     expect(find.text('Точность ±8 м'), findsOneWidget);
     expect(find.textContaining('Слабый сигнал'), findsNothing);
   });
 
-  testWidgets('warns about a weak signal instead of hiding it', (tester) async {
-    await _pump(tester, LocationReady(fixWithAccuracy(65)));
+  testWidgets('a weak signal is shown, not hidden', (tester) async {
+    final repository = await _pump(tester);
+    repository.fixes.add(Result.success(fixWithAccuracy(65)));
+    await tester.pump();
 
     expect(find.text('Точность ±65 м'), findsOneWidget);
     expect(find.textContaining('Слабый сигнал GPS'), findsOneWidget);
   });
 
-  testWidgets('asks for permission with an Allow action', (tester) async {
-    await _pump(tester, const LocationPermissionNeeded());
-
+  testWidgets('no permission yet: Allow asks, then fixes come', (tester) async {
+    final repository = await _pump(
+      tester,
+      access: const Result.success(LocationAccess.denied),
+    );
     expect(find.text('Доступ к геолокации'), findsOneWidget);
-    expect(find.text('Разрешить'), findsOneWidget);
+
+    await tester.tap(find.text('Разрешить'));
+    await tester.pump();
+    await tester.pump();
+    repository.fixes.add(Result.success(fixWithAccuracy(8)));
+    await tester.pump();
+
+    expect(repository.requests, 1);
+    expect(find.text('Точность ±8 м'), findsOneWidget);
   });
 
-  testWidgets('permanent refusal leads to the settings', (tester) async {
-    await _pump(
+  testWidgets('back from settings re-checks; other returns do not', (
+    tester,
+  ) async {
+    final repository = await _pump(
       tester,
-      const LocationError(
-        PermissionFailure(code: LocationErrorCodes.permissionDeniedForever),
-      ),
+      access: const Result.success(LocationAccess.serviceDisabled),
     );
+    expect(find.text('Геолокация выключена'), findsOneWidget);
+    final checks = repository.checks;
 
-    expect(find.text('Доступ к геолокации запрещён'), findsOneWidget);
-    expect(find.text('Открыть настройки'), findsOneWidget);
+    // A return from a system dialog the request itself raised.
+    _leaveAndReturn(tester);
+    await tester.pump();
+    expect(repository.checks, checks);
+
+    await tester.tap(find.text('Открыть настройки'));
+    await tester.pump();
+    await tester.pump();
+    _leaveAndReturn(tester);
+    await tester.pump();
+
+    expect(repository.opened, ['location']);
+    expect(repository.checks, checks + 1);
   });
 
   testWidgets('no fix offers a retry', (tester) async {
-    await _pump(
-      tester,
-      const LocationError(SensorFailure(code: LocationErrorCodes.unavailable)),
+    final repository = await _pump(tester);
+    repository.fixes.add(
+      const Result.failure(SensorFailure(code: LocationErrorCodes.unavailable)),
     );
+    await tester.pump();
 
     expect(find.text('Не получается определить, где вы'), findsOneWidget);
     expect(find.text('Повторить'), findsOneWidget);

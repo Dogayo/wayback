@@ -9,6 +9,7 @@ import 'package:wayback/core/result/result.dart';
 import 'package:wayback/features/location/domain/entities/location_access.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
+import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
@@ -17,6 +18,7 @@ import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../features/location/fake_location_repository.dart';
+import '../../features/points/fake_points_repository.dart';
 
 var _containers = 0;
 
@@ -31,6 +33,7 @@ Future<GoRouter> pumpApp(WidgetTester tester, String location) async {
     injectorName: 'router-test-${_containers++}',
     commonDependencies: DependencyList([
       RegFactory<LocationRepository>((_) => repository),
+      RegFactory<PointsRepository>((_) => FakePointsRepository()),
     ]),
   );
   await tester.pumpWidget(
