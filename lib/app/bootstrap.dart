@@ -1,5 +1,6 @@
 import 'package:app_di/app_di.dart';
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:wayback/app/app.dart';
 import 'package:wayback/app/dependencies/app_dependencies.dart';
@@ -8,11 +9,10 @@ import 'package:wayback/app/dependencies/app_dependencies.dart';
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Async dependencies (local storage, etc.) are initialized here, before
-  // the container is built.
+  final preferences = await SharedPreferences.getInstance();
 
   final dependencies = DependencyContainer(
-    commonDependencies: const AppDependencies(),
+    commonDependencies: AppDependencies(preferences: preferences),
   );
 
   runApp(DependenciesScope(container: dependencies, child: const App()));

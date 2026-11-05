@@ -12,7 +12,7 @@ LocationFix fixWithAccuracy(double meters) => LocationFix(
   timestamp: DateTime.utc(2026, 11, 5, 12),
 );
 
-final class FakeLocationRepository implements LocationRepository {
+class FakeLocationRepository implements LocationRepository {
   FakeLocationRepository({
     this.access = const Result.success(LocationAccess.granted),
     LocationAccess? afterRequest,
@@ -22,10 +22,15 @@ final class FakeLocationRepository implements LocationRepository {
   LocationAccess afterRequest;
   final fixes = StreamController<Result<LocationFix>>.broadcast();
   int requests = 0;
+  int checks = 0;
+  int fixRequests = 0;
   final opened = <String>[];
 
   @override
-  Future<Result<LocationAccess>> checkAccess() async => access;
+  Future<Result<LocationAccess>> checkAccess() async {
+    checks++;
+    return access;
+  }
 
   @override
   Future<Result<LocationAccess>> requestAccess() async {
@@ -34,8 +39,10 @@ final class FakeLocationRepository implements LocationRepository {
   }
 
   @override
-  Future<Result<LocationFix>> currentFix() async =>
-      Result.success(fixWithAccuracy(8));
+  Future<Result<LocationFix>> currentFix() async {
+    fixRequests++;
+    return Result.success(fixWithAccuracy(8));
+  }
 
   @override
   Stream<Result<LocationFix>> watchFix() => fixes.stream;

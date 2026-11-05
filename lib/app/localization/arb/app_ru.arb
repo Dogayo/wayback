@@ -210,10 +210,6 @@
     }
   },
   "pointsListTitle": "Точки",
-  "pointsOpenSample": "Открыть точку",
-  "@pointsOpenSample": {
-    "description": "Temporary: used by stub screens only."
-  },
   "screenStub": "Экран в разработке",
   "@screenStub": {
     "description": "Temporary: used by stub screens only."

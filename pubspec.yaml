@@ -22,6 +22,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   geolocator: ^14.1.2
+  shared_preferences: ^2.5.6
+  bloc_concurrency: ^0.3.0
 
 dev_dependencies:
   flutter_test:

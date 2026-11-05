@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
+import 'package:wayback/core/error/failures.dart';
+import 'package:wayback/features/location/domain/entities/location_access.dart';
+import 'package:wayback/features/location/domain/entities/location_fix.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
-import 'package:wayback/features/location/view/bloc/location_cubit.dart';
+import 'package:wayback/features/location/view/bloc/location_fix_bloc.dart';
+import 'package:wayback/features/location/view/bloc/open_location_settings_bloc.dart';
+import 'package:wayback/features/location/view/bloc/request_location_permission_bloc.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// GPS state for the screen it sits on: accuracy when there is a fix,
 /// otherwise what is wrong and the action that fixes it.
 ///
-/// Re-checks access when the app returns from the system settings.
+/// Needs [LocationFixBloc], [RequestLocationPermissionBloc] and
+/// [OpenLocationSettingsBloc] above it.
 class GpsStatus extends StatefulWidget {
   const GpsStatus({super.key});
 
@@ -20,15 +26,21 @@ class GpsStatus extends StatefulWidget {
 class _GpsStatusState extends State<GpsStatus> {
   late final AppLifecycleListener _lifecycle;
 
+  /// Set when the user went to the system settings from here. Only then does
+  /// coming back re-check access: a return from a system dialog that the
+  /// location request itself raised must not request again, or it loops.
+  bool _inSettings = false;
+
   @override
   void initState() {
     super.initState();
-    _lifecycle = AppLifecycleListener(onResume: _recheck);
+    _lifecycle = AppLifecycleListener(onResume: _onResume);
   }
 
-  void _recheck() {
-    final cubit = context.read<LocationCubit>();
-    if (cubit.state is! LocationReady) cubit.start();
+  void _onResume() {
+    if (!_inSettings) return;
+    _inSettings = false;
+    context.read<LocationFixBloc>().fetch();
   }
 
   @override
@@ -38,39 +50,49 @@ class _GpsStatusState extends State<GpsStatus> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      BlocBuilder<LocationCubit, LocationState>(
-        builder: (context, state) => switch (state) {
-          LocationLoading() => WbProgress(
-            label: context.l10n.pointCreateLocating,
-          ),
-          LocationPermissionNeeded() => _AlertWithAction(
-            alert: WbAlert(
-              title: context.l10n.permissionTitle,
-              message: context.l10n.permissionBody,
-              tone: WbTone.brand,
-            ),
-            action: context.l10n.actionAllow,
-            onPressed: context.read<LocationCubit>().requestPermission,
-          ),
-          LocationReady(:final fix) => _Accuracy(
-            meters: fix.accuracyMeters,
-            weak: fix.isWeakSignal,
-          ),
-          LocationError(:final failure) => _ErrorView(code: failure.code),
+  Widget build(BuildContext context) => MultiBlocListener(
+    listeners: [
+      BlocListener<RequestLocationPermissionBloc, ActionState<LocationAccess>>(
+        listener: (context, state) => state.mapOrNull(
+          success: (_) => context.read<LocationFixBloc>().fetch(),
+        ),
+      ),
+      BlocListener<OpenLocationSettingsBloc, ActionState<void>>(
+        listener: (context, state) =>
+            state.mapOrNull(success: (_) => _inSettings = true),
+      ),
+    ],
+    child: BlocBuilder<LocationFixBloc, DataState<LocationFix>>(
+      builder: (context, state) => state.map(
+        initial: (_) => const _Locating(),
+        loading: (s) => switch (s.previous) {
+          final fix? => _Accuracy(fix),
+          null => const _Locating(),
         },
-      );
+        success: (s) => _Accuracy(s.data),
+        failure: (s) => _FailureView(s.failure),
+      ),
+    ),
+  );
+}
+
+class _Locating extends StatelessWidget {
+  const _Locating();
+
+  @override
+  Widget build(BuildContext context) =>
+      WbProgress(label: context.l10n.pointCreateLocating);
 }
 
 class _Accuracy extends StatelessWidget {
-  const _Accuracy({required this.meters, required this.weak});
+  const _Accuracy(this.fix);
 
-  final double meters;
-  final bool weak;
+  final LocationFix fix;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final weak = fix.isWeakSignal;
     final color = weak
         ? context.wbColors.warning
         : context.wbColors.contentSecondary;
@@ -88,7 +110,9 @@ class _Accuracy extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             Text(
-              l10n.pointAccuracy(l10n.accuracyValue('${meters.round()}')),
+              l10n.pointAccuracy(
+                l10n.accuracyValue('${fix.accuracyMeters.round()}'),
+              ),
               style: style,
             ),
           ],
@@ -102,36 +126,46 @@ class _Accuracy extends StatelessWidget {
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({required this.code});
+class _FailureView extends StatelessWidget {
+  const _FailureView(this.failure);
 
-  final String code;
+  final Failure failure;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final cubit = context.read<LocationCubit>();
+    final code = failure.code;
+    final busy =
+        context.watch<RequestLocationPermissionBloc>().state.isInProgress ||
+        context.watch<OpenLocationSettingsBloc>().state.isInProgress;
+    if (code == LocationErrorCodes.permissionDenied) {
+      return _AlertWithAction(
+        alert: WbAlert(
+          title: l10n.permissionTitle,
+          message: l10n.permissionBody,
+          tone: WbTone.brand,
+        ),
+        action: l10n.actionAllow,
+        busy: busy,
+        onPressed: () =>
+            context.read<RequestLocationPermissionBloc>().run(null),
+      );
+    }
     final text = l10n.error(code);
-    final (action, onPressed) = switch (code) {
-      LocationErrorCodes.permissionDenied => (
-        l10n.actionAllow,
-        cubit.requestPermission,
-      ),
-      LocationErrorCodes.permissionDeniedForever ||
-      LocationErrorCodes.serviceDisabled => (
-        l10n.actionOpenSettings,
-        cubit.openSettings,
-      ),
-      _ => (l10n.actionRetry, cubit.start),
-    };
+    final opensSettings =
+        code == LocationErrorCodes.permissionDeniedForever ||
+        code == LocationErrorCodes.serviceDisabled;
     return _AlertWithAction(
       alert: WbAlert(
         title: text.title,
         message: text.body,
         tone: WbTone.negative,
       ),
-      action: action,
-      onPressed: onPressed,
+      action: opensSettings ? l10n.actionOpenSettings : l10n.actionRetry,
+      busy: busy,
+      onPressed: opensSettings
+          ? () => context.read<OpenLocationSettingsBloc>().run(code)
+          : context.read<LocationFixBloc>().fetch,
     );
   }
 }
@@ -140,11 +174,13 @@ class _AlertWithAction extends StatelessWidget {
   const _AlertWithAction({
     required this.alert,
     required this.action,
+    required this.busy,
     required this.onPressed,
   });
 
   final Widget alert;
   final String action;
+  final bool busy;
   final VoidCallback onPressed;
 
   @override
@@ -156,6 +192,7 @@ class _AlertWithAction extends StatelessWidget {
       WbButton(
         label: action,
         variant: WbButtonVariant.secondary,
+        loading: busy,
         onPressed: onPressed,
       ),
     ],
