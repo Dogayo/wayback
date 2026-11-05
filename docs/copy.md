@@ -268,4 +268,26 @@
 - **Футы и мили** — оба, с переходом на мили от 0,1 мили (§9). Форматтер расширяется в settings (#15).
 - **Код ошибки настроек — `settings_storage_failed`** (§11.2); SCREENS.md §4.6 обновлён.
 - **Подписи типов точек** берутся из ключей `pointType*`, а не из `WbPointType.label` в дизайн-системе, где они захардкожены на русском. Переключить — в l10n (#11).
+- **Онбординг — три шага, доступ можно отложить** (§14): шаг геолокации объясняет, зачем доступ, а «Не сейчас» не блокирует приложение — так требуют правила Google Play и App Store.
 - **Слабый сигнал и калибровка** — предупреждения, а не ошибки: ключи без префикса `error_`, порог «плохой точности» задаётся в navigation (#14).
+
+## 14. Onboarding (`/onboarding`)
+
+Три шага при первом запуске (SCREENS.md §4.0). Шаг 3 предваряет системный диалог; плашка на Home (§11.1) остаётся для тех, кто нажал «Не сейчас».
+
+| Ключ | ru | en | Примечание |
+| --- | --- | --- | --- |
+| `onboardingNext` | Далее | Next | шаги 1–2 |
+| `onboardingSkip` | Пропустить | Skip | в шапке шагов 1–2, ведёт на шаг 3 |
+| `onboardingIntroTitle` | Вернитесь туда, где были | Get back to where you were | шаг 1 |
+| `onboardingIntroBody` | Запомните место — парковку, лагерь, точку встречи. Wayback покажет дорогу назад без карты. | Save a spot — where you parked, your camp, a meeting point. Wayback shows the way back, no map needed. | |
+| `onboardingHowTitle` | Три простых шага | Three simple steps | шаг 2 |
+| `onboardingHowSave` | Сохраните место одним нажатием. | Save a spot with one tap. | пункт 1 |
+| `onboardingHowLeave` | Уходите по своим делам. | Go about your day. | пункт 2 |
+| `onboardingHowReturn` | Возвращайтесь по стрелке — она покажет направление и расстояние. | Follow the arrow back — it shows direction and distance. | пункт 3 |
+| `onboardingHowOffline` | Работает без интернета. Точки хранятся только на телефоне. | Works offline. Your places stay on your phone. | строка под пунктами |
+| `onboardingLocationTitle` | Доступ к геолокации | Location access | шаг 3; тот же текст, что `permissionTitle` |
+| `onboardingLocationBody` | Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто, и остаётся на телефоне. | Without it, Wayback can't save a spot or show the way back. Location is used only while the app is open and stays on your phone. | |
+| `onboardingLocationAllow` | Разрешить | Allow | вызывает системный диалог; = `actionAllow` |
+| `onboardingLocationLater` | Не сейчас | Not now | без запроса на Home |
+| `onboardingProgress` | Шаг {step} из {total} | Step {step} of {total} | подпись индикатора шагов для скринридера |

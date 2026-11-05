@@ -12,6 +12,8 @@ import 'package:wayback/features/location/domain/repositories/location_repositor
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
+import 'package:wayback/features/onboarding/domain/repositories/onboarding_repository.dart';
+import 'package:wayback/features/onboarding/view/screens/onboarding_screen.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
@@ -24,6 +26,7 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../features/location/fake_location_repository.dart';
 import '../../features/navigation/fake_compass_repository.dart';
+import '../../features/onboarding/fake_onboarding_repository.dart';
 import '../../features/points/fake_points_repository.dart';
 import '../../features/settings/fake_settings_repository.dart';
 
@@ -33,6 +36,7 @@ Future<GoRouter> pumpApp(
   WidgetTester tester,
   String location, {
   AppSettings settings = AppSettings.defaults,
+  bool onboardingCompleted = true,
 }) async {
   final router = createRouter(initialLocation: location);
   addTearDown(router.dispose);
@@ -46,6 +50,10 @@ Future<GoRouter> pumpApp(
       RegFactory<LocationRepository>((_) => repository),
       RegFactory<PointsRepository>((_) => FakePointsRepository()),
       RegFactory<CompassRepository>((_) => FakeCompassRepository()),
+      RegFactory<OnboardingRepository>(
+        (_) => FakeOnboardingRepository(completed: onboardingCompleted),
+        isSingleton: true,
+      ),
       RegFactory<SettingsRepository>(
         (_) => FakeSettingsRepository(settings),
         isSingleton: true,
@@ -110,5 +118,25 @@ void main() {
     await tester.tap(find.text('Русский'));
     await tester.pumpAndSettle();
     expect(find.text('Настройки'), findsOneWidget);
+  });
+
+  testWidgets('a first launch opens onboarding from any route', (tester) async {
+    await pumpApp(tester, Routes.pointsList, onboardingCompleted: false);
+    expect(find.byType(OnboardingScreen), findsOneWidget);
+  });
+
+  testWidgets('onboarding is not reachable once done', (tester) async {
+    await pumpApp(tester, Routes.onboarding);
+    expect(find.byType(HomeScreen), findsOneWidget);
+  });
+
+  testWidgets('finishing onboarding leads Home', (tester) async {
+    await pumpApp(tester, Routes.home, onboardingCompleted: false);
+    // The test window's system language is English.
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Not now'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 }

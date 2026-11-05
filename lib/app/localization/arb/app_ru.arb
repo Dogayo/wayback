@@ -116,6 +116,30 @@
   "navigateWeakSignal": "Слабый сигнал GPS — расстояние может быть неточным.",
   "navigateWeakSignalBody": "Расстояние может быть неточным.",
   "navigateWeakSignalTitle": "Слабый сигнал GPS",
+  "onboardingHowLeave": "Уходите по своим делам.",
+  "onboardingHowOffline": "Работает без интернета. Точки хранятся только на телефоне.",
+  "onboardingHowReturn": "Возвращайтесь по стрелке — она покажет направление и расстояние.",
+  "onboardingHowSave": "Сохраните место одним нажатием.",
+  "onboardingHowTitle": "Три простых шага",
+  "onboardingIntroBody": "Запомните место — парковку, лагерь, точку встречи. Wayback покажет дорогу назад без карты.",
+  "onboardingIntroTitle": "Вернитесь туда, где были",
+  "onboardingLocationAllow": "Разрешить",
+  "onboardingLocationBody": "Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто, и остаётся на телефоне.",
+  "onboardingLocationLater": "Не сейчас",
+  "onboardingLocationTitle": "Доступ к геолокации",
+  "onboardingNext": "Далее",
+  "onboardingProgress": "Шаг {step} из {total}",
+  "@onboardingProgress": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboardingSkip": "Пропустить",
   "permissionBody": "Wayback запоминает, где вы были, и показывает дорогу обратно. Данные остаются на телефоне.",
   "permissionTitle": "Доступ к геолокации",
   "pointAccuracy": "Точность {accuracy}",

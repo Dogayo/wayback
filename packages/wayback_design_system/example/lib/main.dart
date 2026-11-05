@@ -972,7 +972,7 @@ class _WayfindingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Section(
     title: 'Wayfinding',
-    components: 'CompassArrow',
+    components: 'CompassArrow · Illustration · PageDots',
     children: [
       _Specimen(
         width: 1014,
@@ -998,6 +998,25 @@ class _WayfindingSection extends StatelessWidget {
               detail: 'arrived · держите это направление',
               state: WbCompassState.arrived,
             ),
+          ],
+        ),
+      ),
+      _Specimen(
+        width: 1014,
+        title: 'Иллюстрации и шаги онбординга',
+        child: Wrap(
+          alignment: WrapAlignment.spaceAround,
+          spacing: 36,
+          runSpacing: 32,
+          children: [
+            for (final kind in WbIllustrationKind.values)
+              Column(
+                children: [
+                  WbIllustration(kind, size: 160),
+                  const SizedBox(height: 12),
+                  WbPageDots(count: 3, index: kind.index),
+                ],
+              ),
           ],
         ),
       ),
