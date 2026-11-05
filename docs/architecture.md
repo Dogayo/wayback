@@ -338,6 +338,17 @@ arrowRotation = bearing - heading  // нормализуется в 0..360
 - вращение стрелки интерполируется по кратчайшей дуге (переход 359° → 1° не должен давать оборот на 358°);
 - пороги (радиус прибытия, минимальная приемлемая точность) — именованные константы, не магические числа.
 
+Где лежат пороги:
+
+| Порог | Константа | Значение |
+| --- | --- | --- |
+| радиус прибытия | `arrivalRadiusMeters` (`core/utils/geo/arrival.dart`) | 20 м |
+| сколько точность GPS может расширить радиус | `arrivalAccuracyAllowanceMeters` | до 10 м: `hasArrived` = расстояние ≤ 20 + min(точность, 10) |
+| слабый сигнал GPS | `weakSignalAccuracyMeters` (`location/domain`) | точность хуже 30 м |
+| ненадёжный компас | `unreliableCompassAccuracyDegrees` (`navigation/domain`) | погрешность больше 30° или неизвестна |
+
+Угол стрелки считает `NavigationGuidanceBloc` через `continuousRotationDegrees`: значение не сворачивается в 0..360, поэтому `WbCompassArrow` анимирует поворот по кратчайшей дуге.
+
 ---
 
 ## 9. Правила для AI-агентов

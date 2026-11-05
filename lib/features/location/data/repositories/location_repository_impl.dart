@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/result/result.dart';
 import 'package:wayback/core/result/result_handler.dart';
 import 'package:wayback/features/location/data/datasources/location_datasource.dart';
@@ -33,35 +34,63 @@ final class LocationRepositoryImpl
   Future<Result<LocationFix>> currentFix() =>
       handle(() async => (await _datasource.currentFix()).toEntity());
 
-  /// One GPS subscription shared by every screen that watches fixes; it
-  /// starts with the first listener and stops after the last one.
+  /// One GPS subscription shared by every screen that watches fixes. It
+  /// starts with the first listener, stops after the last one, and starts
+  /// again when the plugin stream ends — it does after a permission error,
+  /// and a listener that comes after the user allowed access must get fixes,
+  /// not that old error.
   late final _shared = StreamController<Result<LocationFix>>.broadcast(
-    onListen: () => _upstream = handleStream(
-      _datasource.watchFix().map((model) => model.toEntity()),
-    ).listen(_onFix),
+    onListen: _startUpstream,
     onCancel: () {
       unawaited(_upstream?.cancel());
       _upstream = null;
-      _last = null;
+      _lastFix = null;
     },
   );
   StreamSubscription<Result<LocationFix>>? _upstream;
-  Result<LocationFix>? _last;
 
-  /// A new listener gets the latest result right away, then every next one.
+  /// Only a fix is replayed to a new listener; a failure may be outdated by
+  /// the time someone else listens.
+  Result<LocationFix>? _lastFix;
+
+  /// A new listener gets the latest fix right away, then every next result.
   @override
   Stream<Result<LocationFix>> watchFix() => Stream.multi((listener) {
     final subscription = _shared.stream.listen(
       listener.add,
       onDone: listener.close,
     );
-    if (_last case final last?) listener.add(last);
+    if (_upstream == null && _shared.hasListener) _startUpstream();
+    if (_lastFix case final last?) listener.add(last);
     listener.onCancel = subscription.cancel;
   });
 
-  void _onFix(Result<LocationFix> result) {
-    _last = result;
-    _shared.add(result);
+  static bool _needsAccess(Failure failure) =>
+      failure is PermissionFailure ||
+      failure.code == LocationErrorCodes.serviceDisabled;
+
+  void _startUpstream() {
+    final stream = handleStream(
+      _datasource.watchFix().map((model) => model.toEntity()),
+    );
+    _upstream = stream.listen(
+      (result) {
+        if (result.isSuccess) _lastFix = result;
+        _shared.add(result);
+        // Without access the plugin stream is dead even if it stays open;
+        // drop it, so the next listener (after the user fixed access)
+        // starts a fresh one. A lost signal keeps the stream running.
+        if (result.failureOrNull case final failure?
+            when _needsAccess(failure)) {
+          unawaited(_upstream?.cancel());
+          _upstream = null;
+        }
+      },
+      onDone: () {
+        _upstream = null;
+        _lastFix = null;
+      },
+    );
   }
 
   @override

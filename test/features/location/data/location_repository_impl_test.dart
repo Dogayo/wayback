@@ -114,4 +114,81 @@ void main() {
 
     expect(result.failureOrNull, isA<UnexpectedFailure>());
   });
+
+  group('shared fix stream', () {
+    test(
+      'after a permission failure a new listener gets fresh fixes',
+      () async {
+        final datasource = _RestartingDatasource();
+        final repository = LocationRepositoryImpl(datasource);
+        final home = <Result<LocationFix>>[];
+        final homeSub = repository.watchFix().listen(home.add);
+        await pumpEventQueue();
+
+        datasource.current.addError(
+          const PermissionException(code: LocationErrorCodes.permissionDenied),
+        );
+        await pumpEventQueue();
+        expect(home.single.failureOrNull, isA<PermissionFailure>());
+
+        // The user allows access; the GPS widget listens again.
+        final later = <Result<LocationFix>>[];
+        final laterSub = repository.watchFix().listen(later.add);
+        await pumpEventQueue();
+        datasource.current.add(_model);
+        await pumpEventQueue();
+
+        expect(datasource.starts, 2);
+        expect(later.single.isSuccess, isTrue, reason: 'no stale failure');
+        expect(home.last.isSuccess, isTrue, reason: 'Home gets fixes too');
+        await homeSub.cancel();
+        await laterSub.cancel();
+      },
+    );
+
+    test('a lost signal keeps the stream running', () async {
+      final datasource = _RestartingDatasource();
+      final repository = LocationRepositoryImpl(datasource);
+      final results = <Result<LocationFix>>[];
+      final sub = repository.watchFix().listen(results.add);
+      await pumpEventQueue();
+
+      datasource.current
+        ..addError(const SensorException(code: LocationErrorCodes.unavailable))
+        ..add(_model);
+      await pumpEventQueue();
+      await sub.cancel();
+
+      expect(datasource.starts, 1);
+      expect(results.map((r) => r.isSuccess), [false, true]);
+    });
+  });
+}
+
+/// Every watchFix() opens a new plugin stream, like the real plugin.
+final class _RestartingDatasource implements LocationDatasource {
+  late StreamController<LocationFixModel> current;
+  int starts = 0;
+
+  @override
+  Stream<LocationFixModel> watchFix() {
+    starts++;
+    current = StreamController<LocationFixModel>();
+    return current.stream;
+  }
+
+  @override
+  Future<LocationAccess> checkAccess() async => LocationAccess.granted;
+
+  @override
+  Future<LocationAccess> requestAccess() async => LocationAccess.granted;
+
+  @override
+  Future<LocationFixModel> currentFix() async => _model;
+
+  @override
+  Future<void> openAppSettings() async {}
+
+  @override
+  Future<void> openLocationSettings() async {}
 }

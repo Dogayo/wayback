@@ -53,9 +53,15 @@ final class FakePointsRepository implements PointsRepository {
   }
 
   @override
-  Future<Result<SavedPoint>> getById(String id) async =>
-      _failure() ??
-      Result.success(points.firstWhere((point) => point.id == id));
+  Future<Result<SavedPoint>> getById(String id) async {
+    if (_failure<SavedPoint>() case final failure?) return failure;
+    for (final point in points) {
+      if (point.id == id) return Result.success(point);
+    }
+    return const Result.failure(
+      NotFoundFailure(code: PointsErrorCodes.notFound),
+    );
+  }
 
   @override
   Future<Result<SavedPoint>> create({
