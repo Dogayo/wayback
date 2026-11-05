@@ -5,6 +5,9 @@ abstract final class Routes {
   static const pointsList = '/points';
   static const settings = '/settings';
 
+  /// First launch only; outside the `/` stack (architecture.md §6).
+  static const onboarding = '/onboarding';
+
   static String pointDetails(String id) => '/points/$id';
   static String navigate(String id) => '/navigate/$id';
 

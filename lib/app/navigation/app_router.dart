@@ -1,4 +1,5 @@
 import 'package:app_di/app_di.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wayback/app/localization/localization.dart';
@@ -12,6 +13,9 @@ import 'package:wayback/features/location/view/widgets/gps_status.dart';
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
+import 'package:wayback/features/onboarding/domain/repositories/onboarding_repository.dart';
+import 'package:wayback/features/onboarding/view/bloc/finish_onboarding_bloc.dart';
+import 'package:wayback/features/onboarding/view/screens/onboarding_screen.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
@@ -41,7 +45,18 @@ import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 /// from DI (architecture.md §5).
 GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
   initialLocation: initialLocation,
+  redirect: _onboardingFirst,
   routes: [
+    GoRoute(
+      path: Routes.onboarding,
+      builder: (_, _) => BlocProvider(
+        create: (context) => FinishOnboardingBloc(
+          context.di<OnboardingRepository>(),
+          context.di<LocationRepository>(),
+        ),
+        child: const OnboardingScreen(),
+      ),
+    ),
     GoRoute(
       path: Routes.home,
       builder: (_, _) => MultiBlocProvider(
@@ -176,3 +191,17 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
     ),
   ],
 );
+
+/// Until onboarding is done every route leads to it; afterwards it leads
+/// Home (mvp-scope.md §2.6). An unreadable flag never locks the user out.
+Future<String?> _onboardingFirst(
+  BuildContext context,
+  GoRouterState state,
+) async {
+  final completed =
+      (await context.di<OnboardingRepository>().isCompleted()).valueOrNull ??
+      true;
+  final atOnboarding = state.matchedLocation == Routes.onboarding;
+  if (!completed) return atOnboarding ? null : Routes.onboarding;
+  return atOnboarding ? Routes.home : null;
+}
