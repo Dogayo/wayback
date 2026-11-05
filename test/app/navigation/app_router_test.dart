@@ -1,4 +1,5 @@
 import 'package:app_di/app_di.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +9,8 @@ import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/core/result/result.dart';
 import 'package:wayback/features/location/domain/entities/location_access.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
+import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
+import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
@@ -18,6 +21,7 @@ import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../features/location/fake_location_repository.dart';
+import '../../features/navigation/fake_compass_repository.dart';
 import '../../features/points/fake_points_repository.dart';
 
 var _containers = 0;
@@ -34,6 +38,7 @@ Future<GoRouter> pumpApp(WidgetTester tester, String location) async {
     commonDependencies: DependencyList([
       RegFactory<LocationRepository>((_) => repository),
       RegFactory<PointsRepository>((_) => FakePointsRepository()),
+      RegFactory<CompassRepository>((_) => FakeCompassRepository()),
     ]),
   );
   await tester.pumpWidget(
@@ -75,9 +80,11 @@ void main() {
     expect(find.byType(HomeScreen), findsOneWidget);
   });
 
-  testWidgets('point id reaches the screen', (tester) async {
+  testWidgets('point id reaches the navigation bloc', (tester) async {
     await pumpApp(tester, Routes.navigate('abc'));
-    final screen = tester.widget<NavigateScreen>(find.byType(NavigateScreen));
-    expect(screen.pointId, 'abc');
+    final bloc = tester
+        .element(find.byType(NavigateScreen))
+        .read<NavigationGuidanceBloc>();
+    expect(bloc.pointId, 'abc');
   });
 }

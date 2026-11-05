@@ -98,7 +98,8 @@
   "homeSettingsTooltip": "Настройки",
   "homeTitle": "Wayback",
   "navigateArrived": "Вы на месте",
-  "navigateCompassCalibration": "Компас неточен. Поводите телефоном восьмёркой.",
+  "navigateCompassCalibrationBody": "Поводите телефоном восьмёркой.",
+  "navigateCompassCalibrationTitle": "Компас неточен",
   "navigateLocating": "Ждём GPS и компас…",
   "navigateSemantics": "До «{name}» {distance}",
   "@navigateSemantics": {
@@ -113,6 +114,8 @@
   },
   "navigateTitle": "Навигация",
   "navigateWeakSignal": "Слабый сигнал GPS — расстояние может быть неточным.",
+  "navigateWeakSignalBody": "Расстояние может быть неточным.",
+  "navigateWeakSignalTitle": "Слабый сигнал GPS",
   "permissionBody": "Wayback запоминает, где вы были, и показывает дорогу обратно. Данные остаются на телефоне.",
   "permissionTitle": "Доступ к геолокации",
   "pointAccuracy": "Точность {accuracy}",

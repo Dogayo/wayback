@@ -7,7 +7,6 @@ const maxScreenLines = 250;
 
 /// Screens that are still stubs and get their tests with their features.
 const screensAwaitingTests = {
-  'lib/features/navigation/view/screens/navigate_screen.dart', // #14
   'lib/features/settings/view/screens/settings_screen.dart', // #15
 };
 

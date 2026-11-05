@@ -10,6 +10,10 @@ import 'package:wayback/features/location/domain/repositories/location_repositor
 /// How long a single fix may take before it counts as unavailable.
 const _fixTimeout = Duration(seconds: 20);
 
+/// How long the plugin may stay silent after the first subscription before
+/// it is asked again (see [GeolocatorLocationDatasource.watchFix]).
+const _serviceBindGrace = Duration(seconds: 3);
+
 /// Smallest movement, meters, that produces a new fix while navigating.
 const _distanceFilterMeters = 1;
 
@@ -48,18 +52,51 @@ final class GeolocatorLocationDatasource implements LocationDatasource {
     }
   }
 
+  /// On a cold start the Android plugin may get the subscription before its
+  /// location service is bound; it then logs "Location background service
+  /// has not started correctly" and stays silent — no fix, no error. If
+  /// nothing came within [_serviceBindGrace], subscribe once more: by then the
+  /// service is bound, and a second request is harmless otherwise.
   @override
-  Stream<LocationFixModel> watchFix() =>
-      Geolocator.getPositionStream(
+  Stream<LocationFixModel> watchFix() {
+    late final StreamController<LocationFixModel> controller;
+    StreamSubscription<Position>? subscription;
+    Timer? silence;
+
+    void listen({required bool retryOnSilence}) {
+      subscription =
+          Geolocator.getPositionStream(
             locationSettings: const LocationSettings(
               distanceFilter: _distanceFilterMeters,
             ),
-          )
-          .map(_model)
-          .handleError(
-            (Object error, StackTrace stackTrace) =>
-                throw _exception(error, stackTrace),
+          ).listen(
+            (position) {
+              silence?.cancel();
+              controller.add(_model(position));
+            },
+            onError: (Object error, StackTrace stackTrace) {
+              silence?.cancel();
+              controller.addError(_exception(error, stackTrace), stackTrace);
+            },
+            onDone: controller.close,
           );
+      if (retryOnSilence) {
+        silence = Timer(_serviceBindGrace, () async {
+          await subscription?.cancel();
+          listen(retryOnSilence: false);
+        });
+      }
+    }
+
+    controller = StreamController(
+      onListen: () => listen(retryOnSilence: true),
+      onCancel: () async {
+        silence?.cancel();
+        await subscription?.cancel();
+      },
+    );
+    return controller.stream;
+  }
 
   @override
   Future<void> openAppSettings() => Geolocator.openAppSettings();

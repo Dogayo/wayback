@@ -9,6 +9,8 @@ import 'package:wayback/features/location/view/bloc/location_fix_bloc.dart';
 import 'package:wayback/features/location/view/bloc/open_location_settings_bloc.dart';
 import 'package:wayback/features/location/view/bloc/request_location_permission_bloc.dart';
 import 'package:wayback/features/location/view/widgets/gps_status.dart';
+import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
+import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
@@ -135,8 +137,14 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
         ),
         GoRoute(
           path: 'navigate/:${Routes.pointIdParam}',
-          builder: (_, state) => NavigateScreen(
-            pointId: state.pathParameters[Routes.pointIdParam]!,
+          builder: (_, state) => BlocProvider(
+            create: (context) => NavigationGuidanceBloc(
+              context.di<PointsRepository>(),
+              context.di<LocationRepository>(),
+              context.di<CompassRepository>(),
+              pointId: state.pathParameters[Routes.pointIdParam]!,
+            )..fetch(),
+            child: const NavigateScreen(),
           ),
         ),
         GoRoute(path: 'settings', builder: (_, _) => const SettingsScreen()),

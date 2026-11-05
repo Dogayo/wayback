@@ -130,7 +130,10 @@
 | `navigateTitle` | Навигация | Navigate | запасной заголовок, обычно — имя точки |
 | `navigateLocating` | Ждём GPS и компас… | Waiting for GPS and compass… | loading до первого фикса и показания компаса |
 | `navigateArrived` | Вы на месте | You're here | цвет `positive`, поверх контента |
-| `navigateCompassCalibration` | Компас неточен. Поводите телефоном восьмёркой. | Compass is off. Move your phone in a figure eight. | Alert warning, стрелка остаётся |
+| `navigateCompassCalibrationTitle` | Компас неточен | Compass is off | Alert warning, стрелка остаётся |
+| `navigateCompassCalibrationBody` | Поводите телефоном восьмёркой. | Move your phone in a figure eight. | пояснение к нему |
+| `navigateWeakSignalTitle` | Слабый сигнал GPS | Weak GPS signal | Alert warning на экране навигации |
+| `navigateWeakSignalBody` | Расстояние может быть неточным. | Distance may be off. | пояснение к нему |
 | `navigateWeakSignal` | Слабый сигнал GPS — расстояние может быть неточным. | Weak GPS signal — distance may be off. | Alert warning, при плохой точности |
 | `navigateSemantics` | До «{name}» {distance} | {distance} to “{name}” | live region, озвучивается с троттлингом |
 
