@@ -153,6 +153,24 @@ features/
 
 **Quality gate** — архитектурные тесты в `test/architecture/`: `bloc_rules.dart` (правила как функции над исходником), `bloc_rules_test.dart` (каждое правило на правильном и неправильном примере), `bloc_gate_test.dart` (все правила по `lib/`). Они идут в обычном `flutter test`, локально и в CI; нарушение валит тест с файлом и правилом. Новое правило добавляется туда же — функцией и тестом на неё.
 
+
+### 3.5 Экраны и quality gate
+
+Правила для `view/screens/`, `view/widgets/` фич и `core/widgets/`:
+
+| Правило | Что значит | Чем заменить |
+| --- | --- | --- |
+| `l10n-only` | в экране нет строковых литералов, даже `'—'` или склейки `'$lat, $lon'` | ключи `context.l10n`, хелперы `l10n.distanceOrUnknown()` / `l10n.accuracy()`, форматтеры `core/utils` (`formatCoordinates`) |
+| `design-tokens` | нет `Color(0x…)`, `Colors.*`, `TextStyle(`, чисел в `EdgeInsets`, `width`/`height`/`size`/`radius`/`spacing` (ноль можно) | `context.wbColors`, `context.wbText`, `WbSpacing`, `WbIconSize`, `WbRadius` |
+| `design-system` | нет Material-виджетов, у которых есть аналог в DS (`ElevatedButton`, `AlertDialog`, `ListTile`, `SnackBar`, `TextField`…) | `WbButton`, `WbDialogs`, `WbListItem`, `WbSnackbar.show`, `WbTextField`… |
+| `thin-screens` | нет `context.di`, репозиториев, импорта `data/`, `BlocProvider` и расчётов (`distanceMeters`…) | блоки создаёт роутер; расчёты — в блоке или `core/utils`; коды ошибок (`*ErrorCodes`) использовать можно |
+| `screen-size` | файл экрана — не больше 250 строк | части экрана — в `view/widgets/` (как `PointDetailsView`) |
+| `screen-test` | у каждого экрана есть widget-тест по зеркальному пути `test/…/view/screens/x_screen_test.dart` | хелпер `pumpScreen` поднимает экран в настоящем `GoRouter`; заглушки ждут своих фич (`screensAwaitingTests`) |
+
+Чего нет в дизайн-системе — сначала туда (так появились `WbIconTile` и `WbSnackbar.show`).
+
+Gate — `test/architecture/screen_rules.dart`, тесты на правила в `screen_rules_test.dart`, прогон по `lib/` в `screen_gate_test.dart`; идёт в обычном `flutter test`.
+
 ---
 
 ## 4. Ошибки: exceptions и failures
@@ -340,7 +358,7 @@ arrowRotation = bearing - heading  // нормализуется в 0..360
 - импорт `data` из `view`;
 - импорт одной feature из другой напрямую;
 - импорт `features` из `core`;
-- хардкод пользовательских строк;
+- хардкод пользовательских строк, цветов и размеров в экранах, Material-виджеты в обход дизайн-системы (§3.5);
 - `throw` выше слоя `data`;
 - сетевые вызовы в MVP-критическом пути;
 - глобальные синглтоны в обход `app_di`;
@@ -368,7 +386,8 @@ flutter analyze && dart format --set-exit-if-changed . && flutter test
 | `core/utils` | distance, bearing, rotation, форматтеры | unit |
 | `core/error` | контракт ошибок, полнота ключей ARB для используемых кодов | unit |
 | `view/bloc` | переходы состояний на фейковых репозиториях | unit |
-| `test/architecture` | правила блоков (quality gate, §3.4) | unit по исходникам |
+| `test/architecture` | правила блоков и экранов (quality gate, §3.4, §3.5) | unit по исходникам |
+| `view/screens` | каждый экран: состояния и навигация (`pumpScreen`) | widget |
 | `data` | репозиторий: успех, ошибка, маппинг Exception → Failure, маппинг DTO | unit + фейковые datasource |
 | `view` | отрисовка состояний, реакция на Failure | widget |
 

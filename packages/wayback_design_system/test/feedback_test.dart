@@ -55,4 +55,39 @@ void main() {
     await tester.pumpAndSettle();
     expect(await result, isNull);
   });
+
+  testWidgets('snackbar shows a message and replaces the previous one', (
+    tester,
+  ) async {
+    late BuildContext context;
+    await tester.pumpWidget(
+      _host(
+        Builder(
+          builder: (c) {
+            context = c;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+
+    WbSnackbar.show(context, 'Первое');
+    WbSnackbar.show(context, 'Точка сохранена');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Точка сохранена'), findsOneWidget);
+    expect(find.text('Первое'), findsNothing);
+  });
+
+  testWidgets('icon tile is a round tile of its token size', (tester) async {
+    await tester.pumpWidget(
+      _host(const Center(child: WbIconTile(icon: Icons.cabin))),
+    );
+
+    expect(find.byIcon(Icons.cabin), findsOneWidget);
+    expect(
+      tester.getSize(find.byType(WbIconTile)),
+      const Size.square(WbIconTile.size),
+    );
+  });
 }
