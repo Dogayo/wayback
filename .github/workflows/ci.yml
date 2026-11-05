@@ -249,8 +249,10 @@ jobs:
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
 
+      # lib/ and test/ only, like the app job in pr.yml: packages have their
+      # own dependencies and analysis options, and pub get ran at the root.
       - name: Analyze
-        run: flutter analyze --fatal-infos
+        run: flutter analyze --fatal-infos lib test
 
       - name: Run tests
         run: flutter test --coverage
