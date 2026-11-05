@@ -72,7 +72,7 @@ class _Loading extends StatelessWidget {
       for (var i = 0; i < _rows; i++)
         const Padding(
           padding: EdgeInsets.symmetric(vertical: WbSpacing.sm),
-          child: WbSkeleton(height: 40),
+          child: WbSkeleton(height: WbSpacing.xxxl),
         ),
     ],
   );
@@ -103,7 +103,7 @@ class _PointsList extends StatelessWidget {
         return WbListItem(
           title: point.name,
           subtitle: l10n.pointsListSubtitle(
-            distanceMeters == null ? '—' : l10n.distance(distanceMeters),
+            l10n.distanceOrUnknown(distanceMeters),
             l10n.savedWhen(point.createdAt, now: now),
           ),
           leading: Icon(point.type.design.icon),

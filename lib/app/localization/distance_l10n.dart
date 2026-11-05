@@ -10,4 +10,11 @@ extension DistanceL10n on AppLocalizations {
       DistanceUnit.kilometers => distanceKilometers(formatted.value),
     };
   }
+
+  /// [meters], or a dash while the distance is not known yet.
+  String distanceOrUnknown(double? meters) =>
+      meters == null ? distanceUnknown : distance(meters);
+
+  /// GPS accuracy as `±8 м`: whole meters, never kilometers (docs/copy.md §9).
+  String accuracy(double meters) => accuracyValue('${meters.round()}');
 }

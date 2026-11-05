@@ -141,6 +141,7 @@
 | `distanceMeters` | {value} м | {value} m | `850 м` / `850 m` |
 | `distanceKilometers` | {value} км | {value} km | `1,2 км` / `1.2 km` |
 | `accuracyValue` | ±{value} м | ±{value} m | `±8 м` / `±8 m` |
+| `distanceUnknown` | — | — | расстояние, пока нет позиции |
 | `distanceFeet` | {value} фт | {value} ft | `420 фт` / `420 ft` |
 | `distanceMiles` | {value} ми | {value} mi | `1,4 ми` / `1.4 mi` |
 | `accuracyValueFeet` | ±{value} фт | ±{value} ft | `±26 фт` / `±26 ft` |

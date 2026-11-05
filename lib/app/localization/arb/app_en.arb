@@ -14,6 +14,7 @@
   "distanceKilometers": "{value} km",
   "distanceMeters": "{value} m",
   "distanceMiles": "{value} mi",
+  "distanceUnknown": "—",
   "error_generic": "Something went wrong",
   "error_generic_body": "Try again.",
   "error_location_permission_denied": "No location access",

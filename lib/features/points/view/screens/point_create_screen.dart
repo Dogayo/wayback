@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
+import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/localization/point_type_l10n.dart';
 import 'package:wayback/core/error/failures.dart';
+import 'package:wayback/core/utils/geo/geo_format.dart';
 import 'package:wayback/features/location/domain/entities/location_fix.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
@@ -62,16 +64,14 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
   void _onSaved(BuildContext context, ActionState<SavedPoint> state) =>
       state.mapOrNull(
         success: (s) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.l10n.pointSavedSnackbar(s.result.name)),
-            ),
+          WbSnackbar.show(
+            context,
+            context.l10n.pointSavedSnackbar(s.result.name),
           );
           context.pop();
         },
-        failure: (s) => ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.error(s.failure.code).title)),
-        ),
+        failure: (s) =>
+            WbSnackbar.show(context, context.l10n.error(s.failure.code).title),
       );
 
   @override
@@ -205,15 +205,9 @@ class _Position extends StatelessWidget {
           l10n.pointCoordinatesLabel,
           style: context.wbText.labelMedium?.copyWith(color: secondary),
         ),
+        Text(formatCoordinates(fix.point), style: context.wbText.bodyLarge),
         Text(
-          '${fix.point.latitude.toStringAsFixed(5)}, '
-          '${fix.point.longitude.toStringAsFixed(5)}',
-          style: context.wbText.bodyLarge,
-        ),
-        Text(
-          l10n.pointAccuracy(
-            l10n.accuracyValue('${fix.accuracyMeters.round()}'),
-          ),
+          l10n.pointAccuracy(l10n.accuracy(fix.accuracyMeters)),
           style: context.wbText.bodySmall?.copyWith(
             color: fix.isWeakSignal ? context.wbColors.warning : secondary,
           ),

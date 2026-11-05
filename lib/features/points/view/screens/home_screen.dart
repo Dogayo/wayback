@@ -125,9 +125,7 @@ class _ActivePoints extends StatelessWidget {
         for (final (:point, :distanceMeters) in points) ...[
           WbPointCard(
             title: point.name,
-            distance: distanceMeters == null
-                ? '—'
-                : l10n.distance(distanceMeters),
+            distance: l10n.distanceOrUnknown(distanceMeters),
             typeIcon: point.type.design.icon,
             onTap: () => context.push(Routes.navigate(point.id)),
           ),

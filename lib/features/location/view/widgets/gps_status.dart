@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/core/error/failures.dart';
@@ -108,11 +109,9 @@ class _Accuracy extends StatelessWidget {
               size: WbIconSize.sm,
               color: color,
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: WbSpacing.xs),
             Text(
-              l10n.pointAccuracy(
-                l10n.accuracyValue('${fix.accuracyMeters.round()}'),
-              ),
+              l10n.pointAccuracy(l10n.accuracy(fix.accuracyMeters)),
               style: style,
             ),
           ],

@@ -14,6 +14,13 @@ class WbSnackbar extends StatelessWidget {
   final String message;
   final String? actionLabel;
   final VoidCallback? onAction;
+
+  /// Shows [message] at the bottom of the nearest Scaffold, replacing the
+  /// current snackbar. The look comes from the theme's snackBarTheme.
+  static void show(BuildContext context, String message) =>
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
   @override
   Widget build(BuildContext context) => Container(
     constraints: const BoxConstraints(minHeight: 52),
