@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/navigation/domain/entities/navigation_guidance.dart';
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
@@ -17,7 +18,10 @@ class NavigationView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final g = guidance;
-    final distance = l10n.distance(g.distanceMeters);
+    final distance = l10n.distance(
+      g.distanceMeters,
+      units: context.settings.units,
+    );
     return Padding(
       padding: const EdgeInsets.all(WbSpacing.screenPadding),
       child: Column(
@@ -127,7 +131,7 @@ class _Accuracy extends StatelessWidget {
       children: [
         Icon(Icons.my_location, size: WbIconSize.sm, color: color),
         Text(
-          l10n.accuracy(guidance.accuracyMeters),
+          l10n.accuracy(guidance.accuracyMeters, units: context.settings.units),
           style: context.wbText.bodyMedium?.copyWith(color: color),
         ),
       ],

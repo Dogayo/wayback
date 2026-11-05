@@ -46,4 +46,33 @@ void main() {
       expect(formatDistance(850, locale: 'ru'), _m('850'));
     });
   });
+
+  group('imperial', () {
+    FormattedDistance ft(String v) =>
+        FormattedDistance(value: v, unit: DistanceUnit.feet);
+    FormattedDistance mi(String v) =>
+        FormattedDistance(value: v, unit: DistanceUnit.miles);
+    FormattedDistance imperial(double meters) =>
+        formatDistance(meters, locale: 'en', system: UnitSystem.imperial);
+
+    test('whole feet below 0.1 mile, miles with one decimal beyond', () {
+      expect(imperial(30.48), ft('100'));
+      expect(imperial(160), ft('525'));
+      expect(imperial(161), mi('0.1'));
+      expect(imperial(2253), mi('1.4'));
+    });
+
+    test('rounding happens before the unit is chosen', () {
+      // 527.6 ft rounds to 528 ft = 0.1 mi.
+      expect(imperial(527.6 * metersPerFoot), mi('0.1'));
+    });
+
+    test('accuracy stays in whole feet', () {
+      expect(
+        formatAccuracy(8, locale: 'en', system: UnitSystem.imperial),
+        ft('26'),
+      );
+      expect(formatAccuracy(8, locale: 'en'), _m('8'));
+    });
+  });
 }

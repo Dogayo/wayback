@@ -19,6 +19,6 @@ final class AppDependencies extends DependencyCollection {
     ...const LocationModule().dependencies,
     ...PointsModule(preferences).dependencies,
     ...const NavigationModule().dependencies,
-    ...const SettingsModule().dependencies,
+    ...SettingsModule(preferences).dependencies,
   ];
 }

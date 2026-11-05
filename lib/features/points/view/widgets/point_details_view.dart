@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/core/utils/geo/geo_format.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
@@ -70,7 +71,12 @@ class PointDetailsView extends StatelessWidget {
                   Text(point.name, style: context.wbText.headlineSmall),
                   if (distanceMeters != null)
                     Text(
-                      l10n.pointDistanceFromYou(l10n.distance(distanceMeters)),
+                      l10n.pointDistanceFromYou(
+                        l10n.distance(
+                          distanceMeters,
+                          units: context.settings.units,
+                        ),
+                      ),
                       style: context.wbText.bodyMedium?.copyWith(
                         color: secondary,
                       ),

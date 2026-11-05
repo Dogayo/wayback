@@ -5,11 +5,6 @@ import 'source_file.dart';
 /// Longest a screen file may get before its parts move to `view/widgets/`.
 const maxScreenLines = 250;
 
-/// Screens that are still stubs and get their tests with their features.
-const screensAwaitingTests = {
-  'lib/features/settings/view/screens/settings_screen.dart', // #15
-};
-
 /// Material widgets that have a design-system counterpart (Wb*).
 const _rawMaterial = {
   'ElevatedButton': 'WbButton',
@@ -161,8 +156,7 @@ List<Violation> screenHasTest(
   SourceFile file,
   bool Function(String path) testExists,
 ) {
-  if (!file.path.contains('/view/screens/') ||
-      screensAwaitingTests.contains(file.path)) {
+  if (!file.path.contains('/view/screens/')) {
     return const [];
   }
   final test = file.path

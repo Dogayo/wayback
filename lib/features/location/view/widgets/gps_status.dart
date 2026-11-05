@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/features/location/domain/entities/location_access.dart';
 import 'package:wayback/features/location/domain/entities/location_fix.dart';
@@ -111,7 +112,12 @@ class _Accuracy extends StatelessWidget {
             ),
             const SizedBox(width: WbSpacing.xs),
             Text(
-              l10n.pointAccuracy(l10n.accuracy(fix.accuracyMeters)),
+              l10n.pointAccuracy(
+                l10n.accuracy(
+                  fix.accuracyMeters,
+                  units: context.settings.units,
+                ),
+              ),
               style: style,
             ),
           ],

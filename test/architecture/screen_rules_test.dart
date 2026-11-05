@@ -123,17 +123,13 @@ void main() {
     );
   });
 
-  test('screen-test: a mirrored test file, stubs exempt', () {
+  test('screen-test: a mirrored test file', () {
     expect(_rules(screenHasTest(_file('x'), (_) => false)), ['screen-test']);
     expect(
       screenHasTest(_file('x'), (path) {
         expect(path, 'test/features/points/view/screens/home_screen_test.dart');
         return true;
       }),
-      isEmpty,
-    );
-    expect(
-      screenHasTest(_file('x', path: screensAwaitingTests.first), (_) => false),
       isEmpty,
     );
   });

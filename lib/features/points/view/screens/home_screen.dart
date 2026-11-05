@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
 import 'package:wayback/features/points/view/point_type_view.dart';
 import 'package:wayback/features/points/view/widgets/bottom_action_bar.dart';
@@ -125,7 +126,10 @@ class _ActivePoints extends StatelessWidget {
         for (final (:point, :distanceMeters) in points) ...[
           WbPointCard(
             title: point.name,
-            distance: l10n.distanceOrUnknown(distanceMeters),
+            distance: l10n.distanceOrUnknown(
+              distanceMeters,
+              units: context.settings.units,
+            ),
             typeIcon: point.type.design.icon,
             onTap: () => context.push(Routes.navigate(point.id)),
           ),

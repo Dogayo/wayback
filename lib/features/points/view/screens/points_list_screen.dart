@@ -6,6 +6,7 @@ import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/localization/time_l10n.dart';
 import 'package:wayback/app/navigation/routes.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/points/view/bloc/points_list_bloc.dart';
 import 'package:wayback/features/points/view/point_type_view.dart';
 import 'package:wayback/features/points/view/widgets/bottom_action_bar.dart';
@@ -103,7 +104,10 @@ class _PointsList extends StatelessWidget {
         return WbListItem(
           title: point.name,
           subtitle: l10n.pointsListSubtitle(
-            l10n.distanceOrUnknown(distanceMeters),
+            l10n.distanceOrUnknown(
+              distanceMeters,
+              units: context.settings.units,
+            ),
             l10n.savedWhen(point.createdAt, now: now),
           ),
           leading: Icon(point.type.design.icon),

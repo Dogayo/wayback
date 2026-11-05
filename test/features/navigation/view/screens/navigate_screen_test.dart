@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/result/result.dart';
 import 'package:wayback/core/utils/geo/geo_point.dart';
@@ -23,6 +24,7 @@ LocationFix _fix(double southDegrees, {double accuracy = 5}) => LocationFix(
 Future<(FakeLocationRepository, FakeCompassRepository)> _pump(
   WidgetTester tester, {
   String id = 'a',
+  AppSettings settings = AppSettings.defaults,
 }) async {
   final location = FakeLocationRepository();
   final compass = FakeCompassRepository();
@@ -37,6 +39,7 @@ Future<(FakeLocationRepository, FakeCompassRepository)> _pump(
       )..fetch(),
       child: const NavigateScreen(),
     ),
+    settings: settings,
   );
   await settle(tester);
   return (location, compass);
@@ -71,7 +74,7 @@ void main() {
     expect(find.text('Слабый сигнал GPS'), findsOneWidget);
   });
 
-  testWidgets('arrival: text once and a single vibration', (tester) async {
+  List<String> recordHaptics(WidgetTester tester) {
     final haptics = <String>[];
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
       SystemChannels.platform,
@@ -88,16 +91,53 @@ void main() {
         null,
       ),
     );
-    final (location, compass) = await _pump(tester);
-    compass.readings.add(Result.success(heading(0)));
+    return haptics;
+  }
 
+  Future<void> arrive(
+    FakeLocationRepository location,
+    FakeCompassRepository compass,
+    WidgetTester tester,
+  ) async {
+    compass.readings.add(Result.success(heading(0)));
     location.fixes.add(Result.success(_fix(0.0001)));
     await settle(tester);
     location.fixes.add(Result.success(_fix(0.00005)));
     await settle(tester);
+  }
+
+  testWidgets('arrival: text once and a single vibration', (tester) async {
+    final haptics = recordHaptics(tester);
+    final (location, compass) = await _pump(tester);
+    await arrive(location, compass, tester);
 
     expect(find.text('Вы на месте'), findsOneWidget);
     expect(haptics, ['HapticFeedbackType.mediumImpact']);
+  });
+
+  testWidgets('arrival with vibration turned off: text only', (tester) async {
+    final haptics = recordHaptics(tester);
+    final (location, compass) = await _pump(
+      tester,
+      settings: const AppSettings(vibrationOnArrival: false),
+    );
+    await arrive(location, compass, tester);
+
+    expect(find.text('Вы на месте'), findsOneWidget);
+    expect(haptics, isEmpty);
+  });
+
+  testWidgets('imperial units: distance in feet', (tester) async {
+    final (location, compass) = await _pump(
+      tester,
+      settings: const AppSettings(units: UnitSystem.imperial),
+    );
+    location.fixes.add(Result.success(_fix(0.0001)));
+    compass.readings.add(Result.success(heading(0)));
+    await settle(tester);
+
+    expect(find.text('36\u00A0фт'), findsOneWidget);
+    expect(find.text('±16\u00A0фт'), findsOneWidget);
   });
 
   testWidgets('no compass: distance stays, the arrow goes', (tester) async {

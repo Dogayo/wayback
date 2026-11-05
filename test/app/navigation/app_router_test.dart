@@ -17,16 +17,23 @@ import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
+import 'package:wayback/features/settings/domain/entities/app_settings.dart';
+import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../features/location/fake_location_repository.dart';
 import '../../features/navigation/fake_compass_repository.dart';
 import '../../features/points/fake_points_repository.dart';
+import '../../features/settings/fake_settings_repository.dart';
 
 var _containers = 0;
 
-Future<GoRouter> pumpApp(WidgetTester tester, String location) async {
+Future<GoRouter> pumpApp(
+  WidgetTester tester,
+  String location, {
+  AppSettings settings = AppSettings.defaults,
+}) async {
   final router = createRouter(initialLocation: location);
   addTearDown(router.dispose);
   // Denied access keeps Home static: no system dialog, no progress spinner.
@@ -39,6 +46,10 @@ Future<GoRouter> pumpApp(WidgetTester tester, String location) async {
       RegFactory<LocationRepository>((_) => repository),
       RegFactory<PointsRepository>((_) => FakePointsRepository()),
       RegFactory<CompassRepository>((_) => FakeCompassRepository()),
+      RegFactory<SettingsRepository>(
+        (_) => FakeSettingsRepository(settings),
+        isSingleton: true,
+      ),
     ]),
   );
   await tester.pumpWidget(
@@ -86,5 +97,18 @@ void main() {
         .element(find.byType(NavigateScreen))
         .read<NavigationGuidanceBloc>();
     expect(bloc.pointId, 'abc');
+  });
+
+  testWidgets('the saved language applies to the whole app', (tester) async {
+    await pumpApp(
+      tester,
+      Routes.settings,
+      settings: const AppSettings(language: AppLanguage.en),
+    );
+    expect(find.text('Settings'), findsOneWidget);
+
+    await tester.tap(find.text('Русский'));
+    await tester.pumpAndSettle();
+    expect(find.text('Настройки'), findsOneWidget);
   });
 }
