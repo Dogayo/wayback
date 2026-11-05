@@ -1,0 +1,10 @@
+# Launcher icon (#16). Sources: Penpot "04 · App icon"; regenerate with
+# `dart run flutter_launcher_icons`.
+flutter_launcher_icons:
+  image_path: assets/launcher/icon.png
+  android: true
+  min_sdk_android: 21
+  adaptive_icon_background: "#E2591A" # brand-500
+  adaptive_icon_foreground: assets/launcher/icon_foreground.png
+  ios: true
+  remove_alpha_ios: true
