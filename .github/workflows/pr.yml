@@ -1,0 +1,85 @@
+# ==============================================================================
+# PR CHECKS
+#
+# Runs on every pull request into main: formatting, analysis and
+# tests for the app and for each local package under packages/.
+#
+# Pull requests into develop are not checked: develop is the working branch,
+# main is where the gate sits.
+#
+# Release logic lives in ci.yml and is untouched by this file: nothing here
+# builds, tags or publishes.
+#
+# Each package is analyzed and tested from its own directory, with its own
+# analysis_options.yaml and dependencies. The app job analyzes lib/ and test/
+# only, so packages are not checked twice under the app's lint rules.
+# ==============================================================================
+
+name: PR checks
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.44.4'
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+  check:
+    name: Analyze & Test (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: app
+            dir: .
+            paths: lib test
+          - name: app_di
+            dir: packages/app_di
+            paths: .
+          - name: wayback_design_system
+            dir: packages/wayback_design_system
+            paths: .
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos ${{ matrix.paths }}
+
+      - name: Run tests
+        run: flutter test

@@ -1,0 +1,14 @@
+/* Motion — short, functional. Movement is reserved for state changes that matter. */
+:root {
+  --wb-duration-fast: 150ms; /* @kind other */   /* switch thumb, press states */
+  --wb-duration-base: 220ms; /* @kind other */   /* sheets, dialogs, fades */
+  --wb-duration-slow: 320ms; /* @kind other */   /* screen transitions */
+  --wb-ease-standard: cubic-bezier(0.2, 0, 0, 1); /* @kind other */      /* Material-side default */
+  --wb-ease-ios: cubic-bezier(0.25, 0.1, 0.25, 1); /* @kind other */     /* iOS-side default */
+  --wb-ease-out: cubic-bezier(0, 0, 0.2, 1); /* @kind other */
+  --wb-compass-smoothing: 120ms; /* @kind other */ /* arrow interpolation step, never a jump through 0/360 */
+  --wb-shimmer-duration: 1400ms; /* @kind other */
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --wb-duration-fast: 1ms; /* @kind other */ --wb-duration-base: 1ms; /* @kind other */ --wb-duration-slow: 1ms; /* @kind other */ }
+}

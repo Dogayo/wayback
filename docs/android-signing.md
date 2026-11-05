@@ -2,7 +2,7 @@
 
 Инструкция для проекта `wayback` (Flutter, Gradle Kotlin DSL, `applicationId = com.dogayo.wayback`).
 
-Сейчас release-сборка подписывается debug-ключом (`android/app/build.gradle.kts`, блок `buildTypes.release`). Ниже — как создать свой ключ и переключить сборку на него.
+Сборка уже готова к подписи (#17): `android/app/build.gradle.kts` берёт upload-ключ из `android/key.properties`, а без этого файла подписывает release debug-ключом. CI восстанавливает ключ из секретов GitHub (§7) и не выпускает релиз, подписанный debug-ключом. Остаётся создать ключ (§1), файл `key.properties` (§2) и секреты (§7) — это делается один раз, пароли знаете только вы.
 
 ---
 
@@ -14,10 +14,10 @@
 keytool -help
 ```
 
-Если команда не найдена — используйте JDK из Android Studio:
+На Fedora `keytool` уже есть в `/usr/bin` (пакет OpenJDK). Если команда не найдена — используйте JDK из Android Studio:
 
 ```bash
-export PATH="/Applications/Android Studio.app/Contents/jbr/Contents/Home/bin:$PATH"
+export PATH="$HOME/android-studio/jbr/bin:$PATH"
 ```
 
 Создание ключа (файл кладём **вне репозитория**, например в `~/keys/`):
@@ -50,16 +50,16 @@ keytool -list -v -keystore ~/keys/wayback-upload.jks -alias upload
 storePassword=ПАРОЛЬ_ХРАНИЛИЩА
 keyPassword=ПАРОЛЬ_КЛЮЧА
 keyAlias=upload
-storeFile=/Users/dogayo/keys/wayback-upload.jks
+storeFile=/home/Dogayo/keys/wayback-upload.jks
 ```
 
-`storeFile` — абсолютный путь либо путь относительно каталога `android/app/`.
+`storeFile` — абсолютный путь либо путь относительно каталога `android/app/`. Обратный слэш в паролях не используйте: в формате `.properties` это экранирование.
 
 ---
 
-## 3. Добавить в `.gitignore`
+## 3. `.gitignore`
 
-В корневой `.gitignore` проекта:
+Уже настроено — в корневом и `android/.gitignore`:
 
 ```
 # Android signing
@@ -76,7 +76,7 @@ git status --porcelain android/key.properties
 
 ---
 
-## 4. Подключить подпись в `android/app/build.gradle.kts`
+## 4. Подпись в `android/app/build.gradle.kts` (уже подключена)
 
 В начало файла, **до** блока `plugins`:
 
@@ -135,7 +135,7 @@ flutter build apk --release
 Проверить, каким ключом подписан APK:
 
 ```bash
-"$(dirname $(which apksigner) 2>/dev/null || echo $ANDROID_HOME/build-tools/34.0.0)/apksigner" verify --print-certs build/app/outputs/flutter-apk/app-release.apk
+"$(ls ~/Android/Sdk/build-tools/*/apksigner | sort -V | tail -1)" verify --print-certs build/app/outputs/flutter-apk/app-release.apk
 ```
 
 Отпечаток SHA-256 в выводе должен совпадать с тем, что показывает `keytool -list -v` для вашего keystore. Если видите `CN=Android Debug` — подпись не подхватилась, проверьте путь в `storeFile`.
@@ -152,27 +152,37 @@ keytool -list -keystore ~/keys/wayback-upload.jks
 
 ---
 
-## 7. CI (GitHub Actions и т.п.)
+## 7. CI (GitHub Actions)
 
-Keystore в репозиторий не кладём — передаём через секреты в base64:
+Keystore в репозиторий не кладём — `ci.yml` (job `build-android`) собирает его из четырёх секретов репозитория. Задать их из терминала через `gh`, ничего не копируя руками:
 
 ```bash
-base64 -i ~/keys/wayback-upload.jks | pbcopy
+base64 -w0 ~/keys/wayback-upload.jks | gh secret set ANDROID_KEYSTORE_BASE64
 ```
 
-В workflow перед сборкой:
-
-```yaml
-      - name: Restore keystore
-        run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload.jks
-          cat > android/key.properties <<EOF
-          storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}
-          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
-          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
-          storeFile=upload.jks
-          EOF
+```bash
+gh secret set ANDROID_KEY_ALIAS --body upload
 ```
+
+```bash
+gh secret set ANDROID_STORE_PASSWORD
+```
+
+```bash
+gh secret set ANDROID_KEY_PASSWORD
+```
+
+Последние две команды спросят значение интерактивно — так пароль не попадёт в историю shell. Проверить, что секреты на месте (значения не показываются):
+
+```bash
+gh secret list
+```
+
+Что делает CI:
+
+- **Restore upload keystore** — раскодирует keystore во временный каталог раннера и пишет `android/key.properties`.
+- **Verify signature** — печатает сертификат подписи APK (`apksigner verify --print-certs`).
+- Релиз по тегу без секретов или с подписью `CN=Android Debug` **падает** — debug-подписанный APK не обновит установку, подписанную настоящим ключом. Ручной запуск (`Run workflow`) без секретов собирается с debug-ключом и предупреждением.
 
 ---
 

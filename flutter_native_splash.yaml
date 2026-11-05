@@ -1,0 +1,13 @@
+# Splash screen (#16) in surfaceDefault with the brand mark. Sources: Penpot
+# "04 · App icon"; regenerate with `dart run flutter_native_splash:create`.
+flutter_native_splash:
+  color: "#FFFFFF" # surfaceDefault, light
+  image: assets/launcher/splash.png
+  color_dark: "#0B0D10" # surfaceDefault, dark
+  image_dark: assets/launcher/splash_dark.png
+  android_12:
+    color: "#FFFFFF"
+    image: assets/launcher/splash_android12.png
+    color_dark: "#0B0D10"
+    image_dark: assets/launcher/splash_android12_dark.png
+  fullscreen: false

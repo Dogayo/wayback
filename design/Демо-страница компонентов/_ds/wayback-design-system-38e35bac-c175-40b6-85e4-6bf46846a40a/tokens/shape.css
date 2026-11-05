@@ -1,0 +1,18 @@
+/* Shape — radii, border widths, icon sizes. */
+:root {
+  --wb-radius-sm: 8px;    /* chips, badges */
+  --wb-radius-md: 12px;   /* buttons, fields, list items */
+  --wb-radius-lg: 20px;   /* cards, dialogs, sheets */
+  --wb-radius-full: 999px;/* avatars, switch, FAB */
+  --wb-radius-dialog-android: 28px;
+
+  --wb-border-thin: 1px;
+  --wb-border-thick: 2px;
+
+  --wb-icon-sm: 16px;
+  --wb-icon-md: 20px;
+  --wb-icon-lg: 24px;
+  --wb-icon-xl: 32px;
+  --wb-icon-2xl: 48px;
+  --wb-icon-stroke: 2px;
+}

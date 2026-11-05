@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/wayback-design-system-38e35bac-c175-40b6-85e4-6bf46846a40a/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/wayback-design-system-38e35bac-c175-40b6-85e4-6bf46846a40a/tokens/colors.css">
+<link rel="stylesheet" href="_ds/wayback-design-system-38e35bac-c175-40b6-85e4-6bf46846a40a/tokens/typography.css">
+<link rel="stylesheet" href="_ds/wayback-design-system-38e35bac-c175-40b6-85e4-6bf46846a40a/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/wayback-design-system-38e35bac-c175-40b6-85e4-6bf46846a40a/tokens/shape.css">
+<link rel="stylesheet" href="_ds/wayback-design-system-38e35bac-c175-40b6-85e4-6bf46846a40a/tokens/elevation.css">
+<link rel="stylesheet" href="_ds/wayback-design-system-38e35bac-c175-40b6-85e4-6bf46846a40a/tokens/motion.css">
+<link rel="stylesheet" href="_ds/wayback-design-system-38e35bac-c175-40b6-85e4-6bf46846a40a/styles.css">
+<script src="_ds/wayback-design-system-38e35bac-c175-40b6-85e4-6bf46846a40a/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:#F5F7F9}
+a{color:var(--wb-brand-600);text-decoration:none}
+a:hover{color:var(--wb-brand-500)}
+.wbnav:hover{background:var(--wb-surface-sunken)}
+::selection{background:var(--wb-brand-50)}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" data-platform="{{ platform }}" style="min-height:100vh;background:var(--wb-surface-container);color:var(--wb-content-primary);font-family:var(--wb-font-body);display:grid;grid-template-columns:236px minmax(0,1fr)">
+
+  <aside style="position:sticky;top:0;align-self:start;height:100vh;overflow:auto;background:var(--wb-surface-elevated);border-right:1px solid var(--wb-border-subtle);padding:24px 16px;display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <img src="assets/logo-lockup.svg" alt="Wayback" style="height:26px;width:auto;align-self:flex-start">
+      <div style="font:400 12px/16px var(--wb-font-body);color:var(--wb-content-tertiary)">Компоненты · демо-страница</div>
+    </div>
+
+    <nav style="display:flex;flex-direction:column;gap:2px">
+      <a class="wbnav" href="#foundations" style="padding:7px 10px;border-radius:8px;font:500 13.5px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Foundations</a>
+      <a class="wbnav" href="#actions" style="padding:7px 10px;border-radius:8px;font:500 13.5px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Actions</a>
+      <a class="wbnav" href="#forms" style="padding:7px 10px;border-radius:8px;font:500 13.5px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Forms</a>
+      <a class="wbnav" href="#content" style="padding:7px 10px;border-radius:8px;font:500 13.5px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Content</a>
+      <a class="wbnav" href="#navigation" style="padding:7px 10px;border-radius:8px;font:500 13.5px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Navigation</a>
+      <a class="wbnav" href="#wayfinding" style="padding:7px 10px;border-radius:8px;font:500 13.5px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Wayfinding</a>
+      <a class="wbnav" href="#feedback" style="padding:7px 10px;border-radius:8px;font:500 13.5px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Feedback</a>
+    </nav>
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:auto">
+      <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Тема</div>
+      <x-import component-from-global-scope="WaybackDesignSystem_38e35b.SegmentedTabs" items="{{ themeItems }}" value="{{ theme }}" onChange="{{ setTheme }}" hint-size="100%,36px"></x-import>
+      <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Платформа</div>
+      <x-import component-from-global-scope="WaybackDesignSystem_38e35b.SegmentedTabs" items="{{ platformItems }}" value="{{ platform }}" onChange="{{ setPlatform }}" hint-size="100%,36px"></x-import>
+    </div>
+  </aside>
+
+  <main style="padding:40px 44px 96px;display:flex;flex-direction:column;gap:14px;max-width:1180px">
+
+    <header style="display:flex;flex-direction:column;gap:14px;padding-bottom:8px">
+      <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.1em;text-transform:uppercase;color:var(--wb-brand-600)">Wayback design system</div>
+      <h1 style="margin:0;font:400 52px/52px var(--wb-font-display);letter-spacing:.01em;text-transform:uppercase;color:var(--wb-content-primary)">Библиотека компонентов</h1>
+      <p style="margin:0;max-width:62ch;font:400 15px/24px var(--wb-font-body);color:var(--wb-content-secondary);text-wrap:pretty">27 примитивов приложения: сохранение точки, направление и расстояние до неё. Все элементы живые — переключайте, вводите текст, открывайте диалоги. Тема и платформа меняются в панели слева.</p>
+    </header>
+
+    <section id="foundations" style="scroll-margin-top:24px;display:flex;flex-direction:column;gap:16px;padding-top:24px">
+      <div style="display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--wb-border-subtle);padding-bottom:10px">
+        <h2 style="margin:0;font:400 26px/28px var(--wb-font-display);letter-spacing:.02em;text-transform:uppercase">Foundations</h2>
+        <span style="font:400 12.5px/18px var(--wb-font-mono);color:var(--wb-content-tertiary)">Icon</span>
+      </div>
+
+      <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Размеры · 16 / 20 / 24 / 32 / 48</div>
+          <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-end">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="near_me" size="{{ n16 }}" hint-size="16px,16px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="near_me" size="{{ n20 }}" hint-size="20px,20px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="near_me" size="{{ n24 }}" hint-size="24px,24px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="near_me" size="{{ n32 }}" hint-size="32px,32px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="near_me" size="{{ n48 }}" hint-size="48px,48px"></x-import>
+          </div>
+        </div>
+        <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Divider" hint-size="100%,1px"></x-import>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Восемь типов точек</div>
+          <div style="display:flex;flex-wrap:wrap;gap:28px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:76px"><x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="directions_car" size="{{ n32 }}" hint-size="32px,32px"></x-import><span style="font:400 11.5px/14px var(--wb-font-mono);color:var(--wb-content-tertiary);text-align:center">car</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:76px"><x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="camping" size="{{ n32 }}" hint-size="32px,32px"></x-import><span style="font:400 11.5px/14px var(--wb-font-mono);color:var(--wb-content-tertiary);text-align:center">tent</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:76px"><x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="phishing" size="{{ n32 }}" hint-size="32px,32px"></x-import><span style="font:400 11.5px/14px var(--wb-font-mono);color:var(--wb-content-tertiary);text-align:center">fishing</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:76px"><x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="backpack" size="{{ n32 }}" hint-size="32px,32px"></x-import><span style="font:400 11.5px/14px var(--wb-font-mono);color:var(--wb-content-tertiary);text-align:center">bag</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:76px"><x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="cottage" size="{{ n32 }}" hint-size="32px,32px"></x-import><span style="font:400 11.5px/14px var(--wb-font-mono);color:var(--wb-content-tertiary);text-align:center">house</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:76px"><x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="group" size="{{ n32 }}" hint-size="32px,32px"></x-import><span style="font:400 11.5px/14px var(--wb-font-mono);color:var(--wb-content-tertiary);text-align:center">meeting</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:76px"><x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="local_parking" size="{{ n32 }}" hint-size="32px,32px"></x-import><span style="font:400 11.5px/14px var(--wb-font-mono);color:var(--wb-content-tertiary);text-align:center">parking</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;width:76px"><x-import component-from-global-scope="WaybackDesignSystem_38e35b.Icon" name="location_on" size="{{ n32 }}" hint-size="32px,32px"></x-import><span style="font:400 11.5px/14px var(--wb-font-mono);color:var(--wb-content-tertiary);text-align:center">generic</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="actions" style="scroll-margin-top:24px;display:flex;flex-direction:column;gap:16px;padding-top:24px">
+      <div style="display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--wb-border-subtle);padding-bottom:10px">
+        <h2 style="margin:0;font:400 26px/28px var(--wb-font-display);letter-spacing:.02em;text-transform:uppercase">Actions</h2>
+        <span style="font:400 12.5px/18px var(--wb-font-mono);color:var(--wb-content-tertiary)">Button · IconButton</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px">
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:18px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Button · варианты</div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Button" variant="primary" icon="add_location_alt" onClick="{{ onSave }}" hint-size="auto,44px">Сохранить местоположение</x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Button" variant="secondary" hint-size="auto,44px">Переименовать</x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Button" variant="tertiary" hint-size="auto,44px">Готово</x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Button" variant="destructive" icon="delete" onClick="{{ openDialog }}" hint-size="auto,44px">Удалить</x-import>
+          </div>
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Состояния</div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Button" variant="primary" loading="{{ true }}" hint-size="auto,44px">Сохранение</x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Button" variant="primary" disabled="{{ true }}" hint-size="auto,44px">Нет сигнала GPS</x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Button" variant="secondary" size="small" icon="my_location" hint-size="auto,36px">Обновить</x-import>
+          </div>
+        </div>
+
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:18px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">IconButton</div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.IconButton" icon="more_horiz" label="Ещё" variant="ghost" hint-size="44px,44px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.IconButton" icon="near_me" label="Вести к точке" variant="brand" hint-size="44px,44px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.IconButton" icon="share" label="Поделиться" variant="filled" hint-size="44px,44px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.IconButton" icon="delete" label="Удалить точку" variant="negative" hint-size="44px,44px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.IconButton" icon="edit" label="Переименовать" variant="ghost" disabled="{{ true }}" hint-size="44px,44px"></x-import>
+          </div>
+          <p style="margin:0;font:400 13px/19px var(--wb-font-body);color:var(--wb-content-secondary);text-wrap:pretty">Область нажатия всегда 44×44, независимо от размера глифа. У каждой иконки-кнопки обязательная подпись для скринридера.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="forms" style="scroll-margin-top:24px;display:flex;flex-direction:column;gap:16px;padding-top:24px">
+      <div style="display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--wb-border-subtle);padding-bottom:10px">
+        <h2 style="margin:0;font:400 26px/28px var(--wb-font-display);letter-spacing:.02em;text-transform:uppercase">Forms</h2>
+        <span style="font:400 12.5px/18px var(--wb-font-mono);color:var(--wb-content-tertiary)">TextField · TextArea · Checkbox · Radio · Switch · TypePicker</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px">
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:20px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Ввод текста</div>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.TextField" label="Название точки" value="{{ name }}" onChange="{{ setName }}" placeholder="Машина" leadingIcon="drive_file_rename_outline" helper="Так точка будет называться в списке." hint-size="100%,84px"></x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.TextField" label="Поиск" type="search" value="{{ query }}" onChange="{{ setQuery }}" placeholder="Найти точку" leadingIcon="search" hint-size="100%,84px"></x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.TextField" label="Название точки" value="" placeholder="Машина" error="Введите название" hint-size="100%,84px"></x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.TextArea" label="Заметка" value="{{ note }}" onChange="{{ setNote }}" rows="{{ n3 }}" placeholder="Второй ряд от въезда, у берёзы" helper="Необязательно." hint-size="100%,120px"></x-import>
+        </div>
+
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:20px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Выбор</div>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Checkbox" checked="{{ keepScreen }}" onChange="{{ setKeepScreen }}" label="Не гасить экран во время навигации" hint-size="100%,24px"></x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Checkbox" checked="{{ false }}" disabled="{{ true }}" label="Фоновое отслеживание — недоступно офлайн" hint-size="100%,24px"></x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Divider" hint-size="100%,1px"></x-import>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Единицы</div>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Radio" checked="{{ unitsMetric }}" onChange="{{ pickMetric }}" label="Метры и километры" hint-size="100%,24px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Radio" checked="{{ unitsImperial }}" onChange="{{ pickImperial }}" label="Футы и мили" hint-size="100%,24px"></x-import>
+          </div>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Divider" hint-size="100%,1px"></x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Switch" checked="{{ haptics }}" onChange="{{ setHaptics }}" platform="{{ platform }}" label="Вибрация при прибытии" hint-size="100%,32px"></x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Switch" checked="{{ compassLock }}" onChange="{{ setCompassLock }}" platform="{{ platform }}" label="Держать компас откалиброванным" hint-size="100%,32px"></x-import>
+        </div>
+      </div>
+
+      <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">TypePicker · фиксированный набор из восьми типов</div>
+        <x-import component-from-global-scope="WaybackDesignSystem_38e35b.TypePicker" value="{{ pointType }}" onChange="{{ setPointType }}" hint-size="100%,180px"></x-import>
+      </div>
+    </section>
+
+    <section id="content" style="scroll-margin-top:24px;display:flex;flex-direction:column;gap:16px;padding-top:24px">
+      <div style="display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--wb-border-subtle);padding-bottom:10px">
+        <h2 style="margin:0;font:400 26px/28px var(--wb-font-display);letter-spacing:.02em;text-transform:uppercase">Content</h2>
+        <span style="font:400 12.5px/18px var(--wb-font-mono);color:var(--wb-content-tertiary)">ListItem · Card · Badge · Chip · Avatar · Divider</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px">
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px 24px 8px;display:flex;flex-direction:column;gap:16px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">ListItem · сохранённые точки</div>
+          <div style="display:flex;flex-direction:column">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.ListItem" icon="directions_car" title="Машина" subtitle="640 м · точность ±8 м" selected="{{ true }}" divider="{{ true }}" trailing="{{ activeBadge }}" hint-size="100%,64px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.ListItem" icon="camping" title="Лагерь у озера" subtitle="1.4 км · сохранено вчера" divider="{{ true }}" trailing="{{ chevron }}" hint-size="100%,64px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.ListItem" icon="phishing" title="Место рыбалки" subtitle="3.8 км · точность ±24 м" divider="{{ true }}" trailing="{{ weakBadge }}" hint-size="100%,64px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.ListItem" icon="local_parking" title="Парковка у вокзала" subtitle="12.6 км · сохранено 14 августа" trailing="{{ chevron }}" hint-size="100%,64px"></x-import>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:18px">
+            <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Badge · Chip · Avatar</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Badge" tone="positive" hint-size="auto,22px">Активная</x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Badge" tone="warning" hint-size="auto,22px">Слабый сигнал</x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Badge" tone="negative" hint-size="auto,22px">Нет GPS</x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Badge" tone="brand" hint-size="auto,22px">Новая</x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Badge" tone="neutral" hint-size="auto,22px">Архив</x-import>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Chip" icon="directions_car" selected="{{ chipCar }}" onClick="{{ toggleCar }}" hint-size="auto,32px">Машина</x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Chip" icon="camping" selected="{{ chipTent }}" onClick="{{ toggleTent }}" hint-size="auto,32px">Лагерь</x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Chip" icon="phishing" selected="{{ chipFish }}" onClick="{{ toggleFish }}" hint-size="auto,32px">Рыбалка</x-import>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Avatar" name="Машина" tone="brand" hint-size="40px,40px"></x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Avatar" name="Лагерь" tone="neutral" hint-size="40px,40px"></x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Avatar" name="Рыбалка" tone="neutral" size="{{ n32 }}" hint-size="32px,32px"></x-import>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Card · три уровня</div>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start">
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Card" elevation="{{ n1 }}" style="{{ cardW }}" hint-size="180px,88px"><div style="font:600 15px/20px var(--wb-font);margin-bottom:4px">Уровень 1</div><div style="font:400 13px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Только заливка — группа настроек.</div></x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Card" elevation="{{ n2 }}" style="{{ cardW }}" hint-size="180px,88px"><div style="font:600 15px/20px var(--wb-font);margin-bottom:4px">Уровень 2</div><div style="font:400 13px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Карточка по умолчанию.</div></x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Card" elevation="{{ n3 }}" style="{{ cardW }}" hint-size="180px,88px"><div style="font:600 15px/20px var(--wb-font);margin-bottom:4px">Уровень 3</div><div style="font:400 13px/18px var(--wb-font-body);color:var(--wb-content-secondary)">Всплывающий слой.</div></x-import>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="navigation" style="scroll-margin-top:24px;display:flex;flex-direction:column;gap:16px;padding-top:24px">
+      <div style="display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--wb-border-subtle);padding-bottom:10px">
+        <h2 style="margin:0;font:400 26px/28px var(--wb-font-display);letter-spacing:.02em;text-transform:uppercase">Navigation</h2>
+        <span style="font:400 12.5px/18px var(--wb-font-mono);color:var(--wb-content-tertiary)">AppBar · BackButton · SegmentedTabs · BottomNav</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px">
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:18px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">AppBar · {{ platform }}</div>
+          <div style="border:1px solid var(--wb-border-subtle);border-radius:12px;overflow:hidden">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.AppBar" title="Сохранённые точки" platform="{{ platform }}" actions="{{ appBarActions }}" hint-size="100%,56px"></x-import>
+          </div>
+          <div style="border:1px solid var(--wb-border-subtle);border-radius:12px;overflow:hidden">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.AppBar" title="Машина" platform="{{ platform }}" onBack="{{ noop }}" actions="{{ appBarEdit }}" hint-size="100%,56px"></x-import>
+          </div>
+          <div style="display:flex;gap:16px;align-items:center">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.BackButton" platform="ios" hint-size="44px,44px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.BackButton" platform="android" hint-size="44px,44px"></x-import>
+            <span style="font:400 13px/18px var(--wb-font-body);color:var(--wb-content-secondary)">iOS ‹ и Android ←</span>
+          </div>
+        </div>
+
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:18px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">SegmentedTabs</div>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.SegmentedTabs" items="{{ tabItems }}" value="{{ tab }}" onChange="{{ setTab }}" hint-size="100%,36px"></x-import>
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">BottomNav · вне MVP</div>
+          <div style="border:1px solid var(--wb-border-subtle);border-radius:12px;overflow:hidden">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.BottomNav" items="{{ navItems }}" value="{{ navValue }}" onChange="{{ setNavValue }}" hint-size="100%,64px"></x-import>
+          </div>
+          <p style="margin:0;font:400 13px/19px var(--wb-font-body);color:var(--wb-content-secondary);text-wrap:pretty">Нижняя навигация описана в системе, но в MVP не используется: маршрутов всего четыре.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="wayfinding" style="scroll-margin-top:24px;display:flex;flex-direction:column;gap:16px;padding-top:24px">
+      <div style="display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--wb-border-subtle);padding-bottom:10px">
+        <h2 style="margin:0;font:400 26px/28px var(--wb-font-display);letter-spacing:.02em;text-transform:uppercase">Wayfinding</h2>
+        <span style="font:400 12.5px/18px var(--wb-font-mono);color:var(--wb-content-tertiary)">CompassArrow</span>
+      </div>
+
+      <div style="background:var(--wb-surface-container);border:1px solid var(--wb-border-subtle);border-radius:20px;padding:32px 24px;display:flex;flex-wrap:wrap;gap:40px;justify-content:center">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.CompassArrow" rotation="{{ rotation }}" size="{{ n200 }}" state="ok" hint-size="200px,200px"></x-import>
+          <div style="text-align:center;display:flex;flex-direction:column;gap:4px">
+            <div class="wb-tabular" style="font:700 24px/30px var(--wb-font);color:var(--wb-content-primary)">640 м</div>
+            <div style="font:400 13px/18px var(--wb-font-body);color:var(--wb-content-tertiary)">ok · точность GPS ±8 м</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.CompassArrow" rotation="{{ rotationSlow }}" size="{{ n200 }}" state="unreliable" hint-size="200px,200px"></x-import>
+          <div style="text-align:center;display:flex;flex-direction:column;gap:4px">
+            <div class="wb-tabular" style="font:700 24px/30px var(--wb-font);color:var(--wb-content-primary)">1.4 км</div>
+            <div style="font:400 13px/18px var(--wb-font-body);color:var(--wb-content-tertiary)">unreliable · точность GPS ±42 м</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.CompassArrow" rotation="{{ n0 }}" size="{{ n200 }}" state="arrived" hint-size="200px,200px"></x-import>
+          <div style="text-align:center;display:flex;flex-direction:column;gap:4px">
+            <div class="wb-tabular" style="font:700 24px/30px var(--wb-font);color:var(--wb-content-primary)">18 м</div>
+            <div style="font:400 13px/18px var(--wb-font-body);color:var(--wb-content-tertiary)">arrived · держите это направление</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="feedback" style="scroll-margin-top:24px;display:flex;flex-direction:column;gap:16px;padding-top:24px">
+      <div style="display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--wb-border-subtle);padding-bottom:10px">
+        <h2 style="margin:0;font:400 26px/28px var(--wb-font-display);letter-spacing:.02em;text-transform:uppercase">Feedback</h2>
+        <span style="font:400 12.5px/18px var(--wb-font-mono);color:var(--wb-content-tertiary)">Alert · Snackbar · Dialog · BottomSheet · ProgressIndicator · Skeleton</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px">
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:14px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Alert</div>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Alert" tone="warning" title="Компас не откалиброван" hint-size="100%,auto">Опишите восьмёрку телефоном, чтобы стрелка стала точнее.</x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Alert" tone="negative" title="Нет доступа к геолокации" hint-size="100%,auto">Разрешите доступ в настройках, чтобы видеть направление.</x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Alert" tone="positive" title="Точка сохранена" hint-size="100%,auto">Точность GPS ±8 м.</x-import>
+        </div>
+
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:20px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Прогресс и загрузка</div>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.ProgressIndicator" label="Определяем местоположение…" hint-size="100%,32px"></x-import>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.ProgressIndicator" value="{{ n64 }}" label="Точность растёт" hint-size="100%,32px"></x-import>
+          <div style="display:flex;flex-direction:column;gap:10px;padding-top:4px">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Skeleton" width="60%" height="{{ n16 }}" hint-size="60%,16px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Skeleton" width="85%" height="{{ n12 }}" hint-size="85%,12px"></x-import>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Skeleton" width="40%" height="{{ n12 }}" hint-size="40%,12px"></x-import>
+          </div>
+          <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Snackbar" actionLabel="Отменить" hint-size="100%,52px">Точка «Машина» удалена</x-import>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px">
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">Dialog · {{ platform }}</div>
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Button" variant="tertiary" size="small" onClick="{{ openDialog }}" hint-size="auto,36px">Открыть поверх страницы</x-import>
+          </div>
+          <div style="display:flex;justify-content:center;background:var(--wb-surface-container);border-radius:12px;padding:20px">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Dialog" title="Удалить «Машина»?" body="Вы потеряете сохранённое местоположение." platform="{{ platform }}" destructive="{{ true }}" confirmLabel="Удалить" cancelLabel="Отмена" hint-size="300px,180px"></x-import>
+          </div>
+        </div>
+
+        <div style="background:var(--wb-surface-elevated);border:1px solid var(--wb-border-subtle);border-radius:20px;box-shadow:var(--wb-shadow-1);padding:24px;display:flex;flex-direction:column;gap:16px">
+          <div style="font:600 11.5px/16px var(--wb-font-body);letter-spacing:.05em;text-transform:uppercase;color:var(--wb-content-tertiary)">BottomSheet · {{ platform }}</div>
+          <div style="background:var(--wb-surface-container);border-radius:12px;padding:20px 20px 0;display:flex;justify-content:center">
+            <x-import component-from-global-scope="WaybackDesignSystem_38e35b.BottomSheet" title="Машина" platform="{{ platform }}" style="{{ sheetW }}" hint-size="320px,220px">
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.ListItem" icon="near_me" title="Вести к точке" divider="{{ true }}" hint-size="100%,64px"></x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.ListItem" icon="edit" title="Переименовать" divider="{{ true }}" hint-size="100%,64px"></x-import>
+              <x-import component-from-global-scope="WaybackDesignSystem_38e35b.ListItem" icon="delete" title="Удалить точку" hint-size="100%,64px"></x-import>
+            </x-import>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <sc-if value="{{ dialogOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:var(--wb-scrim);display:flex;align-items:center;justify-content:center;padding:24px;z-index:50">
+      <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Dialog" title="Удалить «Машина»?" body="Вы потеряете сохранённое местоположение." platform="{{ platform }}" destructive="{{ true }}" confirmLabel="Удалить" cancelLabel="Отмена" onConfirm="{{ closeDialog }}" onCancel="{{ closeDialog }}" hint-size="320px,180px"></x-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ snackOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);width:min(420px,calc(100vw - 48px));z-index:60">
+      <x-import component-from-global-scope="WaybackDesignSystem_38e35b.Snackbar" actionLabel="Переименовать" onAction="{{ hideSnack }}" hint-size="100%,52px">Точка сохранена · точность ±8 м</x-import>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light' | 'dark'&quot;},&quot;platform&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ios&quot;,&quot;android&quot;],&quot;default&quot;:&quot;ios&quot;,&quot;tsType&quot;:&quot;'ios' | 'android'&quot;}}">
+class Component extends DCLogic {
+  state = {
+    theme: null, platform: null,
+    name: 'Машина', query: '', note: '',
+    keepScreen: true, units: 'metric', haptics: true, compassLock: false,
+    pointType: 'car', chips: { car: true, tent: false, fish: false },
+    tab: 'near', navValue: 'points',
+    rotation: 34, dialogOpen: false, snackOpen: false
+  };
+
+  componentDidMount() {
+    this.t = setInterval(() => this.setState(s => ({ rotation: (s.rotation + 3) % 360 })), 120);
+  }
+  componentWillUnmount() { clearInterval(this.t); if (this.snackT) clearTimeout(this.snackT); }
+
+  set(k) { return v => this.setState({ [k]: v }); }
+
+  renderVals() {
+    const R = React.createElement;
+    const DS = window.WaybackDesignSystem_38e35b || {};
+    const theme = this.state.theme || this.props.theme || 'light';
+    const platform = this.state.platform || this.props.platform || 'ios';
+    const rot = this.state.rotation;
+
+    return {
+      theme, platform,
+      setTheme: v => this.setState({ theme: v }),
+      setPlatform: v => this.setState({ platform: v }),
+      themeItems: [{ id: 'light', label: 'Светлая' }, { id: 'dark', label: 'Тёмная' }],
+      platformItems: [{ id: 'ios', label: 'iOS' }, { id: 'android', label: 'Android' }],
+
+      n0: 0, n1: 1, n2: 2, n3: 3, n12: 12, n16: 16, n20: 20, n24: 24, n32: 32,
+      n48: 48, n64: 64, n200: 200,
+      cardW: { width: 200 }, sheetW: { width: 320 },
+
+      rotation: rot,
+      rotationSlow: (rot * 0.4 + 210) % 360,
+
+      name: this.state.name, setName: this.set('name'),
+      query: this.state.query, setQuery: this.set('query'),
+      note: this.state.note, setNote: this.set('note'),
+      keepScreen: this.state.keepScreen, setKeepScreen: this.set('keepScreen'),
+      haptics: this.state.haptics, setHaptics: this.set('haptics'),
+      compassLock: this.state.compassLock, setCompassLock: this.set('compassLock'),
+      unitsMetric: this.state.units === 'metric',
+      unitsImperial: this.state.units === 'imperial',
+      pickMetric: () => this.setState({ units: 'metric' }),
+      pickImperial: () => this.setState({ units: 'imperial' }),
+      pointType: this.state.pointType, setPointType: this.set('pointType'),
+
+      chipCar: this.state.chips.car, chipTent: this.state.chips.tent, chipFish: this.state.chips.fish,
+      toggleCar: () => this.setState(s => ({ chips: { ...s.chips, car: !s.chips.car } })),
+      toggleTent: () => this.setState(s => ({ chips: { ...s.chips, tent: !s.chips.tent } })),
+      toggleFish: () => this.setState(s => ({ chips: { ...s.chips, fish: !s.chips.fish } })),
+
+      tab: this.state.tab, setTab: this.set('tab'),
+      tabItems: [{ id: 'near', label: 'Рядом' }, { id: 'all', label: 'Все точки' }, { id: 'archive', label: 'Архив' }],
+      navValue: this.state.navValue, setNavValue: this.set('navValue'),
+      navItems: [
+        { id: 'compass', icon: 'explore', label: 'Компас' },
+        { id: 'points', icon: 'list', label: 'Точки' },
+        { id: 'settings', icon: 'settings', label: 'Настройки' }
+      ],
+
+      activeBadge: DS.Badge ? R(DS.Badge, { tone: 'positive' }, 'Активная') : null,
+      weakBadge: DS.Badge ? R(DS.Badge, { tone: 'warning' }, 'Слабый сигнал') : null,
+      chevron: DS.Icon ? R(DS.Icon, { name: 'chevron_right', size: 20, color: 'var(--wb-content-tertiary)' }) : null,
+      appBarActions: DS.IconButton ? R(DS.IconButton, { icon: 'search', label: 'Поиск', variant: 'ghost' }) : null,
+      appBarEdit: DS.IconButton ? R(DS.IconButton, { icon: 'more_horiz', label: 'Ещё', variant: 'ghost' }) : null,
+
+      noop: () => {},
+      dialogOpen: this.state.dialogOpen,
+      openDialog: () => this.setState({ dialogOpen: true }),
+      closeDialog: () => this.setState({ dialogOpen: false }),
+      snackOpen: this.state.snackOpen,
+      hideSnack: () => this.setState({ snackOpen: false }),
+      onSave: () => {
+        this.setState({ snackOpen: true });
+        if (this.snackT) clearTimeout(this.snackT);
+        this.snackT = setTimeout(() => this.setState({ snackOpen: false }), 3200);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

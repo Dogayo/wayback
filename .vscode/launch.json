@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Wayback",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}",
+      "program": "lib/main.dart"
+    },
+    {
+      "name": "Wayback (profile)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "Design System",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/packages/wayback_design_system/example",
+      "program": "lib/main.dart"
+    },
+    {
+      "name": "Design System (Chrome)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/packages/wayback_design_system/example",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "toolArgs": [
+        "--web-port=4173",
+        "--web-browser-flag=--window-size=1280,900"
+      ]
+    }
+  ]
+}

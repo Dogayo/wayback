@@ -7,8 +7,8 @@
 # the text of a commit message. A tag is therefore the only way to say "run
 # now" without producing a run for every commit.
 #
-# One consequence worth knowing: pushing broken code to a branch produces no
-# signal at all. The tag build is the first and only check.
+# Pull requests into main are checked separately by pr.yml (format,
+# analyze, tests — no builds). A plain push without a PR still gets no signal.
 #
 # ------------------------------------------------------------------------------
 # TAG GRAMMAR (exact match, lowercase)
@@ -249,8 +249,10 @@ jobs:
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
 
+      # lib/ and test/ only, like the app job in pr.yml: packages have their
+      # own dependencies and analysis options, and pub get ran at the root.
       - name: Analyze
-        run: flutter analyze --fatal-infos
+        run: flutter analyze --fatal-infos lib test
 
       - name: Run tests
         run: flutter test --coverage
@@ -284,6 +286,34 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # The upload key comes from secrets (docs/android-signing.md §7). A tag
+      # release without it fails: a debug-signed APK can't update an install
+      # signed with the real key. A manual run falls back to the debug key.
+      - name: Restore upload keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          RELEASE: ${{ needs.trigger.outputs.release }}
+        run: |
+          set -euo pipefail
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            if [ "$RELEASE" = true ]; then
+              echo "::error::Secret ANDROID_KEYSTORE_BASE64 is not set; a release must be signed with the upload key."
+              exit 1
+            fi
+            echo "::warning::No upload keystore in secrets — this manual build is signed with the debug key."
+            exit 0
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          cat > android/key.properties <<EOF
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=$RUNNER_TEMP/upload.jks
+          EOF
+
       - name: Build APK
         run: |
           flutter build apk --release \
@@ -291,6 +321,19 @@ jobs:
             --build-number=${{ needs.trigger.outputs.build_number }}
           mv build/app/outputs/flutter-apk/app-release.apk \
              "wayback-${{ needs.trigger.outputs.build_name }}-${{ needs.trigger.outputs.build_number }}.apk"
+
+      - name: Verify signature
+        env:
+          RELEASE: ${{ needs.trigger.outputs.release }}
+        run: |
+          set -euo pipefail
+          apksigner="$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)"
+          certs="$("$apksigner" verify --print-certs wayback-*.apk)"
+          echo "$certs" | grep -E 'certificate (DN|SHA-256 digest)'
+          if [ "$RELEASE" = true ] && echo "$certs" | grep -q 'CN=Android Debug'; then
+            echo "::error::The release APK is signed with the debug key."
+            exit 1
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

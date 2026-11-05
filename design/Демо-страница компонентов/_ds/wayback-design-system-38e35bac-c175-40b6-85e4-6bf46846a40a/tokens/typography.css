@@ -1,0 +1,42 @@
+/* Type. App = platform native face. Docs/marketing = Big Shoulders + IBM Plex. */
+:root {
+  /* families */
+  /* The app ships no font file: these stacks resolve to San Francisco on iOS/macOS via the
+     system keywords and to Roboto on Android — nothing here needs a bundled binary. */
+  --wb-font: -apple-system, BlinkMacSystemFont, system-ui, "Helvetica Neue", "Roboto", sans-serif;
+  --wb-font-android: "Roboto", "Segoe UI", sans-serif;
+  --wb-font-num: -apple-system, BlinkMacSystemFont, system-ui, "Roboto", sans-serif;
+  --wb-font-display: "Big Shoulders Display", "Arial Narrow", sans-serif;
+  --wb-font-body: "IBM Plex Sans", -apple-system, system-ui, Roboto, sans-serif;
+  --wb-font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* app type scale — Flutter TextTheme names, size/line-height/weight */
+  --wb-type-display-large: 700 56px/64px var(--wb-font);
+  --wb-type-display-small: 700 34px/40px var(--wb-font);
+  --wb-type-headline-small: 700 24px/30px var(--wb-font);
+  --wb-type-title-large: 600 20px/26px var(--wb-font);
+  --wb-type-title-medium: 600 16px/22px var(--wb-font);
+  --wb-type-body-large: 400 16px/24px var(--wb-font);
+  --wb-type-body-medium: 400 14px/20px var(--wb-font);
+  --wb-type-label-large: 600 15px/20px var(--wb-font);
+  --wb-type-label-medium: 600 13px/18px var(--wb-font);
+  --wb-type-body-small: 500 12px/16px var(--wb-font);
+
+  --wb-tracking-display: -0.02em;
+  --wb-tracking-caption: 0.02em;
+  --wb-tracking-eyebrow: 0.1em;
+}
+[data-platform="android"] { --wb-font: "Roboto", "Segoe UI", sans-serif; --wb-font-num: "Roboto", sans-serif; }
+
+/* numeric readouts never change width as they update */
+.wb-tabular { font-variant-numeric: tabular-nums; }
+
+/* Material Symbols Outlined, weight 400, unfilled — the app's single icon set */
+.wb-icon {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal; font-style: normal; line-height: 1;
+  letter-spacing: normal; text-transform: none; white-space: nowrap;
+  direction: ltr; display: inline-block;
+  -webkit-font-feature-settings: "liga"; -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
