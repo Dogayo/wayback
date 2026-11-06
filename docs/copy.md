@@ -39,6 +39,7 @@
 | `actionRename` | Переименовать | Rename | |
 | `actionAllow` | Разрешить | Allow | запрос разрешения |
 | `actionOpenSettings` | Открыть настройки | Open settings | системные настройки телефона |
+| `actionEnablePreciseLocation` | Включить точную геолокацию | Turn on precise location | системный диалог, затем настройки приложения |
 
 ## 3. Home (`/`)
 
@@ -207,6 +208,7 @@
 | `location_permission_denied_forever` | Доступ к геолокации запрещён | Включите его в настройках телефона. | Открыть настройки |
 | `location_service_disabled` | Геолокация выключена | Включите её, чтобы сохранять и находить точки. | Открыть настройки |
 | `location_unavailable` | Не получается определить, где вы | Выйдите на открытое место. | Повторить |
+| `location_precise_required` | Нужна точная геолокация | С приблизительной дорогу назад не показать. | Включить точную геолокацию |
 | `navigation_compass_unavailable` | Компас недоступен | На этом телефоне нет компаса, поэтому направление не показать. | — |
 | `points_storage_read_failed` | Не удалось загрузить точки | Попробуйте ещё раз. | Повторить |
 | `points_storage_write_failed` | Не удалось сохранить точку | Попробуйте ещё раз. | Повторить |
@@ -223,6 +225,7 @@
 | `location_permission_denied_forever` | Location access is blocked | Turn it on in your phone settings. |
 | `location_service_disabled` | Location is off | Turn it on to save and find places. |
 | `location_unavailable` | Can't find your location | Try moving into the open. |
+| `location_precise_required` | Precise location needed | Approximate location can't show the way back. |
 | `navigation_compass_unavailable` | No compass | This phone has no compass, so direction can't be shown. |
 | `points_storage_read_failed` | Couldn't load your places | Try again. |
 | `points_storage_write_failed` | Couldn't save the place | Try again. |
@@ -292,7 +295,7 @@
 | `onboardingHowReturn` | Возвращайтесь по стрелке — она покажет направление и расстояние. | Follow the arrow back — it shows direction and distance. | пункт 3 |
 | `onboardingHowOffline` | Работает без интернета. Точки хранятся только на телефоне. | Works offline. Your places stay on your phone. | строка под пунктами |
 | `onboardingLocationTitle` | Доступ к геолокации | Location access | шаг 3; тот же текст, что `permissionTitle` |
-| `onboardingLocationBody` | Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто, и остаётся на телефоне. | Without it, Wayback can't save a spot or show the way back. Location is used only while the app is open and stays on your phone. | |
+| `onboardingLocationBody` | Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто, и остаётся на телефоне. Выберите точное местоположение — с приблизительным дорога назад не сработает. | Without it, Wayback can't save a spot or show the way back. Location is used only while the app is open and stays on your phone. Choose precise location — the way back won't work with approximate. | |
 | `onboardingLocationAllow` | Разрешить | Allow | вызывает системный диалог; = `actionAllow` |
 | `onboardingLocationLater` | Не сейчас | Not now | без запроса на Home |
 | `onboardingProgress` | Шаг {step} из {total} | Step {step} of {total} | подпись индикатора шагов для скринридера |

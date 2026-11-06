@@ -6,6 +6,8 @@ import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/result/result.dart';
 import 'package:wayback/core/utils/geo/geo_point.dart';
 import 'package:wayback/features/location/domain/entities/location_fix.dart';
+import 'package:wayback/features/location/domain/repositories/location_repository.dart';
+import 'package:wayback/features/navigation/view/bloc/enable_precise_location_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
@@ -30,13 +32,18 @@ Future<(FakeLocationRepository, FakeCompassRepository)> _pump(
   final compass = FakeCompassRepository();
   await pumpScreen(
     tester,
-    BlocProvider(
-      create: (_) => NavigationGuidanceBloc(
-        FakePointsRepository([savedPoint('a', name: 'Машина')]),
-        location,
-        compass,
-        pointId: id,
-      )..fetch(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => NavigationGuidanceBloc(
+            FakePointsRepository([savedPoint('a', name: 'Машина')]),
+            location,
+            compass,
+            pointId: id,
+          )..fetch(),
+        ),
+        BlocProvider(create: (_) => EnablePreciseLocationBloc(location)),
+      ],
       child: const NavigateScreen(),
     ),
     settings: settings,
@@ -138,6 +145,28 @@ void main() {
 
     expect(find.text('36\u00A0фт'), findsOneWidget);
     expect(find.text('±16\u00A0фт'), findsOneWidget);
+  });
+
+  testWidgets('approximate access: an error instead of the arrow', (
+    tester,
+  ) async {
+    final (location, compass) = await _pump(tester);
+    compass.readings.add(Result.success(heading(0)));
+    location.fixes.add(
+      const Result.failure(
+        PermissionFailure(code: LocationErrorCodes.preciseRequired),
+      ),
+    );
+    await settle(tester);
+
+    expect(find.text('Нужна точная геолокация'), findsOneWidget);
+    expect(find.byType(WbCompassArrow), findsNothing);
+    expect(find.text('Вы на месте'), findsNothing);
+
+    await tester.tap(find.text('Включить точную геолокацию'));
+    await settle(tester);
+
+    expect(location.preciseRequests, 1);
   });
 
   testWidgets('no compass: distance stays, the arrow goes', (tester) async {

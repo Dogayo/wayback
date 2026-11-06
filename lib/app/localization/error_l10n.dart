@@ -7,6 +7,7 @@ const localizedErrorCodes = {
   'location_permission_denied_forever',
   'location_service_disabled',
   'location_unavailable',
+  'location_precise_required',
   'navigation_compass_unavailable',
   'points_storage_read_failed',
   'points_storage_write_failed',
@@ -38,6 +39,10 @@ extension ErrorL10n on AppLocalizations {
     'location_unavailable' => (
       title: error_location_unavailable,
       body: error_location_unavailable_body,
+    ),
+    'location_precise_required' => (
+      title: error_location_precise_required,
+      body: error_location_precise_required_body,
     ),
     'navigation_compass_unavailable' => (
       title: error_navigation_compass_unavailable,

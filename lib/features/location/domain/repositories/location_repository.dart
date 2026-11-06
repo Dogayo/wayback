@@ -8,6 +8,7 @@ abstract final class LocationErrorCodes {
   static const permissionDeniedForever = 'location_permission_denied_forever';
   static const serviceDisabled = 'location_service_disabled';
   static const unavailable = 'location_unavailable';
+  static const preciseRequired = 'location_precise_required';
 }
 
 /// Every method returns a [Result]; none of them throws.
@@ -18,10 +19,15 @@ abstract interface class LocationRepository {
   /// Shows the system dialog when it still can be shown.
   Future<Result<LocationAccess>> requestAccess();
 
-  /// One fresh fix, for saving a point.
+  /// Asks for precise location; opens the app settings when the system
+  /// shows no dialog or the user kept approximate.
+  Future<Result<LocationAccess>> requestPreciseAccess();
+
+  /// One fresh fix, for saving a point. Approximate access is a failure.
   Future<Result<LocationFix>> currentFix();
 
-  /// Fixes while navigating. A failure does not end the stream.
+  /// Fixes while navigating. A failure does not end the stream; approximate
+  /// access is a failure.
   Stream<Result<LocationFix>> watchFix();
 
   Future<Result<void>> openAppSettings();

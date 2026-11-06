@@ -22,6 +22,7 @@ class FakeLocationRepository implements LocationRepository {
   LocationAccess afterRequest;
   final fixes = StreamController<Result<LocationFix>>.broadcast();
   int requests = 0;
+  int preciseRequests = 0;
   int checks = 0;
   int fixRequests = 0;
   final opened = <String>[];
@@ -35,6 +36,12 @@ class FakeLocationRepository implements LocationRepository {
   @override
   Future<Result<LocationAccess>> requestAccess() async {
     requests++;
+    return access = Result.success(afterRequest);
+  }
+
+  @override
+  Future<Result<LocationAccess>> requestPreciseAccess() async {
+    preciseRequests++;
     return access = Result.success(afterRequest);
   }
 

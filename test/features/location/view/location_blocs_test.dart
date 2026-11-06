@@ -28,6 +28,7 @@ void main() {
     });
 
     final cases = {
+      LocationAccess.approximate: LocationErrorCodes.preciseRequired,
       LocationAccess.denied: LocationErrorCodes.permissionDenied,
       LocationAccess.deniedForever: LocationErrorCodes.permissionDeniedForever,
       LocationAccess.serviceDisabled: LocationErrorCodes.serviceDisabled,
