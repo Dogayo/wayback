@@ -7,6 +7,7 @@ Wayback is a Flutter application for saving a location and returning to it with 
 - `lib/` — application code.
 - `test/` — application tests.
 - `packages/app_di/` — application dependency container and Flutter bridge.
+- `packages/app_logger/` — on-device diagnostic log: JSONL files, rotation, export without private fields.
 - `packages/wayback_design_system/` — reusable Wayback tokens, themes, components, tests, and catalog app.
 - `android/` and `ios/` — platform projects; keep generated Flutter files out of commits.
 - `.github/workflows/ci.yml` — tag-driven builds and releases.
@@ -34,6 +35,10 @@ flutter analyze
 flutter test
 
 cd ../app_di
+flutter analyze
+flutter test
+
+cd ../app_logger
 flutter analyze
 flutter test
 ```

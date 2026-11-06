@@ -24,6 +24,7 @@
   "actionRetry": "Повторить",
   "actionSave": "Сохранить",
   "appTitle": "Wayback",
+  "diagnosticsShareSubject": "Журнал Wayback",
   "distanceFeet": "{value} фт",
   "@distanceFeet": {
     "placeholders": {
@@ -57,6 +58,8 @@
     }
   },
   "distanceUnknown": "—",
+  "error_diagnostics_export_failed": "Не удалось подготовить журнал",
+  "error_diagnostics_export_failed_body": "Попробуйте ещё раз.",
   "error_generic": "Что-то пошло не так",
   "error_generic_body": "Попробуйте ещё раз.",
   "error_location_permission_denied": "Нет доступа к геолокации",
@@ -242,6 +245,8 @@
   "settingsLanguageEn": "English",
   "settingsLanguageRu": "Русский",
   "settingsLanguageSystem": "Как в системе",
+  "settingsSendLog": "Отправить журнал",
+  "settingsSendLogHint": "Для разбора ошибок, без координат",
   "settingsTitle": "Настройки",
   "settingsUnits": "Единицы измерения",
   "settingsUnitsImperial": "Футы и мили",

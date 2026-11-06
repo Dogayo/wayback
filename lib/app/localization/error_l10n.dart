@@ -12,6 +12,7 @@ const localizedErrorCodes = {
   'points_storage_write_failed',
   'points_not_found',
   'settings_storage_failed',
+  'diagnostics_export_failed',
 };
 
 typedef ErrorText = ({String title, String body});
@@ -57,6 +58,10 @@ extension ErrorL10n on AppLocalizations {
     'settings_storage_failed' => (
       title: error_settings_storage_failed,
       body: error_settings_storage_failed_body,
+    ),
+    'diagnostics_export_failed' => (
+      title: error_diagnostics_export_failed,
+      body: error_diagnostics_export_failed_body,
     ),
     _ => (title: error_generic, body: error_generic_body),
   };

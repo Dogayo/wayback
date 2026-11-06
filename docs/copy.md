@@ -179,6 +179,9 @@
 | `settingsLanguageRu` | Русский | Русский | самоназвание, одинаково в обеих локалях |
 | `settingsLanguageEn` | English | English | самоназвание |
 | `settingsVibration` | Вибрация при прибытии | Vibrate on arrival | Switch |
+| `settingsSendLog` | Отправить журнал | Send log | открывает меню «Поделиться» |
+| `settingsSendLogHint` | Для разбора ошибок, без координат | To look into problems, no coordinates | подпись пункта |
+| `diagnosticsShareSubject` | Журнал Wayback | Wayback log | тема письма |
 
 ## 11. Разрешения и ошибки
 
@@ -209,6 +212,7 @@
 | `points_storage_write_failed` | Не удалось сохранить точку | Попробуйте ещё раз. | Повторить |
 | `points_not_found` | Точка не найдена | Возможно, её удалили. | К списку точек |
 | `settings_storage_failed` | Не удалось сохранить настройки | Попробуйте ещё раз. | Повторить |
+| `diagnostics_export_failed` | Не удалось подготовить журнал | Попробуйте ещё раз. | — |
 
 **en**
 
@@ -224,6 +228,7 @@
 | `points_storage_write_failed` | Couldn't save the place | Try again. |
 | `points_not_found` | Place not found | It may have been deleted. |
 | `settings_storage_failed` | Couldn't save settings | Try again. |
+| `diagnostics_export_failed` | Couldn't prepare the log | Try again. |
 
 Пара `error_generic` / `error_generic_body` показывается для любого кода без перевода; сам код при этом логируется (architecture.md §4.2).
 

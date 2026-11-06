@@ -1,4 +1,5 @@
 import 'package:app_di/app_di.dart';
+import 'package:app_logger/app_logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +21,7 @@ import 'package:wayback/features/points/view/screens/point_create_screen.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
+import 'package:wayback/features/settings/domain/repositories/diagnostics_repository.dart';
 import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
@@ -28,6 +30,7 @@ import '../../features/location/fake_location_repository.dart';
 import '../../features/navigation/fake_compass_repository.dart';
 import '../../features/onboarding/fake_onboarding_repository.dart';
 import '../../features/points/fake_points_repository.dart';
+import '../../features/settings/fake_diagnostics_repository.dart';
 import '../../features/settings/fake_settings_repository.dart';
 
 var _containers = 0;
@@ -50,6 +53,8 @@ Future<GoRouter> pumpApp(
       RegFactory<LocationRepository>((_) => repository),
       RegFactory<PointsRepository>((_) => FakePointsRepository()),
       RegFactory<CompassRepository>((_) => FakeCompassRepository()),
+      RegFactory<AppLogger>((_) => const NoopLogger()),
+      RegFactory<DiagnosticsRepository>((_) => FakeDiagnosticsRepository()),
       RegFactory<OnboardingRepository>(
         (_) => FakeOnboardingRepository(completed: onboardingCompleted),
         isSingleton: true,
