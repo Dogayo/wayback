@@ -25,7 +25,7 @@ final class GeolocatorLocationDatasource implements LocationDatasource {
     if (!await Geolocator.isLocationServiceEnabled()) {
       return LocationAccess.serviceDisabled;
     }
-    return _access(await Geolocator.checkPermission());
+    return _precision(_access(await Geolocator.checkPermission()));
   }
 
   @override
@@ -33,11 +33,23 @@ final class GeolocatorLocationDatasource implements LocationDatasource {
     if (!await Geolocator.isLocationServiceEnabled()) {
       return LocationAccess.serviceDisabled;
     }
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+    final access = await _precision(
+      _access(await Geolocator.checkPermission()),
+    );
+    // Asking again with approximate access offers precise on Android.
+    if (access != LocationAccess.denied &&
+        access != LocationAccess.approximate) {
+      return access;
     }
-    return _access(permission);
+    return _precision(_access(await Geolocator.requestPermission()));
+  }
+
+  static Future<LocationAccess> _precision(LocationAccess access) async {
+    if (access != LocationAccess.granted) return access;
+    final accuracy = await Geolocator.getLocationAccuracy();
+    return accuracy == LocationAccuracyStatus.reduced
+        ? LocationAccess.approximate
+        : access;
   }
 
   @override

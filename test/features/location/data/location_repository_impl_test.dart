@@ -23,11 +23,14 @@ final _model = LocationFixModel(
 final class _FakeDatasource implements LocationDatasource {
   LocalException? accessError;
   LocalException? fixError;
+  LocationAccess access = LocationAccess.granted;
+  bool settingsFail = true;
+  int settingsOpened = 0;
   final fixes = StreamController<LocationFixModel>();
 
   @override
   Future<LocationAccess> checkAccess() async =>
-      accessError == null ? LocationAccess.granted : throw accessError!;
+      accessError == null ? access : throw accessError!;
 
   @override
   Future<LocationAccess> requestAccess() => checkAccess();
@@ -40,7 +43,10 @@ final class _FakeDatasource implements LocationDatasource {
   Stream<LocationFixModel> watchFix() => fixes.stream;
 
   @override
-  Future<void> openAppSettings() async => throw StateError('no activity');
+  Future<void> openAppSettings() async {
+    settingsOpened++;
+    if (settingsFail) throw StateError('no activity');
+  }
 
   @override
   Future<void> openLocationSettings() async {}
@@ -53,6 +59,49 @@ void main() {
   setUp(() {
     datasource = _FakeDatasource();
     repository = LocationRepositoryImpl(datasource);
+  });
+
+  group('approximate access', () {
+    setUp(() {
+      datasource
+        ..access = LocationAccess.approximate
+        ..settingsFail = false;
+    });
+
+    test('gives no fix to save', () async {
+      final result = await repository.currentFix();
+
+      expect(result.failureOrNull?.code, LocationErrorCodes.preciseRequired);
+      expect(result.failureOrNull, isA<PermissionFailure>());
+    });
+
+    test('gives no fixes to navigate by, then recovers', () async {
+      final first = await repository.watchFix().first;
+      expect(first.failureOrNull?.code, LocationErrorCodes.preciseRequired);
+
+      datasource.access = LocationAccess.granted;
+      final next = repository.watchFix().first;
+      await pumpEventQueue();
+      datasource.fixes.add(_model);
+
+      expect((await next).isSuccess, isTrue);
+    });
+
+    test('a request that changes nothing opens the settings', () async {
+      final result = await repository.requestPreciseAccess();
+
+      expect(result.valueOrNull, LocationAccess.approximate);
+      expect(datasource.settingsOpened, 1);
+    });
+
+    test('a request that gives precise access stays in the app', () async {
+      datasource.access = LocationAccess.granted;
+
+      final result = await repository.requestPreciseAccess();
+
+      expect(result.valueOrNull, LocationAccess.granted);
+      expect(datasource.settingsOpened, 0);
+    });
   });
 
   test('maps the model to an entity', () async {

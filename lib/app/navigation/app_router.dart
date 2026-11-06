@@ -12,6 +12,7 @@ import 'package:wayback/features/location/view/bloc/open_location_settings_bloc.
 import 'package:wayback/features/location/view/bloc/request_location_permission_bloc.dart';
 import 'package:wayback/features/location/view/widgets/gps_status.dart';
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
+import 'package:wayback/features/navigation/view/bloc/enable_precise_location_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback/features/onboarding/domain/repositories/onboarding_repository.dart';
@@ -159,14 +160,22 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
         ),
         GoRoute(
           path: 'navigate/:${Routes.pointIdParam}',
-          builder: (_, state) => BlocProvider(
-            create: (context) => NavigationGuidanceBloc(
-              context.di<PointsRepository>(),
-              context.di<LocationRepository>(),
-              context.di<CompassRepository>(),
-              pointId: state.pathParameters[Routes.pointIdParam]!,
-              logger: context.di<AppLogger>(),
-            )..fetch(),
+          builder: (_, state) => MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (context) => NavigationGuidanceBloc(
+                  context.di<PointsRepository>(),
+                  context.di<LocationRepository>(),
+                  context.di<CompassRepository>(),
+                  pointId: state.pathParameters[Routes.pointIdParam]!,
+                  logger: context.di<AppLogger>(),
+                )..fetch(),
+              ),
+              BlocProvider(
+                create: (context) =>
+                    EnablePreciseLocationBloc(context.di<LocationRepository>()),
+              ),
+            ],
             child: const NavigateScreen(),
           ),
         ),

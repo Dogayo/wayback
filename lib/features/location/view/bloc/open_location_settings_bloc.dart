@@ -5,7 +5,8 @@ import 'package:wayback/features/location/domain/repositories/location_repositor
 export 'package:wayback/core/bloc/action/action_bloc.dart';
 
 /// Opens the system screen that can lift a location failure: the location
-/// switch for `serviceDisabled`, the app permissions otherwise.
+/// switch for `serviceDisabled`, the precise location request for
+/// `preciseRequired`, the app permissions otherwise.
 ///
 /// The parameter is the failure code being fixed.
 final class OpenLocationSettingsBloc extends ActionBloc<String, void> {
@@ -14,8 +15,9 @@ final class OpenLocationSettingsBloc extends ActionBloc<String, void> {
   final LocationRepository _repository;
 
   @override
-  Future<Result<void>> perform(String failureCode) =>
-      failureCode == LocationErrorCodes.serviceDisabled
-      ? _repository.openLocationSettings()
-      : _repository.openAppSettings();
+  Future<Result<void>> perform(String failureCode) => switch (failureCode) {
+    LocationErrorCodes.serviceDisabled => _repository.openLocationSettings(),
+    LocationErrorCodes.preciseRequired => _repository.requestPreciseAccess(),
+    _ => _repository.openAppSettings(),
+  };
 }

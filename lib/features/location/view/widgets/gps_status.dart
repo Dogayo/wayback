@@ -60,8 +60,13 @@ class _GpsStatusState extends State<GpsStatus> {
         ),
       ),
       BlocListener<OpenLocationSettingsBloc, ActionState<void>>(
-        listener: (context, state) =>
-            state.mapOrNull(success: (_) => _inSettings = true),
+        listener: (context, state) => state.mapOrNull(
+          success: (_) {
+            _inSettings = true;
+            // The precise location dialog may have changed access already.
+            context.read<LocationFixBloc>().fetch();
+          },
+        ),
       ),
     ],
     child: BlocBuilder<LocationFixBloc, DataState<LocationFix>>(
@@ -157,7 +162,9 @@ class _FailureView extends StatelessWidget {
       );
     }
     final text = l10n.error(code);
+    final precise = code == LocationErrorCodes.preciseRequired;
     final opensSettings =
+        precise ||
         code == LocationErrorCodes.permissionDeniedForever ||
         code == LocationErrorCodes.serviceDisabled;
     return _AlertWithAction(
@@ -166,7 +173,11 @@ class _FailureView extends StatelessWidget {
         message: text.body,
         tone: WbTone.negative,
       ),
-      action: opensSettings ? l10n.actionOpenSettings : l10n.actionRetry,
+      action: precise
+          ? l10n.actionEnablePreciseLocation
+          : opensSettings
+          ? l10n.actionOpenSettings
+          : l10n.actionRetry,
       busy: busy,
       onPressed: opensSettings
           ? () => context.read<OpenLocationSettingsBloc>().run(code)

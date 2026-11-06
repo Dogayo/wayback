@@ -95,8 +95,13 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
           listener: _onSaved,
         ),
         BlocListener<OpenFixSettingsBloc, ActionState<void>>(
-          listener: (_, state) =>
-              state.mapOrNull(success: (_) => _inSettings = true),
+          listener: (context, state) => state.mapOrNull(
+            success: (_) {
+              _inSettings = true;
+              // The precise location dialog may have changed access already.
+              context.read<PointFixBloc>().fetch();
+            },
+          ),
         ),
       ],
       child: Scaffold(
@@ -170,7 +175,9 @@ class _FixFailure extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final text = l10n.error(failure.code);
+    final precise = failure.code == LocationErrorCodes.preciseRequired;
     final opensSettings =
+        precise ||
         failure.code == LocationErrorCodes.serviceDisabled ||
         failure.code == LocationErrorCodes.permissionDeniedForever;
     return Column(
@@ -179,7 +186,11 @@ class _FixFailure extends StatelessWidget {
         WbAlert(title: text.title, message: text.body, tone: WbTone.negative),
         const SizedBox(height: WbSpacing.sm),
         WbButton(
-          label: opensSettings ? l10n.actionOpenSettings : l10n.actionRetry,
+          label: precise
+              ? l10n.actionEnablePreciseLocation
+              : opensSettings
+              ? l10n.actionOpenSettings
+              : l10n.actionRetry,
           variant: WbButtonVariant.secondary,
           onPressed: opensSettings
               ? () => context.read<OpenFixSettingsBloc>().run(failure.code)
