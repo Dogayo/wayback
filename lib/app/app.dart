@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:app_di/app_di.dart';
+import 'package:app_logger/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -22,9 +25,36 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   late final GoRouter _router = widget.router ?? createRouter();
+  late final AppLogger _logger;
+  late final AppLifecycleListener _lifecycle;
+  String? _route;
+
+  @override
+  void initState() {
+    super.initState();
+    _logger = context.di<AppLogger>();
+    _lifecycle = AppLifecycleListener(
+      onResume: () => _logger.info('app', 'resumed'),
+      // The system may kill the app from here on: nothing stays buffered.
+      onPause: () {
+        _logger.info('app', 'paused');
+        unawaited(_logger.flush());
+      },
+    );
+    _router.routerDelegate.addListener(_logRoute);
+  }
+
+  void _logRoute() {
+    final route = _router.routerDelegate.currentConfiguration.uri.path;
+    if (route == _route) return;
+    _route = route;
+    _logger.info('route', route);
+  }
 
   @override
   void dispose() {
+    _router.routerDelegate.removeListener(_logRoute);
+    _lifecycle.dispose();
     if (widget.router == null) {
       _router.dispose();
     }

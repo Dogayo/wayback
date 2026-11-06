@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
+import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
@@ -12,12 +13,12 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// Units, language and vibration on arrival (SCREENS.md §4.6).
 ///
-/// Needs [SettingsBloc], [SetUnitsBloc], [SetLanguageBloc] and
-/// [SetVibrationOnArrivalBloc] above it.
+/// Needs [SettingsBloc], [SetUnitsBloc], [SetLanguageBloc],
+/// [SetVibrationOnArrivalBloc] and [SendLogBloc] above it.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
-  /// A failed write keeps the old value on screen and says so.
+  /// A failed action keeps the screen as it was and says so.
   static void _onSaved(BuildContext context, ActionState<void> state) =>
       state.mapOrNull(
         failure: (s) =>
@@ -35,6 +36,7 @@ class SettingsScreen extends StatelessWidget {
         BlocListener<SetVibrationOnArrivalBloc, ActionState<void>>(
           listener: _onSaved,
         ),
+        BlocListener<SendLogBloc, ActionState<void>>(listener: _onSaved),
       ],
       child: Scaffold(
         appBar: WbAppBar(title: l10n.settingsTitle, onBack: context.back),

@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/localization/settings_l10n.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
+import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
-/// Units, language and vibration; every change is saved right away.
+/// Units, language and vibration, every change saved right away, and the
+/// way to send the diagnostic log.
 class SettingsList extends StatelessWidget {
   const SettingsList(this.settings, {super.key});
 
@@ -42,6 +44,13 @@ class SettingsList extends StatelessWidget {
           value: settings.vibrationOnArrival,
           label: l10n.settingsVibration,
           onChanged: context.read<SetVibrationOnArrivalBloc>().run,
+        ),
+        const SizedBox(height: WbSpacing.lg),
+        WbListItem(
+          title: l10n.settingsSendLog,
+          subtitle: l10n.settingsSendLogHint,
+          onTap: () =>
+              context.read<SendLogBloc>().run(l10n.diagnosticsShareSubject),
         ),
       ],
     );

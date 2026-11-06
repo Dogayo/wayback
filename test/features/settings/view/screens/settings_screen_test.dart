@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
+import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
@@ -10,12 +11,14 @@ import 'package:wayback/features/settings/view/bloc/settings_bloc.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 
 import '../../../points/view/screens/screen_host.dart';
+import '../../fake_diagnostics_repository.dart';
 import '../../fake_settings_repository.dart';
 
 Future<void> _pump(
   WidgetTester tester,
-  FakeSettingsRepository repository,
-) async {
+  FakeSettingsRepository repository, {
+  FakeDiagnosticsRepository? diagnostics,
+}) async {
   await pumpScreen(
     tester,
     MultiBlocProvider(
@@ -24,6 +27,10 @@ Future<void> _pump(
         BlocProvider(create: (_) => SetUnitsBloc(repository)),
         BlocProvider(create: (_) => SetLanguageBloc(repository)),
         BlocProvider(create: (_) => SetVibrationOnArrivalBloc(repository)),
+        BlocProvider(
+          create: (_) =>
+              SendLogBloc(diagnostics ?? FakeDiagnosticsRepository()),
+        ),
       ],
       child: const SettingsScreen(),
     ),
@@ -78,6 +85,31 @@ void main() {
 
     expect(find.text('Не удалось сохранить настройки'), findsOneWidget);
     expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+  });
+
+  testWidgets('Send log shares it with a subject', (tester) async {
+    final diagnostics = FakeDiagnosticsRepository();
+    await _pump(tester, FakeSettingsRepository(), diagnostics: diagnostics);
+
+    expect(find.text('Для разбора ошибок, без координат'), findsOneWidget);
+    await tester.tap(find.text('Отправить журнал'));
+    await settle(tester);
+
+    expect(diagnostics.subjects, ['Журнал Wayback']);
+  });
+
+  testWidgets('a failed export says so', (tester) async {
+    await _pump(
+      tester,
+      FakeSettingsRepository(),
+      diagnostics: FakeDiagnosticsRepository()
+        ..failNext = const StorageFailure(code: 'diagnostics_export_failed'),
+    );
+
+    await tester.tap(find.text('Отправить журнал'));
+    await settle(tester);
+
+    expect(find.text('Не удалось подготовить журнал'), findsOneWidget);
   });
 
   testWidgets('unreadable settings: error with retry', (tester) async {

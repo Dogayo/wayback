@@ -1,4 +1,5 @@
 import 'package:app_di/app_di.dart';
+import 'package:app_logger/app_logger.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -32,7 +33,9 @@ import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
+import 'package:wayback/features/settings/domain/repositories/diagnostics_repository.dart';
 import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
+import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
@@ -162,6 +165,7 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
               context.di<LocationRepository>(),
               context.di<CompassRepository>(),
               pointId: state.pathParameters[Routes.pointIdParam]!,
+              logger: context.di<AppLogger>(),
             )..fetch(),
             child: const NavigateScreen(),
           ),
@@ -182,6 +186,10 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
               BlocProvider(
                 create: (context) =>
                     SetVibrationOnArrivalBloc(context.di<SettingsRepository>()),
+              ),
+              BlocProvider(
+                create: (context) =>
+                    SendLogBloc(context.di<DiagnosticsRepository>()),
               ),
             ],
             child: const SettingsScreen(),

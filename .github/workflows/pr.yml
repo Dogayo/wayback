@@ -60,6 +60,9 @@ jobs:
           - name: app_di
             dir: packages/app_di
             paths: .
+          - name: app_logger
+            dir: packages/app_logger
+            paths: .
           - name: wayback_design_system
             dir: packages/wayback_design_system
             paths: .
