@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/navigation/domain/entities/navigation_guidance.dart';
+import 'package:wayback/features/navigation/view/bloc/arrival_vibration_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/enable_precise_location_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/widgets/navigation_error_view.dart';
@@ -13,10 +13,10 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// Direction and distance to a point in real time (SCREENS.md §4.5).
 ///
-/// Needs [NavigationGuidanceBloc] and [EnablePreciseLocationBloc] above it.
-/// Vibrates once when the user
-/// first enters the arrival radius, unless the user turned it off
-/// (mvp-scope.md §2.4).
+/// Needs [NavigationGuidanceBloc], [EnablePreciseLocationBloc] and
+/// [ArrivalVibrationBloc] above it. Vibrates when the user walks into the
+/// arrival radius, unless the user turned it off; opening the screen already
+/// inside the radius is not an arrival (mvp-scope.md §2.4).
 class NavigateScreen extends StatelessWidget {
   const NavigateScreen({super.key});
 
@@ -24,7 +24,7 @@ class NavigateScreen extends StatelessWidget {
     DataState<NavigationGuidance> previous,
     DataState<NavigationGuidance> current,
   ) =>
-      !(previous.dataOrNull?.arrived ?? false) &&
+      !(previous.dataOrNull?.arrived ?? true) &&
       (current.mapOrNull(success: (s) => s.data.arrived) ?? false);
 
   @override
@@ -35,7 +35,7 @@ class NavigateScreen extends StatelessWidget {
       listenWhen: _arrivedNow,
       listener: (context, _) {
         if (context.settings.vibrationOnArrival) {
-          HapticFeedback.mediumImpact();
+          context.read<ArrivalVibrationBloc>().run(null);
         }
       },
       child: BlocBuilder<NavigationGuidanceBloc, DataState<NavigationGuidance>>(

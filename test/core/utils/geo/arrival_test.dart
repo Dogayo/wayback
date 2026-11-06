@@ -18,4 +18,17 @@ void main() {
       isFalse,
     );
   });
+
+  test('a user who has arrived leaves only past the exit margin', () {
+    // The field check: in at 22.5 m, out at 26.9 m with a ±3 m fix.
+    expect(hasArrived(distanceMeters: 26.9, accuracyMeters: 3), isFalse);
+    expect(
+      hasArrived(distanceMeters: 26.9, accuracyMeters: 3, wasArrived: true),
+      isTrue,
+    );
+    expect(
+      hasArrived(distanceMeters: 39, accuracyMeters: 3, wasArrived: true),
+      isFalse,
+    );
+  });
 }

@@ -54,6 +54,7 @@ final class NavigationGuidanceBloc extends DataBloc<NavigationGuidance> {
     LocationFix? fix;
     Result<CompassReading>? compass;
     double? arrow;
+    var arrived = false;
 
     void publish() {
       final here = fix;
@@ -77,15 +78,17 @@ final class NavigationGuidanceBloc extends DataBloc<NavigationGuidance> {
           null => target,
         };
       }
+      arrived = hasArrived(
+        distanceMeters: distance,
+        accuracyMeters: here.accuracyMeters,
+        wasArrived: arrived,
+      );
       final guidance = NavigationGuidance(
         point: point,
         distanceMeters: distance,
         accuracyMeters: here.accuracyMeters,
         weakSignal: here.isWeakSignal,
-        arrived: hasArrived(
-          distanceMeters: distance,
-          accuracyMeters: here.accuracyMeters,
-        ),
+        arrived: arrived,
         compass: status,
         arrowDegrees: status == CompassStatus.unavailable ? null : arrow,
       );

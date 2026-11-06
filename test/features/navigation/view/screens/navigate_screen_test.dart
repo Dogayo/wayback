@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
@@ -7,6 +6,7 @@ import 'package:wayback/core/result/result.dart';
 import 'package:wayback/core/utils/geo/geo_point.dart';
 import 'package:wayback/features/location/domain/entities/location_fix.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
+import 'package:wayback/features/navigation/view/bloc/arrival_vibration_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/enable_precise_location_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
@@ -16,6 +16,7 @@ import '../../../location/fake_location_repository.dart';
 import '../../../points/fake_points_repository.dart';
 import '../../../points/view/screens/screen_host.dart';
 import '../../fake_compass_repository.dart';
+import '../../fake_vibration_repository.dart';
 
 LocationFix _fix(double southDegrees, {double accuracy = 5}) => LocationFix(
   point: GeoPoint(latitude: 55.75 - southDegrees, longitude: 37.61),
@@ -27,6 +28,7 @@ Future<(FakeLocationRepository, FakeCompassRepository)> _pump(
   WidgetTester tester, {
   String id = 'a',
   AppSettings settings = AppSettings.defaults,
+  FakeVibrationRepository? vibration,
 }) async {
   final location = FakeLocationRepository();
   final compass = FakeCompassRepository();
@@ -43,6 +45,10 @@ Future<(FakeLocationRepository, FakeCompassRepository)> _pump(
           )..fetch(),
         ),
         BlocProvider(create: (_) => EnablePreciseLocationBloc(location)),
+        BlocProvider(
+          create: (_) =>
+              ArrivalVibrationBloc(vibration ?? FakeVibrationRepository()),
+        ),
       ],
       child: const NavigateScreen(),
     ),
@@ -81,57 +87,78 @@ void main() {
     expect(find.text('Слабый сигнал GPS'), findsOneWidget);
   });
 
-  List<String> recordHaptics(WidgetTester tester) {
-    final haptics = <String>[];
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (call) async {
-        if (call.method == 'HapticFeedback.vibrate') {
-          haptics.add('${call.arguments}');
-        }
-        return null;
-      },
-    );
-    addTearDown(
-      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        null,
-      ),
-    );
-    return haptics;
-  }
-
   Future<void> arrive(
     FakeLocationRepository location,
     FakeCompassRepository compass,
     WidgetTester tester,
   ) async {
     compass.readings.add(Result.success(heading(0)));
-    location.fixes.add(Result.success(_fix(0.0001)));
+    location.fixes.add(Result.success(_fix(0.001)));
     await settle(tester);
     location.fixes.add(Result.success(_fix(0.00005)));
     await settle(tester);
   }
 
   testWidgets('arrival: text once and a single vibration', (tester) async {
-    final haptics = recordHaptics(tester);
-    final (location, compass) = await _pump(tester);
+    final vibration = FakeVibrationRepository();
+    final (location, compass) = await _pump(tester, vibration: vibration);
     await arrive(location, compass, tester);
 
     expect(find.text('Вы на месте'), findsOneWidget);
-    expect(haptics, ['HapticFeedbackType.mediumImpact']);
+    expect(vibration.calls, 1);
   });
 
   testWidgets('arrival with vibration turned off: text only', (tester) async {
-    final haptics = recordHaptics(tester);
+    final vibration = FakeVibrationRepository();
     final (location, compass) = await _pump(
       tester,
       settings: const AppSettings(vibrationOnArrival: false),
+      vibration: vibration,
     );
     await arrive(location, compass, tester);
 
     expect(find.text('Вы на месте'), findsOneWidget);
-    expect(haptics, isEmpty);
+    expect(vibration.calls, 0);
+  });
+
+  testWidgets('opening inside the radius is not an arrival', (tester) async {
+    final vibration = FakeVibrationRepository();
+    final (location, compass) = await _pump(tester, vibration: vibration);
+    compass.readings.add(Result.success(heading(0)));
+    location.fixes.add(Result.success(_fix(0.00005)));
+    await settle(tester);
+
+    expect(find.text('Вы на месте'), findsOneWidget);
+    expect(vibration.calls, 0);
+  });
+
+  testWidgets('GPS noise at the edge does not vibrate twice', (tester) async {
+    final vibration = FakeVibrationRepository();
+    final (location, compass) = await _pump(tester, vibration: vibration);
+    await arrive(location, compass, tester);
+
+    // 33 m: past the entry threshold, within the exit margin.
+    location.fixes.add(Result.success(_fix(0.0003)));
+    await settle(tester);
+    location.fixes.add(Result.success(_fix(0.00005)));
+    await settle(tester);
+
+    expect(find.text('Вы на месте'), findsOneWidget);
+    expect(vibration.calls, 1);
+  });
+
+  testWidgets('walking away and back vibrates again', (tester) async {
+    final vibration = FakeVibrationRepository();
+    final (location, compass) = await _pump(tester, vibration: vibration);
+    await arrive(location, compass, tester);
+
+    location.fixes.add(Result.success(_fix(0.001)));
+    await settle(tester);
+    expect(find.text('Вы на месте'), findsNothing);
+    location.fixes.add(Result.success(_fix(0.00005)));
+    await settle(tester);
+
+    expect(vibration.calls, 2);
   });
 
   testWidgets('imperial units: distance in feet', (tester) async {
