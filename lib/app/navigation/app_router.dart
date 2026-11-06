@@ -11,11 +11,14 @@ import 'package:wayback/features/location/view/bloc/location_fix_bloc.dart';
 import 'package:wayback/features/location/view/bloc/open_location_settings_bloc.dart';
 import 'package:wayback/features/location/view/bloc/request_location_permission_bloc.dart';
 import 'package:wayback/features/location/view/widgets/gps_status.dart';
+import 'package:wayback/features/navigation/domain/repositories/background_navigation_repository.dart';
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
 import 'package:wayback/features/navigation/domain/repositories/vibration_repository.dart';
 import 'package:wayback/features/navigation/view/bloc/arrival_vibration_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/enable_precise_location_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
+import 'package:wayback/features/navigation/view/bloc/navigation_notice_bloc.dart';
+import 'package:wayback/features/navigation/view/bloc/navigation_stop_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:wayback/features/onboarding/view/bloc/finish_onboarding_bloc.dart';
@@ -180,6 +183,16 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
               BlocProvider(
                 create: (context) =>
                     ArrivalVibrationBloc(context.di<VibrationRepository>()),
+              ),
+              BlocProvider(
+                create: (context) => NavigationNoticeBloc(
+                  context.di<BackgroundNavigationRepository>(),
+                ),
+              ),
+              BlocProvider(
+                create: (context) => NavigationStopBloc(
+                  context.di<BackgroundNavigationRepository>(),
+                )..fetch(),
               ),
             ],
             child: const NavigateScreen(),

@@ -8,13 +8,15 @@ import 'package:wayback/features/navigation/view/bloc/arrival_vibration_bloc.dar
 import 'package:wayback/features/navigation/view/bloc/enable_precise_location_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/widgets/navigation_error_view.dart';
+import 'package:wayback/features/navigation/view/widgets/navigation_notice_listener.dart';
 import 'package:wayback/features/navigation/view/widgets/navigation_view.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// Direction and distance to a point in real time (SCREENS.md §4.5).
 ///
-/// Needs [NavigationGuidanceBloc], [EnablePreciseLocationBloc] and
-/// [ArrivalVibrationBloc] above it. Vibrates when the user walks into the
+/// Needs [NavigationGuidanceBloc], [EnablePreciseLocationBloc],
+/// [ArrivalVibrationBloc] and the blocs of [NavigationNoticeListener] above
+/// it. Vibrates when the user walks into the
 /// arrival radius, unless the user turned it off; opening the screen already
 /// inside the radius is not an arrival (mvp-scope.md §2.4).
 class NavigateScreen extends StatelessWidget {
@@ -38,28 +40,31 @@ class NavigateScreen extends StatelessWidget {
           context.read<ArrivalVibrationBloc>().run(null);
         }
       },
-      child: BlocBuilder<NavigationGuidanceBloc, DataState<NavigationGuidance>>(
-        builder: (context, state) => Scaffold(
-          appBar: WbAppBar(
-            title: state.dataOrNull?.point.name ?? l10n.navigateTitle,
-            onBack: context.back,
-          ),
-          body: state.map(
-            initial: (_) => const _Locating(),
-            loading: (s) => switch (s.previous) {
-              final guidance? => NavigationView(guidance),
-              null => const _Locating(),
-            },
-            success: (s) => NavigationView(s.data),
-            // A lost fix is shown as such, not as stale numbers.
-            failure: (s) => NavigationErrorView(
-              failure: s.failure,
-              onRetry: bloc.fetch,
-              onEnablePrecise: () =>
-                  context.read<EnablePreciseLocationBloc>().run(null),
+      child: NavigationNoticeListener(
+        child:
+            BlocBuilder<NavigationGuidanceBloc, DataState<NavigationGuidance>>(
+              builder: (context, state) => Scaffold(
+                appBar: WbAppBar(
+                  title: state.dataOrNull?.point.name ?? l10n.navigateTitle,
+                  onBack: context.back,
+                ),
+                body: state.map(
+                  initial: (_) => const _Locating(),
+                  loading: (s) => switch (s.previous) {
+                    final guidance? => NavigationView(guidance),
+                    null => const _Locating(),
+                  },
+                  success: (s) => NavigationView(s.data),
+                  // A lost fix is shown as such, not as stale numbers.
+                  failure: (s) => NavigationErrorView(
+                    failure: s.failure,
+                    onRetry: bloc.fetch,
+                    onEnablePrecise: () =>
+                        context.read<EnablePreciseLocationBloc>().run(null),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
       ),
     );
   }

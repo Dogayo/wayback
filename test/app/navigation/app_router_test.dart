@@ -10,6 +10,7 @@ import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/core/result/result.dart';
 import 'package:wayback/features/location/domain/entities/location_access.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
+import 'package:wayback/features/navigation/domain/repositories/background_navigation_repository.dart';
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
 import 'package:wayback/features/navigation/domain/repositories/vibration_repository.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
@@ -28,6 +29,7 @@ import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../features/location/fake_location_repository.dart';
+import '../../features/navigation/fake_background_navigation_repository.dart';
 import '../../features/navigation/fake_compass_repository.dart';
 import '../../features/navigation/fake_vibration_repository.dart';
 import '../../features/onboarding/fake_onboarding_repository.dart';
@@ -42,6 +44,7 @@ Future<GoRouter> pumpApp(
   String location, {
   AppSettings settings = AppSettings.defaults,
   bool onboardingCompleted = true,
+  FakeBackgroundNavigationRepository? background,
 }) async {
   final router = createRouter(initialLocation: location);
   addTearDown(router.dispose);
@@ -56,6 +59,9 @@ Future<GoRouter> pumpApp(
       RegFactory<PointsRepository>((_) => FakePointsRepository()),
       RegFactory<CompassRepository>((_) => FakeCompassRepository()),
       RegFactory<VibrationRepository>((_) => FakeVibrationRepository()),
+      RegFactory<BackgroundNavigationRepository>(
+        (_) => background ?? FakeBackgroundNavigationRepository(),
+      ),
       RegFactory<AppLogger>((_) => const NoopLogger()),
       RegFactory<DiagnosticsRepository>((_) => FakeDiagnosticsRepository()),
       RegFactory<OnboardingRepository>(
@@ -113,6 +119,17 @@ void main() {
         .element(find.byType(NavigateScreen))
         .read<NavigationGuidanceBloc>();
     expect(bloc.pointId, 'abc');
+  });
+
+  testWidgets('Stop on the notice closes navigation', (tester) async {
+    final background = FakeBackgroundNavigationRepository();
+    await pumpApp(tester, Routes.navigate('abc'), background: background);
+
+    background.stopRequests.add(const Result.success(null));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigateScreen), findsNothing);
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 
   testWidgets('the saved language applies to the whole app', (tester) async {
