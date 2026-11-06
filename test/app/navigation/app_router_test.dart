@@ -11,6 +11,7 @@ import 'package:wayback/core/result/result.dart';
 import 'package:wayback/features/location/domain/entities/location_access.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
+import 'package:wayback/features/navigation/domain/repositories/vibration_repository.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback/features/onboarding/domain/repositories/onboarding_repository.dart';
@@ -28,6 +29,7 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../features/location/fake_location_repository.dart';
 import '../../features/navigation/fake_compass_repository.dart';
+import '../../features/navigation/fake_vibration_repository.dart';
 import '../../features/onboarding/fake_onboarding_repository.dart';
 import '../../features/points/fake_points_repository.dart';
 import '../../features/settings/fake_diagnostics_repository.dart';
@@ -53,6 +55,7 @@ Future<GoRouter> pumpApp(
       RegFactory<LocationRepository>((_) => repository),
       RegFactory<PointsRepository>((_) => FakePointsRepository()),
       RegFactory<CompassRepository>((_) => FakeCompassRepository()),
+      RegFactory<VibrationRepository>((_) => FakeVibrationRepository()),
       RegFactory<AppLogger>((_) => const NoopLogger()),
       RegFactory<DiagnosticsRepository>((_) => FakeDiagnosticsRepository()),
       RegFactory<OnboardingRepository>(

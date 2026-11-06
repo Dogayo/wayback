@@ -350,6 +350,7 @@ arrowRotation = bearing - heading  // нормализуется в 0..360
 | --- | --- | --- |
 | радиус прибытия | `arrivalRadiusMeters` (`core/utils/geo/arrival.dart`) | 20 м |
 | сколько точность GPS может расширить радиус | `arrivalAccuracyAllowanceMeters` | до 10 м: `hasArrived` = расстояние ≤ 20 + min(точность, 10) |
+| запас на выход из радиуса | `arrivalExitMarginMeters` | 15 м: прибывший считается ушедшим только дальше порога входа + 15 м |
 | слабый сигнал GPS | `weakSignalAccuracyMeters` (`location/domain`) | точность хуже 30 м |
 | ненадёжный компас | `unreliableCompassAccuracyDegrees` (`navigation/domain`) | погрешность больше 30° или неизвестна |
 

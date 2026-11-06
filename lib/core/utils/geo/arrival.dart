@@ -8,13 +8,19 @@ const arrivalRadiusMeters = 20.0;
 /// meters, but a ±65 m fix must not announce arrival at 85 m.
 const arrivalAccuracyAllowanceMeters = 10.0;
 
+/// How much farther than the radius a user who has arrived must walk to
+/// count as gone: GPS noise at the edge must not switch arrival off and on.
+const arrivalExitMarginMeters = 15.0;
+
 /// Whether [distanceMeters] counts as arrived for a fix of
 /// [accuracyMeters]: the radius grows with the accuracy, up to the
-/// allowance.
+/// allowance, and by the exit margin for a user who [wasArrived].
 bool hasArrived({
   required double distanceMeters,
   required double accuracyMeters,
+  bool wasArrived = false,
 }) =>
     distanceMeters <=
     arrivalRadiusMeters +
-        math.min(accuracyMeters, arrivalAccuracyAllowanceMeters);
+        math.min(accuracyMeters, arrivalAccuracyAllowanceMeters) +
+        (wasArrived ? arrivalExitMarginMeters : 0);
