@@ -41,6 +41,11 @@ final class SettingsRepositoryImpl
     () => _update((settings) => settings.copyWith(vibrationOnArrival: enabled)),
   );
 
+  @override
+  Future<Result<void>> setVibrationPattern(VibrationPattern pattern) => handle(
+    () => _update((settings) => settings.copyWith(vibrationPattern: pattern)),
+  );
+
   Stream<AppSettings> _watch() async* {
     yield await _settings();
     yield* _changes.stream;

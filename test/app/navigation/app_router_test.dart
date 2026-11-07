@@ -26,6 +26,7 @@ import 'package:wayback/features/settings/domain/entities/app_settings.dart';
 import 'package:wayback/features/settings/domain/repositories/diagnostics_repository.dart';
 import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
+import 'package:wayback/features/settings/view/screens/vibration_type_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../features/location/fake_location_repository.dart';
@@ -92,6 +93,7 @@ void main() {
     Routes.pointDetails('42'): PointDetailsScreen,
     Routes.navigate('42'): NavigateScreen,
     Routes.settings: SettingsScreen,
+    Routes.vibrationType: VibrationTypeScreen,
   };
 
   for (final MapEntry(key: location, value: screen) in routes.entries) {

@@ -50,6 +50,8 @@ void main() {
     expect(find.text('Русский'), findsOneWidget);
     expect(find.text('English'), findsOneWidget);
     expect(find.text('Вибрация при прибытии'), findsOneWidget);
+    expect(find.text('Вид вибрации'), findsOneWidget);
+    expect(find.text('Обычная'), findsOneWidget);
     expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
   });
 
@@ -73,6 +75,15 @@ void main() {
       ),
     );
     expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+  });
+
+  testWidgets('vibration turned off hides its type', (tester) async {
+    await _pump(
+      tester,
+      FakeSettingsRepository(const AppSettings(vibrationOnArrival: false)),
+    );
+
+    expect(find.text('Вид вибрации'), findsNothing);
   });
 
   testWidgets('a failed write keeps the value and says so', (tester) async {

@@ -4,8 +4,11 @@ import 'package:wayback/features/settings/domain/entities/app_settings.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_vibration_pattern_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/settings_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/test_vibration_bloc.dart';
 
+import '../../navigation/fake_vibration_repository.dart';
 import '../fake_settings_repository.dart';
 
 void main() {
@@ -46,6 +49,27 @@ void main() {
       ),
     );
     expect(units.state.mapOrNull(success: (_) => true), isTrue);
+  });
+
+  test('SetVibrationPatternBloc saves the pattern', () async {
+    final bloc = SetVibrationPatternBloc(repository);
+    addTearDown(bloc.close);
+
+    bloc.run(VibrationPattern.long);
+    await pumpEventQueue();
+
+    expect(repository.settings.vibrationPattern, VibrationPattern.long);
+  });
+
+  test('TestVibrationBloc plays the given pattern', () async {
+    final vibration = FakeVibrationRepository();
+    final bloc = TestVibrationBloc(vibration);
+    addTearDown(bloc.close);
+
+    bloc.run(VibrationPattern.strong);
+    await pumpEventQueue();
+
+    expect(vibration.patterns, [VibrationPattern.strong]);
   });
 
   test('a failed write is a failure state', () async {

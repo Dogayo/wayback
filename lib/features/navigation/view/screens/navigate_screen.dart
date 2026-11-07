@@ -36,8 +36,9 @@ class NavigateScreen extends StatelessWidget {
     return BlocListener<NavigationGuidanceBloc, DataState<NavigationGuidance>>(
       listenWhen: _arrivedNow,
       listener: (context, _) {
-        if (context.settings.vibrationOnArrival) {
-          context.read<ArrivalVibrationBloc>().run(null);
+        final settings = context.settings;
+        if (settings.vibrationOnArrival) {
+          context.read<ArrivalVibrationBloc>().run(settings.vibrationPattern);
         }
       },
       child: NavigationNoticeListener(

@@ -4,6 +4,7 @@ abstract final class Routes {
   static const pointCreate = '/points/new';
   static const pointsList = '/points';
   static const settings = '/settings';
+  static const vibrationType = '/settings/vibration';
 
   /// First launch only; outside the `/` stack (architecture.md §6).
   static const onboarding = '/onboarding';

@@ -1,5 +1,6 @@
 import 'package:wayback/core/result/result.dart';
 import 'package:wayback/core/result/result_handler.dart';
+import 'package:wayback/core/utils/vibration/vibration_pattern.dart';
 import 'package:wayback/features/navigation/data/datasources/vibration_datasource.dart';
 import 'package:wayback/features/navigation/domain/repositories/vibration_repository.dart';
 
@@ -17,5 +18,6 @@ final class VibrationRepositoryImpl
   final ResultHandlerOptions resultOptions;
 
   @override
-  Future<Result<void>> vibrate() => handle(_datasource.vibrate);
+  Future<Result<void>> vibrate(VibrationPattern pattern) =>
+      handle(() => _datasource.vibrate(pattern));
 }

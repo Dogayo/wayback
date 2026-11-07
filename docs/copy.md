@@ -184,6 +184,13 @@
 | `settingsLanguageRu` | Русский | Русский | самоназвание, одинаково в обеих локалях |
 | `settingsLanguageEn` | English | English | самоназвание |
 | `settingsVibration` | Вибрация при прибытии | Vibrate on arrival | Switch |
+| `settingsVibrationPattern` | Вид вибрации | Vibration type | ListItem, заголовок экрана |
+| `settingsVibrationPatternHint` | Выберите вибрацию, которую хорошо чувствуете на своём телефоне | Pick a vibration you can clearly feel on your phone | Подсказка |
+| `settingsVibrationStandard` | Обычная | Standard | ListItem |
+| `settingsVibrationLong` | Длинная | Long | ListItem |
+| `settingsVibrationTwice` | Двойная | Double | ListItem |
+| `settingsVibrationStrong` | Сильная | Strong | ListItem |
+| `settingsVibrationTest` | Проверить | Test | Кнопка |
 | `settingsSendLog` | Отправить журнал | Send log | открывает меню «Поделиться» |
 | `settingsSendLogHint` | Для разбора ошибок, без координат | To look into problems, no coordinates | подпись пункта |
 | `diagnosticsShareSubject` | Журнал Wayback | Wayback log | тема письма |

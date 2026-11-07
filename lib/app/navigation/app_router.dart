@@ -45,7 +45,10 @@ import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_vibration_pattern_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/test_vibration_bloc.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
+import 'package:wayback/features/settings/view/screens/vibration_type_screen.dart';
 
 /// Every screen is a child of `/`, so a deep link to `/points/:id` keeps
 /// Home under it and "back" leads to `/` (SCREENS.md §3).
@@ -222,6 +225,25 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
             ],
             child: const SettingsScreen(),
           ),
+          routes: [
+            GoRoute(
+              path: 'vibration',
+              builder: (_, _) => MultiBlocProvider(
+                providers: [
+                  BlocProvider(
+                    create: (context) => SetVibrationPatternBloc(
+                      context.di<SettingsRepository>(),
+                    ),
+                  ),
+                  BlocProvider(
+                    create: (context) =>
+                        TestVibrationBloc(context.di<VibrationRepository>()),
+                  ),
+                ],
+                child: const VibrationTypeScreen(),
+              ),
+            ),
+          ],
         ),
       ],
     ),
