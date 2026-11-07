@@ -137,6 +137,10 @@
 | `navigateWeakSignalBody` | Расстояние может быть неточным. | Distance may be off. | пояснение к нему |
 | `navigateWeakSignal` | Слабый сигнал GPS — расстояние может быть неточным. | Weak GPS signal — distance may be off. | Alert warning, при плохой точности |
 | `navigateSemantics` | До «{name}» {distance} | {distance} to “{name}” | live region, озвучивается с троттлингом |
+| `navigateNotificationStop` | Стоп | Stop | кнопка на плашке фоновой навигации, закрывает навигацию |
+| `navigateNotificationChannel` | Навигация | Navigation | имя канала уведомлений в настройках Android |
+
+Плашка фоновой навигации (mvp-scope.md §2.8): заголовок — имя точки, текст — расстояние по §9 или `navigateArrived`. Новых строк для них нет.
 
 ## 9. Расстояние и точность
 
@@ -295,7 +299,7 @@
 | `onboardingHowReturn` | Возвращайтесь по стрелке — она покажет направление и расстояние. | Follow the arrow back — it shows direction and distance. | пункт 3 |
 | `onboardingHowOffline` | Работает без интернета. Точки хранятся только на телефоне. | Works offline. Your places stay on your phone. | строка под пунктами |
 | `onboardingLocationTitle` | Доступ к геолокации | Location access | шаг 3; тот же текст, что `permissionTitle` |
-| `onboardingLocationBody` | Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто, и остаётся на телефоне. Выберите точное местоположение — с приблизительным дорога назад не сработает. | Without it, Wayback can't save a spot or show the way back. Location is used only while the app is open and stays on your phone. Choose precise location — the way back won't work with approximate. | |
+| `onboardingLocationBody` | Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто или идёт навигация, и остаётся на телефоне. Выберите точное местоположение — с приблизительным дорога назад не сработает. | Without it, Wayback can't save a spot or show the way back. Location is used only while the app is open or navigating and stays on your phone. Choose precise location — the way back won't work with approximate. | |
 | `onboardingLocationAllow` | Разрешить | Allow | вызывает системный диалог; = `actionAllow` |
 | `onboardingLocationLater` | Не сейчас | Not now | без запроса на Home |
 | `onboardingProgress` | Шаг {step} из {total} | Step {step} of {total} | подпись индикатора шагов для скринридера |

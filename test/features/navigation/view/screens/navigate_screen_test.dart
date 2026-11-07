@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
@@ -9,12 +10,15 @@ import 'package:wayback/features/location/domain/repositories/location_repositor
 import 'package:wayback/features/navigation/view/bloc/arrival_vibration_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/enable_precise_location_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
+import 'package:wayback/features/navigation/view/bloc/navigation_notice_bloc.dart';
+import 'package:wayback/features/navigation/view/bloc/navigation_stop_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../../location/fake_location_repository.dart';
 import '../../../points/fake_points_repository.dart';
 import '../../../points/view/screens/screen_host.dart';
+import '../../fake_background_navigation_repository.dart';
 import '../../fake_compass_repository.dart';
 import '../../fake_vibration_repository.dart';
 
@@ -29,7 +33,9 @@ Future<(FakeLocationRepository, FakeCompassRepository)> _pump(
   String id = 'a',
   AppSettings settings = AppSettings.defaults,
   FakeVibrationRepository? vibration,
+  FakeBackgroundNavigationRepository? background,
 }) async {
+  final notices = background ?? FakeBackgroundNavigationRepository();
   final location = FakeLocationRepository();
   final compass = FakeCompassRepository();
   await pumpScreen(
@@ -49,6 +55,8 @@ Future<(FakeLocationRepository, FakeCompassRepository)> _pump(
           create: (_) =>
               ArrivalVibrationBloc(vibration ?? FakeVibrationRepository()),
         ),
+        BlocProvider(create: (_) => NavigationNoticeBloc(notices)),
+        BlocProvider(create: (_) => NavigationStopBloc(notices)..fetch()),
       ],
       child: const NavigateScreen(),
     ),
@@ -159,6 +167,54 @@ void main() {
     await settle(tester);
 
     expect(vibration.calls, 2);
+  });
+
+  testWidgets('the first fix starts the notice with point and distance', (
+    tester,
+  ) async {
+    final background = FakeBackgroundNavigationRepository();
+    final (location, compass) = await _pump(tester, background: background);
+    expect(background.notices, isEmpty);
+
+    compass.readings.add(Result.success(heading(0)));
+    location.fixes.add(Result.success(_fix(0.001)));
+    await settle(tester);
+
+    expect(background.notices, hasLength(1));
+    expect(background.notices.single.title, 'Машина');
+    expect(background.notices.single.text, '111\u00A0м');
+    expect(background.notices.single.stopLabel, 'Стоп');
+  });
+
+  testWidgets('a new distance waits, arrival reaches the notice at once', (
+    tester,
+  ) async {
+    final background = FakeBackgroundNavigationRepository();
+    final (location, compass) = await _pump(tester, background: background);
+    compass.readings.add(Result.success(heading(0)));
+    location.fixes.add(Result.success(_fix(0.001)));
+    await settle(tester);
+
+    location.fixes.add(Result.success(_fix(0.0009)));
+    await settle(tester);
+    expect(background.notices, hasLength(1));
+
+    location.fixes.add(Result.success(_fix(0.00005)));
+    await settle(tester);
+    expect(background.notices.last.text, 'Вы на месте');
+  });
+
+  testWidgets('leaving the screen stops the notice', (tester) async {
+    final background = FakeBackgroundNavigationRepository();
+    final (location, compass) = await _pump(tester, background: background);
+    compass.readings.add(Result.success(heading(0)));
+    location.fixes.add(Result.success(_fix(0.001)));
+    await settle(tester);
+
+    await tester.pumpWidget(const SizedBox());
+    await settle(tester);
+
+    expect(background.stops, 1);
   });
 
   testWidgets('imperial units: distance in feet', (tester) async {
