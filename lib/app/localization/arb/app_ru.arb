@@ -106,8 +106,25 @@
   "navigateArrived": "Вы на месте",
   "navigateNotificationStop": "Стоп",
   "navigateNotificationChannel": "Навигация",
-  "navigateCompassCalibrationBody": "Поводите телефоном восьмёркой.",
+  "navigateCompassCalibrationBody": "поводите восьмёркой",
   "navigateCompassCalibrationTitle": "Компас неточен",
+  "navigateCompassDistanceOnly": "только расстояние",
+  "navigateDirection": "Направление на точку, {degrees} градусов",
+  "@navigateDirection": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "navigateDirectionApproximate": "Примерное направление на точку, {degrees} градусов",
+  "@navigateDirectionApproximate": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
   "navigateLocating": "Ждём GPS и компас…",
   "navigateSemantics": "До «{name}» {distance}",
   "@navigateSemantics": {
@@ -122,8 +139,8 @@
   },
   "navigateTitle": "Навигация",
   "navigateWeakSignal": "Слабый сигнал GPS — расстояние может быть неточным.",
-  "navigateWeakSignalBody": "Расстояние может быть неточным.",
-  "navigateWeakSignalTitle": "Слабый сигнал GPS",
+  "navigateWeakSignalBody": "расстояние неточно",
+  "navigateWeakSignalTitle": "Слабый GPS",
   "onboardingHowLeave": "Уходите по своим делам.",
   "onboardingHowOffline": "Работает без интернета. Точки хранятся только на телефоне.",
   "onboardingHowReturn": "Возвращайтесь по стрелке — она покажет направление и расстояние.",

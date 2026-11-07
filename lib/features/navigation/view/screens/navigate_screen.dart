@@ -7,6 +7,7 @@ import 'package:wayback/features/navigation/domain/entities/navigation_guidance.
 import 'package:wayback/features/navigation/view/bloc/arrival_vibration_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/enable_precise_location_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
+import 'package:wayback/features/navigation/view/widgets/navigation_arrived_view.dart';
 import 'package:wayback/features/navigation/view/widgets/navigation_error_view.dart';
 import 'package:wayback/features/navigation/view/widgets/navigation_notice_listener.dart';
 import 'package:wayback/features/navigation/view/widgets/navigation_view.dart';
@@ -29,6 +30,13 @@ class NavigateScreen extends StatelessWidget {
       !(previous.dataOrNull?.arrived ?? true) &&
       (current.mapOrNull(success: (s) => s.data.arrived) ?? false);
 
+  static bool _isArrived(DataState<NavigationGuidance> state) =>
+      state.mapOrNull(
+        success: (s) => s.data.arrived,
+        loading: (s) => s.previous?.arrived ?? false,
+      ) ??
+      false;
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -44,41 +52,74 @@ class NavigateScreen extends StatelessWidget {
       child: NavigationNoticeListener(
         child:
             BlocBuilder<NavigationGuidanceBloc, DataState<NavigationGuidance>>(
-              builder: (context, state) => Scaffold(
-                appBar: WbAppBar(
-                  title: state.dataOrNull?.point.name ?? l10n.navigateTitle,
-                  onBack: context.back,
-                ),
-                body: state.map(
-                  initial: (_) => const _Locating(),
-                  loading: (s) => switch (s.previous) {
-                    final guidance? => NavigationView(guidance),
-                    null => const _Locating(),
-                  },
-                  success: (s) => NavigationView(s.data),
-                  // A lost fix is shown as such, not as stale numbers.
-                  failure: (s) => NavigationErrorView(
-                    failure: s.failure,
-                    onRetry: bloc.fetch,
-                    onEnablePrecise: () =>
-                        context.read<EnablePreciseLocationBloc>().run(null),
+              builder: (context, state) {
+                final field = context.wbArrivalColors;
+                final arrived = _isArrived(state);
+                return AnimatedContainer(
+                  duration: WbMotion.slow,
+                  curve: WbMotion.standard,
+                  color: arrived
+                      ? field.background
+                      : context.wbColors.surfaceDefault,
+                  child: Scaffold(
+                    backgroundColor: Colors.transparent,
+                    appBar: WbAppBar(
+                      title: state.dataOrNull?.point.name ?? l10n.navigateTitle,
+                      onBack: context.back,
+                      onField: arrived ? field.content : null,
+                    ),
+                    body: AnimatedSwitcher(
+                      duration: WbMotion.base,
+                      child: state.map(
+                        initial: (_) => const _Locating(),
+                        loading: (s) => switch (s.previous) {
+                          final guidance? => _Guidance(guidance),
+                          null => const _Locating(),
+                        },
+                        success: (s) => _Guidance(s.data),
+                        // A lost fix is shown as such, not as stale numbers.
+                        failure: (s) => NavigationErrorView(
+                          failure: s.failure,
+                          onRetry: bloc.fetch,
+                          onEnablePrecise: () => context
+                              .read<EnablePreciseLocationBloc>()
+                              .run(null),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
       ),
     );
   }
 }
 
+class _Guidance extends StatelessWidget {
+  const _Guidance(this.guidance);
+
+  final NavigationGuidance guidance;
+
+  @override
+  Widget build(BuildContext context) => guidance.arrived
+      ? NavigationArrivedView(guidance)
+      : NavigationView(guidance);
+}
+
 class _Locating extends StatelessWidget {
   const _Locating();
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(WbSpacing.screenPadding),
-      child: WbProgress(label: context.l10n.navigateLocating),
-    ),
+  Widget build(BuildContext context) => NavigationFrame(
+    children: [
+      const WbDirectionSearching(),
+      Text(
+        context.l10n.navigateLocating,
+        style: context.wbText.titleLarge?.copyWith(
+          color: context.wbColors.contentSecondary,
+        ),
+      ),
+    ],
   );
 }

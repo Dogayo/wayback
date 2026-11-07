@@ -489,7 +489,7 @@ class _FoundationsSection extends StatelessWidget {
             children: [
               _TypographySample(
                 name: 'displayLarge',
-                specs: '56 / 64 · 700',
+                specs: '88 / 96 · 700',
                 sample: '640 м',
                 style: context.wbText.displayLarge,
               ),
@@ -972,7 +972,7 @@ class _WayfindingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Section(
     title: 'Wayfinding',
-    components: 'CompassArrow · Illustration · PageDots',
+    components: 'DirectionDial · Illustration · PageDots',
     children: [
       _Specimen(
         width: 1014,
@@ -984,19 +984,16 @@ class _WayfindingSection extends StatelessWidget {
           children: const [
             _CompassSample(
               distance: '640 м',
-              detail: 'ok · точность GPS ±8 м',
+              detail: 'ok · луч ±15°, GPS ±8 м',
               rotation: 34,
+              spread: 15,
             ),
             _CompassSample(
               distance: '1.4 км',
-              detail: 'unreliable · точность GPS ±42 м',
+              detail: 'unreliable · луч ±45°, GPS ±42 м',
               rotation: 68,
-              state: WbCompassState.unreliable,
-            ),
-            _CompassSample(
-              distance: '18 м',
-              detail: 'arrived · держите это направление',
-              state: WbCompassState.arrived,
+              spread: 45,
+              tone: WbDirectionTone.unreliable,
             ),
           ],
         ),
@@ -1028,19 +1025,27 @@ class _CompassSample extends StatelessWidget {
   const _CompassSample({
     required this.distance,
     required this.detail,
-    this.rotation = 0,
-    this.state = WbCompassState.ok,
+    required this.rotation,
+    required this.spread,
+    this.tone = WbDirectionTone.ok,
   });
   final String distance;
   final String detail;
   final double rotation;
-  final WbCompassState state;
+  final double spread;
+  final WbDirectionTone tone;
   @override
   Widget build(BuildContext context) => SizedBox(
     width: 240,
     child: Column(
       children: [
-        WbCompassArrow(rotation: rotation, state: state),
+        WbDirectionDial(
+          rotation: rotation,
+          spread: spread,
+          tone: tone,
+          size: 200,
+          semanticLabel: detail,
+        ),
         const SizedBox(height: 12),
         Text(distance, style: context.wbText.headlineSmall),
         Text(
