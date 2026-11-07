@@ -9,6 +9,9 @@ extension SettingsModelMapper on SettingsModel {
       units: UnitSystem.values.asNameMap()[units] ?? defaults.units,
       language: AppLanguage.values.asNameMap()[language] ?? defaults.language,
       vibrationOnArrival: vibrationOnArrival ?? defaults.vibrationOnArrival,
+      vibrationPattern:
+          VibrationPattern.values.asNameMap()[vibrationPattern] ??
+          defaults.vibrationPattern,
     );
   }
 }
@@ -18,5 +21,6 @@ extension AppSettingsMapper on AppSettings {
     units: units.name,
     language: language.name,
     vibrationOnArrival: vibrationOnArrival,
+    vibrationPattern: vibrationPattern.name,
   );
 }

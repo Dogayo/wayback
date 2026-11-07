@@ -116,6 +116,18 @@ void main() {
     expect(vibration.calls, 1);
   });
 
+  testWidgets('arrival plays the vibration the user picked', (tester) async {
+    final vibration = FakeVibrationRepository();
+    final (location, compass) = await _pump(
+      tester,
+      settings: const AppSettings(vibrationPattern: VibrationPattern.twice),
+      vibration: vibration,
+    );
+    await arrive(location, compass, tester);
+
+    expect(vibration.patterns, [VibrationPattern.twice]);
+  });
+
   testWidgets('arrival with vibration turned off: text only', (tester) async {
     final vibration = FakeVibrationRepository();
     final (location, compass) = await _pump(

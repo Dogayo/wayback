@@ -22,6 +22,16 @@ Wayback is a Flutter application for saving a location and returning to it with 
 - Preserve offline-first behavior and the product boundaries documented in `README.md`.
 - Do not edit generated Flutter, Gradle, CocoaPods, or Xcode output.
 
+## Feature flow
+
+Every new feature or change in product behavior goes through these stages in order. Do not start a stage until the user has approved the previous one:
+
+1. **Plan** — describe how you see the feature and whether it is needed at all; the user approves it.
+2. **Design** — make the mockups in Penpot; the user approves them.
+3. **Code** — implement the approved design and run the checks from Validation.
+4. **Device check** — verify on a real device or an emulator.
+5. **Pull request** — only after the device check.
+
 ## Validation
 
 Run the narrowest relevant checks first, then the full affected suite:

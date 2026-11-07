@@ -257,6 +257,13 @@
   "settingsUnitsImperial": "Футы и мили",
   "settingsUnitsMetric": "Метры и километры",
   "settingsVibration": "Вибрация при прибытии",
+  "settingsVibrationLong": "Длинная",
+  "settingsVibrationPattern": "Вид вибрации",
+  "settingsVibrationPatternHint": "Выберите вибрацию, которую хорошо чувствуете на своём телефоне",
+  "settingsVibrationStandard": "Обычная",
+  "settingsVibrationStrong": "Сильная",
+  "settingsVibrationTest": "Проверить",
+  "settingsVibrationTwice": "Двойная",
   "timeHoursAgo": "{n} ч назад",
   "@timeHoursAgo": {
     "placeholders": {

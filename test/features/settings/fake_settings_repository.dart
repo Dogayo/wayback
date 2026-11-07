@@ -46,4 +46,8 @@ final class FakeSettingsRepository implements SettingsRepository {
   @override
   Future<Result<void>> setVibrationOnArrival({required bool enabled}) =>
       _update(settings.copyWith(vibrationOnArrival: enabled));
+
+  @override
+  Future<Result<void>> setVibrationPattern(VibrationPattern pattern) =>
+      _update(settings.copyWith(vibrationPattern: pattern));
 }

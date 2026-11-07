@@ -13,4 +13,11 @@ extension SettingsL10n on AppLocalizations {
     AppLanguage.ru => settingsLanguageRu,
     AppLanguage.en => settingsLanguageEn,
   };
+
+  String vibrationPattern(VibrationPattern pattern) => switch (pattern) {
+    VibrationPattern.standard => settingsVibrationStandard,
+    VibrationPattern.long => settingsVibrationLong,
+    VibrationPattern.twice => settingsVibrationTwice,
+    VibrationPattern.strong => settingsVibrationStrong,
+  };
 }
