@@ -55,6 +55,27 @@ void main() {
     expect(states.last, const DataSuccess(2));
   });
 
+  test('stop leaves the source and keeps the data for refresh', () async {
+    final source = StreamController<Result<int>>.broadcast();
+    final bloc = _Bloc(() => source.stream);
+    addTearDown(bloc.close);
+
+    bloc.fetch();
+    await pumpEventQueue();
+    source.add(const Result.success(1));
+    await pumpEventQueue();
+
+    bloc.stop();
+    await pumpEventQueue();
+    expect(source.hasListener, isFalse);
+    expect(bloc.state, const DataSuccess(1));
+
+    bloc.refresh();
+    await pumpEventQueue();
+    expect(source.hasListener, isTrue);
+    expect(bloc.state.dataOrNull, 1);
+  });
+
   test('refresh keeps the data visible and a failure keeps it too', () async {
     final bloc = _Bloc(() => Stream.value(const Result.success(1)));
     addTearDown(bloc.close);

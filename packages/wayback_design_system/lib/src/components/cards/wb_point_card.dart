@@ -1,77 +1,109 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import 'package:wayback_design_system/src/components/feedback/wb_skeleton.dart';
+import 'package:wayback_design_system/src/components/wayfinding/wb_direction_dial.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
 
 const double _dialSize = 56;
 
+/// Content of the [WbPointCard] dial: an arrow, or [icon] of the point type
+/// while the direction is not known.
+///
+/// [rotation] is the arrow angle in degrees (bearing minus heading), not
+/// wrapped. [semanticLabel] is read after the card's own label.
+class WbPointDirection extends StatelessWidget {
+  const WbPointDirection({
+    required this.icon,
+    this.rotation,
+    this.tone = WbDirectionTone.ok,
+    this.semanticLabel,
+    super.key,
+  });
+
+  final IconData icon;
+  final double? rotation;
+  final WbDirectionTone tone;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.wbColors;
+    return Semantics(
+      label: semanticLabel,
+      child: switch (rotation) {
+        final angle? => WbDirectionArrow(
+          rotation: angle,
+          color: switch (tone) {
+            WbDirectionTone.ok => colors.brand600,
+            WbDirectionTone.unreliable => colors.warning,
+          },
+          size: WbIconSize.xl,
+        ),
+        null => Icon(icon, size: WbIconSize.lg, color: colors.contentSecondary),
+      },
+    );
+  }
+}
+
 /// Active point on Home: direction preview, name with its type and distance.
 ///
-/// [rotation] is the arrow angle in degrees (bearing minus heading); `null`
-/// hides the arrow while the direction is not known yet.
+/// [direction] fills the dial, usually a [WbPointDirection]; without it the
+/// dial shows [typeIcon].
 class WbPointCard extends StatelessWidget {
   const WbPointCard({
     required this.title,
     required this.distance,
     required this.typeIcon,
-    this.rotation,
+    this.direction,
     this.onTap,
     super.key,
   });
   final String title;
   final String distance;
   final IconData typeIcon;
-  final double? rotation;
+  final Widget? direction;
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: onTap != null,
-    label: '$title, $distance',
-    excludeSemantics: true,
-    child: _PointCardFrame(
-      onTap: onTap,
-      dial: rotation == null
-          ? null
-          : Transform.rotate(
-              angle: rotation! * math.pi / 180,
-              child: Icon(
-                Icons.navigation,
-                size: WbIconSize.xl,
-                color: context.wbColors.brand600,
-              ),
-            ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget build(BuildContext context) => MergeSemantics(
+    child: Semantics(
+      button: onTap != null,
+      label: '$title, $distance',
+      child: _PointCardFrame(
+        onTap: onTap,
+        dial: direction ?? WbPointDirection(icon: typeIcon),
+        body: ExcludeSemantics(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                typeIcon,
-                size: WbIconSize.sm,
-                color: context.wbColors.contentSecondary,
+              Row(
+                children: [
+                  Icon(
+                    typeIcon,
+                    size: WbIconSize.sm,
+                    color: context.wbColors.contentSecondary,
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      title,
+                      style: context.wbText.titleMedium,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  title,
-                  style: context.wbText.titleMedium,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              const SizedBox(height: 2),
+              Text(distance, style: context.wbText.headlineSmall),
             ],
           ),
-          const SizedBox(height: 2),
-          Text(distance, style: context.wbText.headlineSmall),
-        ],
-      ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: context.wbColors.contentTertiary,
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          color: context.wbColors.contentTertiary,
+        ),
       ),
     ),
   );

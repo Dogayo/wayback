@@ -11,13 +11,20 @@ import 'package:wayback/features/points/view/widgets/bottom_action_bar.dart';
 import 'package:wayback/features/points/view/widgets/points_error_view.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
+/// Dial content for one point card.
+typedef PointDirectionBuilder = Widget Function(String pointId, IconData icon);
+
 /// Active points with distances and the one-tap Save (SCREENS.md §4.1).
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({this.gpsStatus, super.key});
+  const HomeScreen({this.gpsStatus, this.direction, super.key});
 
   /// Location state, supplied by the app so this feature does not depend on
   /// the location feature's view.
   final Widget? gpsStatus;
+
+  /// Direction to a point, supplied by the app for the same reason: the
+  /// compass belongs to the navigation feature.
+  final PointDirectionBuilder? direction;
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +58,10 @@ class HomeScreen extends StatelessWidget {
               builder: (context, state) => state.map(
                 initial: (_) => const _Loading(),
                 loading: (s) => switch (s.previous) {
-                  final points? => _HomeContent(points),
+                  final points? => _HomeContent(points, direction),
                   null => const _Loading(),
                 },
-                success: (s) => _HomeContent(s.data),
+                success: (s) => _HomeContent(s.data, direction),
                 failure: (s) => PointsErrorView(
                   failure: s.failure,
                   actionLabel: l10n.actionRetry,
@@ -78,9 +85,10 @@ class HomeScreen extends StatelessWidget {
 }
 
 class _HomeContent extends StatelessWidget {
-  const _HomeContent(this.points);
+  const _HomeContent(this.points, this.direction);
 
   final HomePoints points;
+  final PointDirectionBuilder? direction;
 
   @override
   Widget build(BuildContext context) {
@@ -108,14 +116,15 @@ class _HomeContent extends StatelessWidget {
         ),
       );
     }
-    return _ActivePoints(points.active);
+    return _ActivePoints(points.active, direction);
   }
 }
 
 class _ActivePoints extends StatelessWidget {
-  const _ActivePoints(this.points);
+  const _ActivePoints(this.points, this.direction);
 
   final List<PointDistance> points;
+  final PointDirectionBuilder? direction;
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +140,7 @@ class _ActivePoints extends StatelessWidget {
               units: context.settings.units,
             ),
             typeIcon: point.type.design.icon,
+            direction: direction?.call(point.id, point.type.design.icon),
             onTap: () => context.push(Routes.navigate(point.id)),
           ),
           const SizedBox(height: WbSpacing.sm),

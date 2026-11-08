@@ -13,3 +13,8 @@ final class DataFetched extends DataEvent {
 final class DataRefreshed extends DataEvent {
   const DataRefreshed();
 }
+
+/// Stop listening to the source, keeping the current state.
+final class DataStopped extends DataEvent {
+  const DataStopped();
+}

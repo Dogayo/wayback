@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
@@ -10,9 +8,7 @@ Widget _host(Widget child) => MaterialApp(
 );
 
 void main() {
-  testWidgets('point card shows name, distance and a rotated arrow', (
-    tester,
-  ) async {
+  testWidgets('point card shows name, distance and the arrow', (tester) async {
     var taps = 0;
     await tester.pumpWidget(
       _host(
@@ -20,7 +16,10 @@ void main() {
           title: 'Машина',
           distance: '640 м',
           typeIcon: Icons.directions_car_outlined,
-          rotation: 90,
+          direction: const WbPointDirection(
+            icon: Icons.directions_car_outlined,
+            rotation: 90,
+          ),
           onTap: () => taps++,
         ),
       ),
@@ -30,23 +29,18 @@ void main() {
     expect(find.text('640 м'), findsOneWidget);
     expect(find.bySemanticsLabel('Машина, 640 м'), findsOneWidget);
 
-    final arrow = tester.widget<Transform>(
-      find.ancestor(
-        of: find.byIcon(Icons.navigation),
-        matching: find.byType(Transform),
-      ),
+    final arrow = tester.widget<WbDirectionArrow>(
+      find.byType(WbDirectionArrow),
     );
-    final angle = math.atan2(
-      arrow.transform.entry(1, 0),
-      arrow.transform.entry(0, 0),
-    );
-    expect(angle, closeTo(math.pi / 2, 1e-6));
+    expect(arrow.rotation, 90);
 
     await tester.tap(find.byType(WbPointCard));
     expect(taps, 1);
   });
 
-  testWidgets('arrow is hidden until the direction is known', (tester) async {
+  testWidgets('type icon fills the dial until the direction is known', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       _host(
         const WbPointCard(
@@ -57,7 +51,41 @@ void main() {
       ),
     );
 
-    expect(find.byIcon(Icons.navigation), findsNothing);
+    expect(find.byType(WbDirectionArrow), findsNothing);
+    expect(find.byIcon(Icons.cabin_outlined), findsNWidgets(2));
+  });
+
+  testWidgets('unreliable compass paints the arrow in warning and says so', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(
+      _host(
+        const WbPointCard(
+          title: 'Лагерь',
+          distance: '1,2 км',
+          typeIcon: Icons.cabin_outlined,
+          direction: WbPointDirection(
+            icon: Icons.cabin_outlined,
+            rotation: 0,
+            tone: WbDirectionTone.unreliable,
+            semanticLabel: 'Направление примерное',
+          ),
+        ),
+      ),
+    );
+
+    final arrow = tester.widget<WbDirectionArrow>(
+      find.byType(WbDirectionArrow),
+    );
+    expect(arrow.color, WbColors.light.warning);
+    expect(
+      find.bySemanticsLabel(
+        RegExp('1,2 км.*Направление примерное', dotAll: true),
+      ),
+      findsOneWidget,
+    );
+    handle.dispose();
   });
 
   testWidgets('skeleton keeps the card height', (tester) async {
@@ -69,7 +97,6 @@ void main() {
               title: 'Машина',
               distance: '640 м',
               typeIcon: Icons.directions_car_outlined,
-              rotation: 0,
             ),
             WbPointCardSkeleton(),
           ],

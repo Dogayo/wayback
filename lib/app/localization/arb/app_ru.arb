@@ -125,6 +125,7 @@
       }
     }
   },
+  "pointDirectionApproximate": "Направление примерное",
   "navigateLocating": "Ждём GPS и компас…",
   "navigateSemantics": "До «{name}» {distance}",
   "@navigateSemantics": {

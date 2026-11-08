@@ -837,7 +837,27 @@ class _ContentSection extends StatelessWidget {
               title: 'Машина',
               distance: '640 м',
               typeIcon: Icons.directions_car_outlined,
-              rotation: 35,
+              direction: WbPointDirection(
+                icon: Icons.directions_car_outlined,
+                rotation: 35,
+              ),
+            ),
+            SizedBox(height: 12),
+            WbPointCard(
+              title: 'Лагерь',
+              distance: '1,2 км',
+              typeIcon: Icons.cabin_outlined,
+              direction: WbPointDirection(
+                icon: Icons.cabin_outlined,
+                rotation: 240,
+                tone: WbDirectionTone.unreliable,
+              ),
+            ),
+            SizedBox(height: 12),
+            WbPointCard(
+              title: 'Лагерь',
+              distance: '1,2 км',
+              typeIcon: Icons.cabin_outlined,
             ),
             SizedBox(height: 12),
             WbPointCardSkeleton(),
