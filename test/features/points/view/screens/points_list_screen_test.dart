@@ -140,4 +140,27 @@ void main() {
       expect(find.text('Сделать активной'), findsOneWidget);
     });
   });
+
+  group('adding', () {
+    testWidgets('+ offers both ways', (tester) async {
+      await _pump(tester, FakePointsRepository([savedPoint('a')]));
+
+      await tester.tap(find.byTooltip('Новая точка').first);
+      await settle(tester);
+
+      expect(find.text('Текущее место'), findsOneWidget);
+      expect(find.text('По координатам'), findsOneWidget);
+    });
+
+    testWidgets('by coordinates opens the form', (tester) async {
+      await _pump(tester, FakePointsRepository([savedPoint('a')]));
+      await tester.tap(find.byTooltip('Новая точка').first);
+      await settle(tester);
+
+      await tester.tap(find.text('По координатам'));
+      await settle(tester);
+
+      expect(find.text('route /import'), findsOneWidget);
+    });
+  });
 }

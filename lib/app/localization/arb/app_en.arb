@@ -145,5 +145,20 @@
   "pointSwipeDeactivate": "Turn off",
   "pointSwipeActivate": "Turn on",
   "pointDeactivatedSnackbar": "“{name}” removed from Home",
-  "pointNameRequired": "Enter a name"
+  "pointNameRequired": "Enter a name",
+  "pointImportTitle": "By coordinates",
+  "pointImportDistance": "Distance",
+  "pointCoordinatesHint": "56.50353, 85.03131",
+  "pointCoordinatesHelper": "Numbers, degrees or a map link",
+  "pointCoordinatesPaste": "Paste",
+  "pointCoordinatesRead": "Latitude {latitude}, longitude {longitude}",
+  "pointCoordinatesInvalid": "Could not read these coordinates",
+  "pointImpreciseTitle": "Rough coordinates",
+  "pointImpreciseBody": "Too few decimals: the place may be off by hundreds of meters or more.",
+  "pointNearbyTitle": "“{name}” is right here",
+  "pointNearbyBody": "{distance} away. You can still save this one.",
+  "pointAddTitle": "New place",
+  "pointAddSubtitle": "How to set it",
+  "pointAddCurrent": "Current location",
+  "pointAddByCoordinates": "By coordinates"
 }

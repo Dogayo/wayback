@@ -18,6 +18,28 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 class PointsListScreen extends StatelessWidget {
   const PointsListScreen({super.key});
 
+  void _chooseHowToAdd(BuildContext context) {
+    final l10n = context.l10n;
+    WbActionSheet.show(
+      context,
+      title: l10n.pointAddTitle,
+      subtitle: l10n.pointAddSubtitle,
+      icon: Icons.add_location_alt_outlined,
+      actions: [
+        WbSheetAction(
+          icon: Icons.my_location,
+          label: l10n.pointAddCurrent,
+          onSelected: () => context.push(Routes.pointCreate),
+        ),
+        WbSheetAction(
+          icon: Icons.pin_drop_outlined,
+          label: l10n.pointAddByCoordinates,
+          onSelected: () => context.push(Routes.pointImport),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -32,7 +54,7 @@ class PointsListScreen extends StatelessWidget {
             WbIconButton(
               icon: Icons.add,
               label: l10n.pointsAddTooltip,
-              onPressed: () => context.push(Routes.pointCreate),
+              onPressed: () => _chooseHowToAdd(context),
             ),
           ],
         ),

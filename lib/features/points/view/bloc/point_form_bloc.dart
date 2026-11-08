@@ -10,14 +10,21 @@ part 'point_form_state.dart';
 /// Name and type of a new point (SCREENS.md §4.2). Until the user types a
 /// name, the name follows the chosen type, numbered when taken.
 final class PointFormBloc extends Bloc<PointFormEvent, PointFormState> {
-  PointFormBloc(this._points, {required this.labelOf, required this.numbered})
-    : super(
-        PointFormState(
-          name: labelOf(PointType.generic),
-          defaultName: labelOf(PointType.generic),
-          type: PointType.generic,
-        ),
-      ) {
+  /// [name] and [type] prefill the form with what a received point brought.
+  PointFormBloc(
+    this._points, {
+    required this.labelOf,
+    required this.numbered,
+    String? name,
+    PointType type = PointType.generic,
+  }) : super(
+         PointFormState(
+           name: name ?? labelOf(type),
+           defaultName: labelOf(type),
+           type: type,
+           nameEdited: name != null,
+         ),
+       ) {
     on<PointFormStarted>(_onStarted);
     on<PointFormTypeSelected>(
       (event, emit) => emit(_withType(state, event.type)),

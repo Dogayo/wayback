@@ -314,5 +314,44 @@
       }
     }
   },
-  "pointNameRequired": "Введите название"
+  "pointNameRequired": "Введите название",
+  "pointImportTitle": "По координатам",
+  "pointImportDistance": "До точки",
+  "pointCoordinatesHint": "56.50353, 85.03131",
+  "pointCoordinatesHelper": "Числа, градусы или ссылка на карту",
+  "pointCoordinatesPaste": "Вставить",
+  "pointCoordinatesRead": "Широта {latitude}, долгота {longitude}",
+  "pointCoordinatesInvalid": "Не удалось распознать координаты",
+  "pointImpreciseTitle": "Координаты неточные",
+  "pointImpreciseBody": "Мало знаков после запятой: точка может быть смещена на сотни метров и больше.",
+  "pointNearbyTitle": "Рядом уже есть «{name}»",
+  "pointNearbyBody": "До неё {distance}. Сохранить всё равно можно.",
+  "pointAddTitle": "Новая точка",
+  "pointAddSubtitle": "Как задать место",
+  "pointAddCurrent": "Текущее место",
+  "pointAddByCoordinates": "По координатам",
+  "@pointCoordinatesRead": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "@pointNearbyTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@pointNearbyBody": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  }
 }

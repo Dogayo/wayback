@@ -21,7 +21,13 @@ void main() {
   test('SavePointBloc saves an active point at the fix', () async {
     final bloc = SavePointBloc(points);
     addTearDown(bloc.close);
-    bloc.run((name: 'Лагерь', type: PointType.tent, fix: fixWithAccuracy(8)));
+    final fix = fixWithAccuracy(8);
+    bloc.run((
+      name: 'Лагерь',
+      type: PointType.tent,
+      position: fix.point,
+      altitudeMeters: fix.altitudeMeters,
+    ));
     await _settle();
 
     final saved = bloc.state.mapOrNull(success: (s) => s.result)!;
@@ -37,7 +43,13 @@ void main() {
     points.failNext = const StorageFailure(code: 'points_storage_write_failed');
     final bloc = SavePointBloc(points);
     addTearDown(bloc.close);
-    bloc.run((name: 'x', type: PointType.car, fix: fixWithAccuracy(8)));
+    final fix = fixWithAccuracy(8);
+    bloc.run((
+      name: 'x',
+      type: PointType.car,
+      position: fix.point,
+      altitudeMeters: fix.altitudeMeters,
+    ));
     await _settle();
 
     expect(
