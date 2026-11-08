@@ -33,7 +33,7 @@ class WbPageDots extends StatelessWidget {
           for (var i = 0; i < count; i++) ...[
             if (i > 0) const SizedBox(width: WbSpacing.xs),
             AnimatedContainer(
-              duration: WbMotion.base,
+              duration: WbMotion.of(context, WbMotion.base),
               curve: WbMotion.easeOut,
               width: i == index ? _active : _dot,
               height: _dot,

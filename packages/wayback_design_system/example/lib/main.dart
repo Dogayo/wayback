@@ -65,6 +65,7 @@ class _CatalogState extends State<_Catalog> {
     ('Navigation', Icons.navigation_outlined),
     ('Wayfinding', Icons.explore_outlined),
     ('Feedback', Icons.notifications_none),
+    ('Motion', Icons.animation_outlined),
   ];
 
   final sectionKeys = <String, GlobalKey>{
@@ -75,6 +76,7 @@ class _CatalogState extends State<_Catalog> {
     'Navigation': GlobalKey(),
     'Wayfinding': GlobalKey(),
     'Feedback': GlobalKey(),
+    'Motion': GlobalKey(),
   };
 
   Future<void> _scrollToSection(String section) async {
@@ -215,6 +217,10 @@ class _CatalogState extends State<_Catalog> {
                                     onDialog: _showDelete,
                                     onSheet: _showSheet,
                                   ),
+                                ),
+                                KeyedSubtree(
+                                  key: sectionKeys['Motion'],
+                                  child: const _MotionSection(),
                                 ),
                               ],
                             ),
@@ -1157,6 +1163,145 @@ class _FeedbackSection extends StatelessWidget {
           ],
         ),
       ),
+    ],
+  );
+}
+
+class _MotionSection extends StatelessWidget {
+  const _MotionSection();
+
+  @override
+  Widget build(BuildContext context) => const _Section(
+    title: 'Motion',
+    components: 'WbPage · WbStateSwitcher · Button loading',
+    children: [
+      _Specimen(title: 'Переходы экранов', child: _TransitionsDemo()),
+      _Specimen(title: 'Смена состояний', child: _StatesDemo()),
+    ],
+  );
+}
+
+/// A phone-sized navigator to try each [WbTransition] in.
+class _TransitionsDemo extends StatefulWidget {
+  const _TransitionsDemo();
+
+  @override
+  State<_TransitionsDemo> createState() => _TransitionsDemoState();
+}
+
+class _TransitionsDemoState extends State<_TransitionsDemo> {
+  final _stack = <WbTransition?>[null];
+
+  WbPage<void> _page(int depth, WbTransition? transition) => WbPage(
+    key: ValueKey(depth),
+    transition: transition ?? WbTransition.drill,
+    child: Scaffold(
+      appBar: WbAppBar(
+        title: depth == 0 ? 'Главный' : transition!.name,
+        onBack: depth == 0 ? null : () => setState(_stack.removeLast),
+      ),
+      body: Center(child: Text('Экран ${depth + 1}')),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: 12,
+    children: [
+      ClipRRect(
+        borderRadius: WbRadius.medium,
+        child: SizedBox(
+          width: 280,
+          height: 420,
+          child: Navigator(
+            pages: [for (final (i, t) in _stack.indexed) _page(i, t)],
+            onDidRemovePage: (_) {},
+          ),
+        ),
+      ),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final t in WbTransition.values)
+            WbButton(
+              label: t.name,
+              size: WbButtonSize.small,
+              variant: WbButtonVariant.secondary,
+              onPressed: () => setState(() => _stack.add(t)),
+            ),
+        ],
+      ),
+    ],
+  );
+}
+
+enum _DemoState { loading, content, empty }
+
+class _StatesDemo extends StatefulWidget {
+  const _StatesDemo();
+
+  @override
+  State<_StatesDemo> createState() => _StatesDemoState();
+}
+
+class _StatesDemoState extends State<_StatesDemo> {
+  var _state = _DemoState.loading;
+  var _saving = false;
+
+  Future<void> _save() async {
+    setState(() => _saving = true);
+    await Future<void>.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => _saving = false);
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    spacing: 12,
+    children: [
+      WbStateSwitcher(
+        state: _state,
+        animateSize: true,
+        child: switch (_state) {
+          _DemoState.loading => const Column(
+            spacing: WbSpacing.sm,
+            children: [WbPointCardSkeleton(), WbPointCardSkeleton()],
+          ),
+          _DemoState.content => const Column(
+            spacing: WbSpacing.sm,
+            children: [
+              WbPointCard(
+                title: 'Машина',
+                distance: '320 м',
+                typeIcon: Icons.directions_car_outlined,
+              ),
+              WbPointCard(
+                title: 'Лагерь',
+                distance: '1,4 км',
+                typeIcon: Icons.cabin_outlined,
+              ),
+              WbPointCard(
+                title: 'Рыбалка',
+                distance: '2,1 км',
+                typeIcon: Icons.phishing_outlined,
+              ),
+            ],
+          ),
+          _DemoState.empty => const WbEmptyState(
+            icon: Icons.add_location_alt_outlined,
+            title: 'Пока нет точек',
+            message: 'Сохраните место, чтобы вернуться к нему',
+          ),
+        },
+      ),
+      WbSegmentedTabs(
+        items: {for (final s in _DemoState.values) s: s.name},
+        value: _state,
+        onChanged: (s) => setState(() => _state = s),
+      ),
+      WbButton(label: 'Сохранить', loading: _saving, onPressed: _save),
     ],
   );
 }

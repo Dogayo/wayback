@@ -52,6 +52,7 @@ import 'package:wayback/features/settings/view/bloc/set_vibration_pattern_bloc.d
 import 'package:wayback/features/settings/view/bloc/test_vibration_bloc.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
 import 'package:wayback/features/settings/view/screens/vibration_type_screen.dart';
+import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// Every screen is a child of `/`, so a deep link to `/points/:id` keeps
 /// Home under it and "back" leads to `/` (SCREENS.md §3).
@@ -64,57 +65,64 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
   routes: [
     GoRoute(
       path: Routes.onboarding,
-      builder: (_, _) => BlocProvider(
-        create: (context) => FinishOnboardingBloc(
-          context.di<OnboardingRepository>(),
-          context.di<LocationRepository>(),
+      pageBuilder: _page(
+        (_, _) => BlocProvider(
+          create: (context) => FinishOnboardingBloc(
+            context.di<OnboardingRepository>(),
+            context.di<LocationRepository>(),
+          ),
+          child: const OnboardingScreen(),
         ),
-        child: const OnboardingScreen(),
+        WbTransition.fade,
       ),
     ),
     GoRoute(
       path: Routes.home,
-      builder: (_, _) => MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            lazy: false,
-            create: (context) =>
-                LocationFixBloc(context.di<LocationRepository>())..fetch(),
-          ),
-          BlocProvider(
-            create: (context) =>
-                RequestLocationPermissionBloc(context.di<LocationRepository>()),
-          ),
-          BlocProvider(
-            create: (context) =>
-                OpenLocationSettingsBloc(context.di<LocationRepository>()),
-          ),
-          BlocProvider(
-            lazy: false,
-            create: (context) => HomeBloc(
-              context.di<PointsRepository>(),
-              context.di<LocationRepository>(),
-            )..fetch(),
-          ),
-          BlocProvider(
-            create: (context) => PointDirectionsBloc(
-              context.di<PointsRepository>(),
-              context.di<LocationRepository>(),
-              context.di<CompassRepository>(),
+      pageBuilder: _page(
+        (_, _) => MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              lazy: false,
+              create: (context) =>
+                  LocationFixBloc(context.di<LocationRepository>())..fetch(),
+            ),
+            BlocProvider(
+              create: (context) => RequestLocationPermissionBloc(
+                context.di<LocationRepository>(),
+              ),
+            ),
+            BlocProvider(
+              create: (context) =>
+                  OpenLocationSettingsBloc(context.di<LocationRepository>()),
+            ),
+            BlocProvider(
+              lazy: false,
+              create: (context) => HomeBloc(
+                context.di<PointsRepository>(),
+                context.di<LocationRepository>(),
+              )..fetch(),
+            ),
+            BlocProvider(
+              create: (context) => PointDirectionsBloc(
+                context.di<PointsRepository>(),
+                context.di<LocationRepository>(),
+                context.di<CompassRepository>(),
+              ),
+            ),
+          ],
+          child: PointDirectionsGate(
+            child: HomeScreen(
+              gpsStatus: const GpsStatus(),
+              direction: (pointId, icon) => PointDirection(pointId, icon: icon),
             ),
           ),
-        ],
-        child: PointDirectionsGate(
-          child: HomeScreen(
-            gpsStatus: const GpsStatus(),
-            direction: (pointId, icon) => PointDirection(pointId, icon: icon),
-          ),
         ),
+        WbTransition.fade,
       ),
       routes: [
         GoRoute(
           path: 'points/new',
-          builder: (context, _) {
+          pageBuilder: _page((context, _) {
             // Read here: a provider's create must not subscribe to inherited
             // widgets such as Localizations.
             final l10n = context.l10n;
@@ -142,120 +150,137 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
               ],
               child: const PointCreateScreen(),
             );
-          },
+          }, WbTransition.modal),
         ),
         GoRoute(
           path: 'points',
-          builder: (_, _) => BlocProvider(
-            create: (context) => PointsListBloc(
-              context.di<PointsRepository>(),
-              context.di<LocationRepository>(),
-            )..fetch(),
-            child: const PointsListScreen(),
+          pageBuilder: _page(
+            (_, _) => BlocProvider(
+              create: (context) => PointsListBloc(
+                context.di<PointsRepository>(),
+                context.di<LocationRepository>(),
+              )..fetch(),
+              child: const PointsListScreen(),
+            ),
+            WbTransition.drill,
           ),
         ),
         GoRoute(
           path: 'points/:${Routes.pointIdParam}',
-          builder: (_, state) => MultiBlocProvider(
-            providers: [
-              BlocProvider(
-                create: (context) => PointDetailsBloc(
-                  context.di<PointsRepository>(),
-                  context.di<LocationRepository>(),
-                  pointId: state.pathParameters[Routes.pointIdParam]!,
-                )..fetch(),
-              ),
-              BlocProvider(
-                create: (context) =>
-                    RenamePointBloc(context.di<PointsRepository>()),
-              ),
-              BlocProvider(
-                create: (context) =>
-                    SetPointActiveBloc(context.di<PointsRepository>()),
-              ),
-              BlocProvider(
-                create: (context) =>
-                    DeletePointBloc(context.di<PointsRepository>()),
-              ),
-            ],
-            child: const PointDetailsScreen(),
+          pageBuilder: _page(
+            (_, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => PointDetailsBloc(
+                    context.di<PointsRepository>(),
+                    context.di<LocationRepository>(),
+                    pointId: state.pathParameters[Routes.pointIdParam]!,
+                  )..fetch(),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      RenamePointBloc(context.di<PointsRepository>()),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      SetPointActiveBloc(context.di<PointsRepository>()),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      DeletePointBloc(context.di<PointsRepository>()),
+                ),
+              ],
+              child: const PointDetailsScreen(),
+            ),
+            WbTransition.drill,
           ),
         ),
         GoRoute(
           path: 'navigate/:${Routes.pointIdParam}',
-          builder: (_, state) => MultiBlocProvider(
-            providers: [
-              BlocProvider(
-                create: (context) => NavigationGuidanceBloc(
-                  context.di<PointsRepository>(),
-                  context.di<LocationRepository>(),
-                  context.di<CompassRepository>(),
-                  pointId: state.pathParameters[Routes.pointIdParam]!,
-                  logger: context.di<AppLogger>(),
-                )..fetch(),
-              ),
-              BlocProvider(
-                create: (context) =>
-                    EnablePreciseLocationBloc(context.di<LocationRepository>()),
-              ),
-              BlocProvider(
-                create: (context) =>
-                    ArrivalVibrationBloc(context.di<VibrationRepository>()),
-              ),
-              BlocProvider(
-                create: (context) => NavigationNoticeBloc(
-                  context.di<BackgroundNavigationRepository>(),
+          pageBuilder: _page(
+            (_, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => NavigationGuidanceBloc(
+                    context.di<PointsRepository>(),
+                    context.di<LocationRepository>(),
+                    context.di<CompassRepository>(),
+                    pointId: state.pathParameters[Routes.pointIdParam]!,
+                    logger: context.di<AppLogger>(),
+                  )..fetch(),
                 ),
-              ),
-              BlocProvider(
-                create: (context) => NavigationStopBloc(
-                  context.di<BackgroundNavigationRepository>(),
-                )..fetch(),
-              ),
-            ],
-            child: const NavigateScreen(),
+                BlocProvider(
+                  create: (context) => EnablePreciseLocationBloc(
+                    context.di<LocationRepository>(),
+                  ),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      ArrivalVibrationBloc(context.di<VibrationRepository>()),
+                ),
+                BlocProvider(
+                  create: (context) => NavigationNoticeBloc(
+                    context.di<BackgroundNavigationRepository>(),
+                  ),
+                ),
+                BlocProvider(
+                  create: (context) => NavigationStopBloc(
+                    context.di<BackgroundNavigationRepository>(),
+                  )..fetch(),
+                ),
+              ],
+              child: const NavigateScreen(),
+            ),
+            WbTransition.enterMode,
           ),
         ),
         // SettingsBloc is above every route, in App.
         GoRoute(
           path: 'settings',
-          builder: (_, _) => MultiBlocProvider(
-            providers: [
-              BlocProvider(
-                create: (context) =>
-                    SetUnitsBloc(context.di<SettingsRepository>()),
-              ),
-              BlocProvider(
-                create: (context) =>
-                    SetLanguageBloc(context.di<SettingsRepository>()),
-              ),
-              BlocProvider(
-                create: (context) =>
-                    SetVibrationOnArrivalBloc(context.di<SettingsRepository>()),
-              ),
-              BlocProvider(
-                create: (context) =>
-                    SendLogBloc(context.di<DiagnosticsRepository>()),
-              ),
-            ],
-            child: const SettingsScreen(),
+          pageBuilder: _page(
+            (_, _) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) =>
+                      SetUnitsBloc(context.di<SettingsRepository>()),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      SetLanguageBloc(context.di<SettingsRepository>()),
+                ),
+                BlocProvider(
+                  create: (context) => SetVibrationOnArrivalBloc(
+                    context.di<SettingsRepository>(),
+                  ),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      SendLogBloc(context.di<DiagnosticsRepository>()),
+                ),
+              ],
+              child: const SettingsScreen(),
+            ),
+            WbTransition.drill,
           ),
           routes: [
             GoRoute(
               path: 'vibration',
-              builder: (_, _) => MultiBlocProvider(
-                providers: [
-                  BlocProvider(
-                    create: (context) => SetVibrationPatternBloc(
-                      context.di<SettingsRepository>(),
+              pageBuilder: _page(
+                (_, _) => MultiBlocProvider(
+                  providers: [
+                    BlocProvider(
+                      create: (context) => SetVibrationPatternBloc(
+                        context.di<SettingsRepository>(),
+                      ),
                     ),
-                  ),
-                  BlocProvider(
-                    create: (context) =>
-                        TestVibrationBloc(context.di<VibrationRepository>()),
-                  ),
-                ],
-                child: const VibrationTypeScreen(),
+                    BlocProvider(
+                      create: (context) =>
+                          TestVibrationBloc(context.di<VibrationRepository>()),
+                    ),
+                  ],
+                  child: const VibrationTypeScreen(),
+                ),
+                WbTransition.drill,
               ),
             ),
           ],
@@ -264,6 +289,18 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
     ),
   ],
 );
+
+/// A screen that comes in with [transition] (05 · Motion).
+GoRouterPageBuilder _page(
+  GoRouterWidgetBuilder builder,
+  WbTransition transition,
+) =>
+    (context, state) => WbPage<void>(
+      key: state.pageKey,
+      name: state.matchedLocation,
+      transition: transition,
+      child: builder(context, state),
+    );
 
 /// Until onboarding is done every route leads to it; afterwards it leads
 /// Home (mvp-scope.md §2.6). An unreadable flag never locks the user out.

@@ -61,7 +61,7 @@ class WbDirectionDial extends StatelessWidget {
       label: semanticLabel,
       child: TweenAnimationBuilder<double>(
         tween: Tween(end: spread.clamp(minSpread, maxSpread)),
-        duration: WbMotion.base,
+        duration: WbMotion.of(context, WbMotion.base),
         curve: WbMotion.standard,
         builder: (context, beam, _) => TweenAnimationBuilder<double>(
           tween: Tween(end: rotation),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
@@ -33,7 +34,8 @@ class WbListItem extends StatelessWidget {
           onTap: onTap,
           borderRadius: WbRadius.medium,
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
+            duration: WbMotion.of(context, WbMotion.fast),
+            curve: WbMotion.standard,
             constraints: const BoxConstraints(minHeight: 64),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(

@@ -34,17 +34,19 @@ class PointsListScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: state.map(
-        initial: (_) => const _Loading(),
-        loading: (s) => switch (s.previous) {
-          final points? => _PointsList(points),
-          null => const _Loading(),
-        },
-        success: (s) => _PointsList(s.data),
-        failure: (s) => PointsErrorView(
-          failure: s.failure,
-          actionLabel: l10n.actionRetry,
-          onAction: context.read<PointsListBloc>().fetch,
+      body: WbStateSwitcher(
+        child: state.map(
+          initial: (_) => const _Loading(),
+          loading: (s) => switch (s.previous) {
+            final points? => _PointsList(points),
+            null => const _Loading(),
+          },
+          success: (s) => _PointsList(s.data),
+          failure: (s) => PointsErrorView(
+            failure: s.failure,
+            actionLabel: l10n.actionRetry,
+            onAction: context.read<PointsListBloc>().fetch,
+          ),
         ),
       ),
       bottomNavigationBar: points != null && points.isEmpty

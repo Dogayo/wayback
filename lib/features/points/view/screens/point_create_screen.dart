@@ -132,11 +132,14 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
               ),
             ),
             const SizedBox(height: WbSpacing.lg),
-            fix.map(
-              initial: (_) => WbProgress(label: l10n.pointCreateLocating),
-              loading: (_) => WbProgress(label: l10n.pointCreateLocating),
-              success: (s) => _Position(fix: s.data),
-              failure: (s) => _FixFailure(s.failure),
+            WbStateSwitcher(
+              animateSize: true,
+              child: fix.map(
+                initial: (_) => WbProgress(label: l10n.pointCreateLocating),
+                loading: (_) => WbProgress(label: l10n.pointCreateLocating),
+                success: (s) => _Position(fix: s.data),
+                failure: (s) => _FixFailure(s.failure),
+              ),
             ),
           ],
         ),

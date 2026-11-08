@@ -38,11 +38,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _goTo(int page) => _pages.animateToPage(
-    page,
-    duration: WbMotion.slow,
-    curve: WbMotion.easeOut,
-  );
+  void _goTo(int page) {
+    final duration = WbMotion.of(context, WbMotion.slow);
+    if (duration == Duration.zero) return _pages.jumpToPage(page);
+    _pages.animateToPage(page, duration: duration, curve: WbMotion.easeOut);
+  }
 
   /// Home whatever the outcome: a failed save must not trap the user.
   void _onFinished(BuildContext context, ActionState<void> state) =>

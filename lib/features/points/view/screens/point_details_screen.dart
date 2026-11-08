@@ -68,21 +68,23 @@ class PointDetailsScreen extends StatelessWidget {
           title: state.dataOrNull?.point.name ?? l10n.pointDetailsTitle,
           onBack: context.back,
         ),
-        body: leaving
-            ? const _Loading()
-            : state.map(
-                initial: (_) => const _Loading(),
-                loading: (s) => switch (s.previous) {
-                  final point? => PointDetailsView(point),
-                  null => const _Loading(),
-                },
-                success: (s) => PointDetailsView(s.data),
-                failure: (s) => PointsErrorView(
-                  failure: s.failure,
-                  actionLabel: l10n.pointBackToList,
-                  onAction: () => context.go(Routes.pointsList),
+        body: WbStateSwitcher(
+          child: leaving
+              ? const _Loading()
+              : state.map(
+                  initial: (_) => const _Loading(),
+                  loading: (s) => switch (s.previous) {
+                    final point? => PointDetailsView(point),
+                    null => const _Loading(),
+                  },
+                  success: (s) => PointDetailsView(s.data),
+                  failure: (s) => PointsErrorView(
+                    failure: s.failure,
+                    actionLabel: l10n.pointBackToList,
+                    onAction: () => context.go(Routes.pointsList),
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }

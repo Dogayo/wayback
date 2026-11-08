@@ -29,15 +29,15 @@ Widget _tabs(
   onChanged: onChanged,
 );
 
-Color? _plate(WidgetTester tester, String label) {
-  final plate = tester.widget<AnimatedContainer>(
-    find.ancestor(
-      of: find.text(label),
-      matching: find.byType(AnimatedContainer),
-    ),
-  );
-  return (plate.decoration! as BoxDecoration).color;
-}
+Finder _segment(String label) =>
+    find.ancestor(of: find.text(label), matching: find.byType(Container)).first;
+
+final _plate = find.byKey(const ValueKey('wb-segment-plate'));
+
+Color? _plateColor(WidgetTester tester) =>
+    ((tester.widget<SizedBox>(_plate).child! as DecoratedBox).decoration
+            as BoxDecoration)
+        .color;
 
 void main() {
   testWidgets('segments split the track equally, 44 high', (tester) async {
@@ -45,27 +45,33 @@ void main() {
 
     final track = tester.getSize(find.byType(WbSegmentedTabs<_Units>));
     expect(track, const Size(358, 44));
-    final metric = tester.getSize(
-      find.ancestor(
-        of: find.text('Метры'),
-        matching: find.byType(AnimatedContainer),
-      ),
-    );
-    final imperial = tester.getSize(
-      find.ancestor(
-        of: find.text('Футы'),
-        matching: find.byType(AnimatedContainer),
-      ),
-    );
+    final metric = tester.getSize(_segment('Метры'));
+    final imperial = tester.getSize(_segment('Футы'));
     expect(metric, imperial);
     expect(metric.height, 36);
   });
 
-  testWidgets('only the chosen segment gets the plate', (tester) async {
+  testWidgets('the plate sits under the chosen segment', (tester) async {
     await tester.pumpWidget(_host(_tabs(_Units.metric, (_) {})));
 
-    expect(_plate(tester, 'Метры'), WbColors.light.segmentSelected);
-    expect(_plate(tester, 'Футы'), Colors.transparent);
+    expect(_plate, findsOneWidget);
+    expect(_plateColor(tester), WbColors.light.segmentSelected);
+    expect(tester.getRect(_plate), tester.getRect(_segment('Метры')));
+  });
+
+  testWidgets('the plate slides to a new choice', (tester) async {
+    await tester.pumpWidget(_host(_tabs(_Units.metric, (_) {})));
+    final from = tester.getRect(_plate).left;
+    final to = tester.getRect(_segment('Футы')).left;
+
+    await tester.pumpWidget(_host(_tabs(_Units.imperial, (_) {})));
+    await tester.pump(WbMotion.base ~/ 2);
+    final halfway = tester.getRect(_plate).left;
+    expect(halfway, greaterThan(from));
+    expect(halfway, lessThan(to));
+
+    await tester.pumpAndSettle();
+    expect(tester.getRect(_plate), tester.getRect(_segment('Футы')));
   });
 
   testWidgets('dark theme uses its own track and plate', (tester) async {
@@ -85,19 +91,14 @@ void main() {
       (track.decoration! as BoxDecoration).color,
       WbColors.dark.segmentTrack,
     );
-    expect(_plate(tester, 'Метры'), WbColors.dark.segmentSelected);
+    expect(_plateColor(tester), WbColors.dark.segmentSelected);
   });
 
   testWidgets('a tap anywhere in a segment picks it', (tester) async {
     _Units? picked;
     await tester.pumpWidget(_host(_tabs(_Units.metric, (v) => picked = v)));
 
-    final segment = tester.getRect(
-      find.ancestor(
-        of: find.text('Футы'),
-        matching: find.byType(AnimatedContainer),
-      ),
-    );
+    final segment = tester.getRect(_segment('Футы'));
     // The track edge above the plate still belongs to the segment.
     await tester.tapAt(segment.topCenter.translate(0, -2));
     expect(picked, _Units.imperial);
