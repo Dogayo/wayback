@@ -17,10 +17,13 @@ import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.d
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:wayback/features/onboarding/view/screens/onboarding_screen.dart';
+import 'package:wayback/features/points/domain/repositories/point_share_repository.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
+import 'package:wayback/features/points/view/screens/point_import_screen.dart';
+import 'package:wayback/features/points/view/screens/point_share_screen.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
 import 'package:wayback/features/settings/domain/repositories/diagnostics_repository.dart';
@@ -34,6 +37,7 @@ import '../../features/navigation/fake_background_navigation_repository.dart';
 import '../../features/navigation/fake_compass_repository.dart';
 import '../../features/navigation/fake_vibration_repository.dart';
 import '../../features/onboarding/fake_onboarding_repository.dart';
+import '../../features/points/fake_point_share_repository.dart';
 import '../../features/points/fake_points_repository.dart';
 import '../../features/settings/fake_diagnostics_repository.dart';
 import '../../features/settings/fake_settings_repository.dart';
@@ -58,6 +62,7 @@ Future<GoRouter> pumpApp(
     commonDependencies: DependencyList([
       RegFactory<LocationRepository>((_) => repository),
       RegFactory<PointsRepository>((_) => FakePointsRepository()),
+      RegFactory<PointShareRepository>((_) => FakePointShareRepository()),
       RegFactory<CompassRepository>((_) => FakeCompassRepository()),
       RegFactory<VibrationRepository>((_) => FakeVibrationRepository()),
       RegFactory<BackgroundNavigationRepository>(
@@ -91,6 +96,8 @@ void main() {
     Routes.pointCreate: PointCreateScreen,
     Routes.pointsList: PointsListScreen,
     Routes.pointDetails('42'): PointDetailsScreen,
+    Routes.pointShare('42'): PointShareScreen,
+    Routes.pointImport: PointImportScreen,
     Routes.navigate('42'): NavigateScreen,
     Routes.settings: SettingsScreen,
     Routes.vibrationType: VibrationTypeScreen,
@@ -155,6 +162,30 @@ void main() {
   testWidgets('onboarding is not reachable once done', (tester) async {
     await pumpApp(tester, Routes.onboarding);
     expect(find.byType(HomeScreen), findsOneWidget);
+  });
+
+  group('a point received on the first launch', () {
+    const link = '/import?lat=56.50353&lon=85.03131&n=Test';
+
+    testWidgets('waits behind onboarding', (tester) async {
+      await pumpApp(tester, link, onboardingCompleted: false);
+
+      expect(find.byType(OnboardingScreen), findsOneWidget);
+      expect(find.byType(PointImportScreen), findsNothing);
+    });
+
+    testWidgets('opens when onboarding is done', (tester) async {
+      await pumpApp(tester, link, onboardingCompleted: false);
+
+      // The test window's system language is English.
+      await tester.tap(find.text('Skip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Not now'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PointImportScreen), findsOneWidget);
+      expect(find.text('Test'), findsOneWidget);
+    });
   });
 
   testWidgets('finishing onboarding leads Home', (tester) async {

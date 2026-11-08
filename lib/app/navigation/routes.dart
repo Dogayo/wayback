@@ -13,6 +13,7 @@ abstract final class Routes {
   static const onboarding = '/onboarding';
 
   static String pointDetails(String id) => '/points/$id';
+  static String pointShare(String id) => '/points/$id/share';
   static String navigate(String id) => '/navigate/$id';
 
   static const pointIdParam = 'id';

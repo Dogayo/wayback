@@ -63,6 +63,14 @@ class PointDetailsScreen extends StatelessWidget {
         appBar: WbAppBar(
           title: state.dataOrNull?.point.name ?? l10n.pointDetailsTitle,
           onBack: context.back,
+          actions: [
+            if (state.dataOrNull case (:final point, distanceMeters: _))
+              WbIconButton(
+                icon: Icons.share_outlined,
+                label: l10n.pointActionShare,
+                onPressed: () => context.push(Routes.pointShare(point.id)),
+              ),
+          ],
         ),
         body: WbStateSwitcher(
           child: leaving

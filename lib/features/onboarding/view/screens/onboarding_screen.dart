@@ -13,7 +13,10 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 ///
 /// Needs [FinishOnboardingBloc] above it.
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  const OnboardingScreen({this.next, super.key});
+
+  /// Where to go when done instead of Home, e.g. a point someone sent.
+  final String? next;
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -44,11 +47,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _pages.animateToPage(page, duration: duration, curve: WbMotion.easeOut);
   }
 
-  /// Home whatever the outcome: a failed save must not trap the user.
+  /// Onward whatever the outcome: a failed save must not trap the user.
   void _onFinished(BuildContext context, ActionState<void> state) =>
       state.mapOrNull(
-        success: (_) => context.go(Routes.home),
-        failure: (_) => context.go(Routes.home),
+        success: (_) => context.go(widget.next ?? Routes.home),
+        failure: (_) => context.go(widget.next ?? Routes.home),
       );
 
   @override

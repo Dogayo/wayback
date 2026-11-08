@@ -1,7 +1,9 @@
 import 'package:wayback/core/utils/geo/coordinates_parser.dart';
+import 'package:wayback/core/utils/geo/geo_format.dart';
 import 'package:wayback/core/utils/geo/geo_point.dart';
 import 'package:wayback/features/points/domain/entities/point_naming.dart';
 import 'package:wayback/features/points/domain/entities/point_type.dart';
+import 'package:wayback/features/points/domain/entities/saved_point.dart';
 
 /// What can be told about a point from text, before the user accepts it.
 final class PointDraft {
@@ -17,6 +19,33 @@ final class PointDraft {
   final String? name;
   final PointType? type;
 }
+
+/// A link any Wayback can open. It carries only what the other person needs:
+/// no id, date or activity of this phone's copy.
+String pointShareLink(SavedPoint point) => Uri(
+  scheme: 'wayback',
+  host: 'app',
+  path: 'import',
+  queryParameters: {
+    'v': _linkVersion,
+    'lat': point.position.latitude.toStringAsFixed(_linkDecimals),
+    'lon': point.position.longitude.toStringAsFixed(_linkDecimals),
+    't': point.type.name,
+    'n': point.name,
+  },
+).toString();
+
+/// A message that reads well anywhere: the name and coordinates work for a
+/// person and any map, the link for Wayback.
+String pointShareText(SavedPoint point) =>
+    '${point.name}\n'
+    '${formatCoordinates(point.position)}\n'
+    '${pointShareLink(point)}';
+
+const _linkVersion = '1';
+
+/// About 1 m on the ground.
+const _linkDecimals = 5;
 
 final _link = RegExp(r'wayback://app/import\?\S+', caseSensitive: false);
 
