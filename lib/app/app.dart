@@ -6,12 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/app_router.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/app/theme/app_theme.dart';
+import 'package:wayback/features/points/domain/entities/saved_point.dart';
+import 'package:wayback/features/points/domain/repositories/points_repository.dart';
+import 'package:wayback/features/points/view/bloc/restore_point_bloc.dart';
 import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
 import 'package:wayback/features/settings/view/bloc/settings_bloc.dart';
+import 'package:wayback_design_system/wayback_design_system.dart';
 
 class App extends StatefulWidget {
   const App({super.key, this.router});
@@ -64,10 +69,17 @@ class _AppState extends State<App> {
   /// Settings apply app-wide: [SettingsBloc] sits above every route, and
   /// [SettingsScope] hands the current values to screens.
   @override
-  Widget build(BuildContext context) => BlocProvider(
-    lazy: false,
-    create: (context) =>
-        SettingsBloc(context.di<SettingsRepository>())..fetch(),
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        lazy: false,
+        create: (context) =>
+            SettingsBloc(context.di<SettingsRepository>())..fetch(),
+      ),
+      BlocProvider(
+        create: (context) => RestorePointBloc(context.di<PointsRepository>()),
+      ),
+    ],
     child: BlocBuilder<SettingsBloc, DataState<AppSettings>>(
       builder: (context, state) {
         final settings = state.dataOrNull ?? AppSettings.defaults;
@@ -81,6 +93,16 @@ class _AppState extends State<App> {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             routerConfig: _router,
+            builder: (context, child) =>
+                BlocListener<RestorePointBloc, ActionState<SavedPoint>>(
+                  listener: (context, state) => state.mapOrNull(
+                    failure: (s) => WbSnackbar.show(
+                      context,
+                      context.l10n.error(s.failure.code).title,
+                    ),
+                  ),
+                  child: child,
+                ),
           ),
         );
       },

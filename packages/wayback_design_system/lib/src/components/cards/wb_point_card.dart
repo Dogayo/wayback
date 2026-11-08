@@ -58,6 +58,7 @@ class WbPointCard extends StatelessWidget {
     required this.typeIcon,
     this.direction,
     this.onTap,
+    this.onLongPress,
     super.key,
   });
   final String title;
@@ -65,6 +66,7 @@ class WbPointCard extends StatelessWidget {
   final IconData typeIcon;
   final Widget? direction;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) => MergeSemantics(
@@ -73,6 +75,7 @@ class WbPointCard extends StatelessWidget {
       label: '$title, $distance',
       child: _PointCardFrame(
         onTap: onTap,
+        onLongPress: onLongPress,
         dial: direction ?? WbPointDirection(icon: typeIcon),
         body: ExcludeSemantics(
           child: Column(
@@ -137,12 +140,14 @@ class _PointCardFrame extends StatelessWidget {
     this.dialFilled = true,
     this.trailing,
     this.onTap,
+    this.onLongPress,
   });
   final Widget body;
   final Widget? dial;
   final bool dialFilled;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) => Material(
@@ -154,6 +159,7 @@ class _PointCardFrame extends StatelessWidget {
     clipBehavior: Clip.antiAlias,
     child: InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Padding(
         padding: const EdgeInsets.all(WbSpacing.md),
         child: Row(

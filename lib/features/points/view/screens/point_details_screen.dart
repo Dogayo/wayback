@@ -11,6 +11,7 @@ import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
 import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
+import 'package:wayback/features/points/view/widgets/point_actions.dart';
 import 'package:wayback/features/points/view/widgets/point_details_view.dart';
 import 'package:wayback/features/points/view/widgets/points_error_view.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
@@ -38,15 +39,10 @@ class PointDetailsScreen extends StatelessWidget {
     );
     return MultiBlocListener(
       listeners: [
-        BlocListener<DeletePointBloc, ActionState<void>>(
+        BlocListener<DeletePointBloc, ActionState<SavedPoint>>(
           listener: (context, deleted) => deleted.mapOrNull(
-            success: (_) {
-              WbSnackbar.show(
-                context,
-                l10n.pointDeletedSnackbar(
-                  state.dataOrNull?.point.name ?? l10n.pointDetailsTitle,
-                ),
-              );
+            success: (s) {
+              PointActions.showDeleted(context, s.result);
               context.go(Routes.pointsList);
             },
             failure: (s) => _showFailure(context, s.failure),

@@ -90,7 +90,7 @@
   "pointCreateLocating": "Getting your location…",
   "pointCreateTitle": "New place",
   "pointDefaultNameNumbered": "{type} {number}",
-  "pointDeleteBody": "It will disappear from your list and home screen. This can't be undone.",
+  "pointDeleteBody": "It will disappear from your list and home screen.",
   "pointDeleteTitle": "Delete “{name}”?",
   "pointDeletedSnackbar": "“{name}” deleted",
   "pointDetailsTitle": "Place",
@@ -137,5 +137,13 @@
   "timeHoursAgo": "{n} h ago",
   "timeJustNow": "just now",
   "timeMinutesAgo": "{n} min ago",
-  "timeYesterday": "yesterday"
+  "timeYesterday": "yesterday",
+  "actionUndo": "Undo",
+  "pointActionDetails": "Details",
+  "pointActionDeactivate": "Make inactive",
+  "pointActionActivate": "Make active",
+  "pointSwipeDeactivate": "Turn off",
+  "pointSwipeActivate": "Turn on",
+  "pointDeactivatedSnackbar": "“{name}” removed from Home",
+  "pointNameRequired": "Enter a name"
 }

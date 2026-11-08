@@ -11,6 +11,7 @@ import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/utils/geo/geo_format.dart';
 import 'package:wayback/features/location/domain/entities/location_fix.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
+import 'package:wayback/features/points/domain/entities/point_naming.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/open_fix_settings_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_fix_bloc.dart';
@@ -113,6 +114,7 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
               controller: _name,
               label: l10n.pointNameLabel,
               helper: l10n.pointNameHelper,
+              maxLength: pointNameMaxLength,
               onChanged: (name) =>
                   context.read<PointFormBloc>().add(PointFormNameEdited(name)),
             ),

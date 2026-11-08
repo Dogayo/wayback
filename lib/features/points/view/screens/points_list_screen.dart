@@ -10,6 +10,7 @@ import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/points/view/bloc/points_list_bloc.dart';
 import 'package:wayback/features/points/view/point_type_view.dart';
 import 'package:wayback/features/points/view/widgets/bottom_action_bar.dart';
+import 'package:wayback/features/points/view/widgets/point_actions.dart';
 import 'package:wayback/features/points/view/widgets/points_error_view.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
@@ -22,43 +23,45 @@ class PointsListScreen extends StatelessWidget {
     final l10n = context.l10n;
     final state = context.watch<PointsListBloc>().state;
     final points = state.dataOrNull;
-    return Scaffold(
-      appBar: WbAppBar(
-        title: l10n.pointsListTitle,
-        onBack: context.back,
-        actions: [
-          WbIconButton(
-            icon: Icons.add,
-            label: l10n.pointsAddTooltip,
-            onPressed: () => context.push(Routes.pointCreate),
-          ),
-        ],
-      ),
-      body: WbStateSwitcher(
-        child: state.map(
-          initial: (_) => const _Loading(),
-          loading: (s) => switch (s.previous) {
-            final points? => _PointsList(points),
-            null => const _Loading(),
-          },
-          success: (s) => _PointsList(s.data),
-          failure: (s) => PointsErrorView(
-            failure: s.failure,
-            actionLabel: l10n.actionRetry,
-            onAction: context.read<PointsListBloc>().fetch,
+    return PointActionsListener(
+      child: Scaffold(
+        appBar: WbAppBar(
+          title: l10n.pointsListTitle,
+          onBack: context.back,
+          actions: [
+            WbIconButton(
+              icon: Icons.add,
+              label: l10n.pointsAddTooltip,
+              onPressed: () => context.push(Routes.pointCreate),
+            ),
+          ],
+        ),
+        body: WbStateSwitcher(
+          child: state.map(
+            initial: (_) => const _Loading(),
+            loading: (s) => switch (s.previous) {
+              final points? => _PointsList(points),
+              null => const _Loading(),
+            },
+            success: (s) => _PointsList(s.data),
+            failure: (s) => PointsErrorView(
+              failure: s.failure,
+              actionLabel: l10n.actionRetry,
+              onAction: context.read<PointsListBloc>().fetch,
+            ),
           ),
         ),
+        bottomNavigationBar: points != null && points.isEmpty
+            ? BottomActionBar(
+                children: [
+                  WbButton(
+                    label: l10n.homeSaveLocation,
+                    onPressed: () => context.push(Routes.pointCreate),
+                  ),
+                ],
+              )
+            : null,
       ),
-      bottomNavigationBar: points != null && points.isEmpty
-          ? BottomActionBar(
-              children: [
-                WbButton(
-                  label: l10n.homeSaveLocation,
-                  onPressed: () => context.push(Routes.pointCreate),
-                ),
-              ],
-            )
-          : null,
     );
   }
 }
@@ -89,37 +92,58 @@ class _PointsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    if (points.isEmpty) {
-      return Center(
-        child: WbEmptyState(
-          icon: Icons.add_location_alt_outlined,
-          title: l10n.pointsEmptyTitle,
-          message: l10n.pointsEmptyBody,
-        ),
-      );
-    }
     final now = DateTime.now();
-    return ListView.builder(
-      itemCount: points.length,
-      itemBuilder: (context, index) {
-        final (:point, :distanceMeters) = points[index];
-        return WbListItem(
-          title: point.name,
-          subtitle: l10n.pointsListSubtitle(
-            l10n.distanceOrUnknown(
-              distanceMeters,
-              units: context.settings.units,
+    return WbStateSwitcher(
+      state: points.isEmpty,
+      child: points.isEmpty
+          ? Center(
+              child: WbEmptyState(
+                icon: Icons.add_location_alt_outlined,
+                title: l10n.pointsEmptyTitle,
+                message: l10n.pointsEmptyBody,
+              ),
+            )
+          : ListView(
+              children: [
+                WbAnimatedItems<PointDistance>(
+                  items: points,
+                  keyOf: (item) => item.point.id,
+                  itemBuilder: (context, item, isLast) {
+                    final (:point, :distanceMeters) = item;
+                    return WbSwipeActions(
+                      actions: PointActions.swipe(context, point),
+                      child: WbListItem(
+                        title: point.name,
+                        subtitle: l10n.pointsListSubtitle(
+                          l10n.distanceOrUnknown(
+                            distanceMeters,
+                            units: context.settings.units,
+                          ),
+                          l10n.savedWhen(point.createdAt, now: now),
+                        ),
+                        leading: Icon(point.type.design.icon),
+                        trailing: WbStateSwitcher(
+                          state: point.isActive,
+                          duration: WbMotion.fast,
+                          animateSize: true,
+                          child: point.isActive
+                              ? WbBadge(
+                                  label: l10n.pointActiveLabel,
+                                  tone: WbTone.positive,
+                                )
+                              : const Icon(Icons.chevron_right),
+                        ),
+                        showDivider: !isLast,
+                        onTap: () =>
+                            context.push(Routes.pointDetails(point.id)),
+                        onLongPress: () =>
+                            PointActions.openSheet(context, item),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-            l10n.savedWhen(point.createdAt, now: now),
-          ),
-          leading: Icon(point.type.design.icon),
-          trailing: point.isActive
-              ? WbBadge(label: l10n.pointActiveLabel, tone: WbTone.positive)
-              : const Icon(Icons.chevron_right),
-          showDivider: index < points.length - 1,
-          onTap: () => context.push(Routes.pointDetails(point.id)),
-        );
-      },
     );
   }
 }

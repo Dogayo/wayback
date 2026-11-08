@@ -8,6 +8,7 @@ import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
 import 'package:wayback/features/points/view/point_type_view.dart';
 import 'package:wayback/features/points/view/widgets/bottom_action_bar.dart';
+import 'package:wayback/features/points/view/widgets/point_actions.dart';
 import 'package:wayback/features/points/view/widgets/points_error_view.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
@@ -29,58 +30,60 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: WbAppBar(
-        title: l10n.homeTitle,
-        actions: [
-          WbIconButton(
-            icon: Icons.settings_outlined,
-            label: l10n.homeSettingsTooltip,
-            onPressed: () => context.push(Routes.settings),
-          ),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (gpsStatus case final status?)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                WbSpacing.screenPadding,
-                WbSpacing.xs,
-                WbSpacing.screenPadding,
-                0,
-              ),
-              child: status,
+    return PointActionsListener(
+      child: Scaffold(
+        appBar: WbAppBar(
+          title: l10n.homeTitle,
+          actions: [
+            WbIconButton(
+              icon: Icons.settings_outlined,
+              label: l10n.homeSettingsTooltip,
+              onPressed: () => context.push(Routes.settings),
             ),
-          Expanded(
-            child: BlocBuilder<HomeBloc, DataState<HomePoints>>(
-              builder: (context, state) => WbStateSwitcher(
-                child: state.map(
-                  initial: (_) => const _Loading(),
-                  loading: (s) => switch (s.previous) {
-                    final points? => _HomeContent(points, direction),
-                    null => const _Loading(),
-                  },
-                  success: (s) => _HomeContent(s.data, direction),
-                  failure: (s) => PointsErrorView(
-                    failure: s.failure,
-                    actionLabel: l10n.actionRetry,
-                    onAction: context.read<HomeBloc>().fetch,
+          ],
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (gpsStatus case final status?)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  WbSpacing.screenPadding,
+                  WbSpacing.xs,
+                  WbSpacing.screenPadding,
+                  0,
+                ),
+                child: status,
+              ),
+            Expanded(
+              child: BlocBuilder<HomeBloc, DataState<HomePoints>>(
+                builder: (context, state) => WbStateSwitcher(
+                  child: state.map(
+                    initial: (_) => const _Loading(),
+                    loading: (s) => switch (s.previous) {
+                      final points? => _HomeContent(points, direction),
+                      null => const _Loading(),
+                    },
+                    success: (s) => _HomeContent(s.data, direction),
+                    failure: (s) => PointsErrorView(
+                      failure: s.failure,
+                      actionLabel: l10n.actionRetry,
+                      onAction: context.read<HomeBloc>().fetch,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: BottomActionBar(
-        children: [
-          WbButton(
-            label: l10n.homeSaveLocation,
-            onPressed: () => context.push(Routes.pointCreate),
-          ),
-        ],
+          ],
+        ),
+        bottomNavigationBar: BottomActionBar(
+          children: [
+            WbButton(
+              label: l10n.homeSaveLocation,
+              onPressed: () => context.push(Routes.pointCreate),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -142,19 +145,27 @@ class _ActivePoints extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(WbSpacing.screenPadding),
       children: [
-        for (final (:point, :distanceMeters) in points) ...[
-          WbPointCard(
-            title: point.name,
-            distance: l10n.distanceOrUnknown(
-              distanceMeters,
-              units: context.settings.units,
-            ),
-            typeIcon: point.type.design.icon,
-            direction: direction?.call(point.id, point.type.design.icon),
-            onTap: () => context.push(Routes.navigate(point.id)),
-          ),
-          const SizedBox(height: WbSpacing.sm),
-        ],
+        WbAnimatedItems<PointDistance>(
+          items: points,
+          keyOf: (item) => item.point.id,
+          itemBuilder: (context, item, _) {
+            final (:point, :distanceMeters) = item;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: WbSpacing.sm),
+              child: WbPointCard(
+                title: point.name,
+                distance: l10n.distanceOrUnknown(
+                  distanceMeters,
+                  units: context.settings.units,
+                ),
+                typeIcon: point.type.design.icon,
+                direction: direction?.call(point.id, point.type.design.icon),
+                onTap: () => context.push(Routes.navigate(point.id)),
+                onLongPress: () => PointActions.openSheet(context, item),
+              ),
+            );
+          },
+        ),
         Align(
           alignment: Alignment.centerLeft,
           child: WbButton(

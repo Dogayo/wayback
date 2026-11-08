@@ -77,6 +77,16 @@ final class PointsRepositoryImpl
     await _save([...points]..remove(target));
   });
 
+  @override
+  Future<Result<SavedPoint>> restore(SavedPoint point) => handle(() async {
+    await _save([
+      for (final other in await _models())
+        if (other.id != point.id) other,
+      point.toModel(),
+    ]);
+    return point;
+  });
+
   Stream<List<SavedPoint>> _watch() async* {
     yield _entities(await _models());
     yield* _changes.stream;
