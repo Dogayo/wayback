@@ -28,6 +28,7 @@ Future<FakePointsRepository> _pump(WidgetTester tester, String id) async {
       ],
       child: const PointDetailsScreen(),
     ),
+    points: points,
   );
   await settle(tester);
   return points;
@@ -58,6 +59,23 @@ void main() {
     expect(points.points, isEmpty);
     expect(find.text('route /points'), findsOneWidget);
     expect(find.text('Точка «Машина» удалена'), findsOneWidget);
+    await expireUndo(tester);
+  });
+
+  testWidgets('undo after leaving for the list brings the point back', (
+    tester,
+  ) async {
+    final points = await _pump(tester, 'a');
+    await tester.tap(find.text('Удалить'));
+    await settle(tester);
+    await tester.tap(find.text('Удалить').last);
+    await settle(tester);
+
+    await tester.tap(find.text('Вернуть'));
+    await settle(tester);
+
+    expect(points.points.single.name, 'Машина');
+    expect(find.text('Вернуть'), findsNothing);
   });
 
   testWidgets('a missing point offers the way back', (tester) async {

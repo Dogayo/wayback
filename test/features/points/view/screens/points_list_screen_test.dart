@@ -1,7 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/core/error/failures.dart';
+import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/points_list_bloc.dart';
+import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
 
 import '../../../location/fake_location_repository.dart';
@@ -11,10 +14,19 @@ import 'screen_host.dart';
 Future<void> _pump(WidgetTester tester, FakePointsRepository points) async {
   await pumpScreen(
     tester,
-    BlocProvider(
-      create: (_) => PointsListBloc(points, FakeLocationRepository())..fetch(),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              PointsListBloc(points, FakeLocationRepository())..fetch(),
+        ),
+        BlocProvider(create: (_) => RenamePointBloc(points)),
+        BlocProvider(create: (_) => SetPointActiveBloc(points)),
+        BlocProvider(create: (_) => DeletePointBloc(points)),
+      ],
       child: const PointsListScreen(),
     ),
+    points: points,
   );
   await settle(tester);
 }
@@ -57,5 +69,75 @@ void main() {
 
     expect(find.text('Не удалось загрузить точки'), findsOneWidget);
     expect(find.text('Повторить'), findsOneWidget);
+  });
+
+  group('swipe', () {
+    Future<void> swipe(WidgetTester tester, String row) async {
+      await tester.drag(find.text(row), const Offset(-300, 0));
+      await settle(tester);
+    }
+
+    testWidgets('shows the actions and changes nothing by itself', (
+      tester,
+    ) async {
+      final points = FakePointsRepository([savedPoint('a', name: 'Машина')]);
+      await _pump(tester, points);
+
+      await swipe(tester, 'Машина');
+
+      expect(find.text('Отключить'), findsOneWidget);
+      expect(find.text('Переименовать'), findsOneWidget);
+      expect(find.text('Удалить'), findsOneWidget);
+      expect(points.points.single.isActive, isTrue);
+    });
+
+    testWidgets('an inactive point offers to turn it on', (tester) async {
+      final points = FakePointsRepository([
+        savedPoint('a', name: 'Машина', active: false),
+      ]);
+      await _pump(tester, points);
+      await swipe(tester, 'Машина');
+
+      await tester.tap(find.text('Включить'));
+      await settle(tester);
+
+      expect(points.points.single.isActive, isTrue);
+      expect(find.text('Вернуть'), findsNothing);
+    });
+
+    testWidgets('delete confirms, removes the row and can be undone', (
+      tester,
+    ) async {
+      final points = FakePointsRepository([
+        savedPoint('a', name: 'Машина'),
+        savedPoint('b', name: 'Лагерь'),
+      ]);
+      await _pump(tester, points);
+      await swipe(tester, 'Машина');
+
+      await tester.tap(find.text('Удалить'));
+      await settle(tester);
+      await tester.tap(find.text('Удалить').last);
+      await settle(tester);
+
+      expect(find.text('Машина'), findsNothing);
+      expect(find.text('Точка «Машина» удалена'), findsOneWidget);
+
+      await tester.tap(find.text('Вернуть'));
+      await settle(tester);
+      expect(find.text('Машина'), findsOneWidget);
+    });
+
+    testWidgets('a long press offers the same actions', (tester) async {
+      await _pump(
+        tester,
+        FakePointsRepository([savedPoint('a', name: 'Машина', active: false)]),
+      );
+
+      await tester.longPress(find.text('Машина'));
+      await settle(tester);
+
+      expect(find.text('Сделать активной'), findsOneWidget);
+    });
   });
 }

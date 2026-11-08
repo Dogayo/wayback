@@ -14,6 +14,7 @@ class WbListItem extends StatelessWidget {
     this.selected = false,
     this.showDivider = false,
     this.onTap,
+    this.onLongPress,
     super.key,
   });
   final String title;
@@ -23,6 +24,7 @@ class WbListItem extends StatelessWidget {
   final bool selected;
   final bool showDivider;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -32,6 +34,7 @@ class WbListItem extends StatelessWidget {
         button: onTap != null,
         child: InkWell(
           onTap: onTap,
+          onLongPress: onLongPress,
           borderRadius: WbRadius.medium,
           child: AnimatedContainer(
             duration: WbMotion.of(context, WbMotion.fast),

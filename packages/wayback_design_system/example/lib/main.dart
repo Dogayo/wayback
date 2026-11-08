@@ -1173,10 +1173,12 @@ class _MotionSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const _Section(
     title: 'Motion',
-    components: 'WbPage · WbStateSwitcher · Button loading',
+    components:
+        'WbPage · WbStateSwitcher · WbSwipeActions · WbActionSheet · WbUndoSnackbar',
     children: [
       _Specimen(title: 'Переходы экранов', child: _TransitionsDemo()),
       _Specimen(title: 'Смена состояний', child: _StatesDemo()),
+      _Specimen(title: 'Действия над точкой', child: _PointActionsDemo()),
     ],
   );
 }
@@ -1303,5 +1305,73 @@ class _StatesDemoState extends State<_StatesDemo> {
       ),
       WbButton(label: 'Сохранить', loading: _saving, onPressed: _save),
     ],
+  );
+}
+
+class _PointActionsDemo extends StatefulWidget {
+  const _PointActionsDemo();
+
+  @override
+  State<_PointActionsDemo> createState() => _PointActionsDemoState();
+}
+
+class _PointActionsDemoState extends State<_PointActionsDemo> {
+  final _points = ['Машина', 'Лагерь', 'Рыбалка'];
+
+  void _delete(String point) {
+    final index = _points.indexOf(point);
+    setState(() => _points.remove(point));
+    WbUndoSnackbar.show(
+      context,
+      message: 'Точка «$point» удалена',
+      actionLabel: 'Вернуть',
+      onUndo: () => setState(() => _points.insert(index, point)),
+    );
+  }
+
+  void _openSheet(String point) => WbActionSheet.show(
+    context,
+    title: point,
+    subtitle: '640 м',
+    icon: Icons.place_outlined,
+    actions: [
+      WbSheetAction(
+        icon: Icons.edit_outlined,
+        label: 'Переименовать',
+        onSelected: _CatalogState._noop,
+      ),
+      WbSheetAction(
+        icon: Icons.delete_outline,
+        label: 'Удалить',
+        destructive: true,
+        onSelected: () => _delete(point),
+      ),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) => WbAnimatedItems<String>(
+    items: _points,
+    keyOf: (point) => point,
+    itemBuilder: (context, point, isLast) => WbSwipeActions(
+      actions: [
+        WbSwipeAction(
+          icon: Icons.edit_outlined,
+          label: 'Переименовать',
+          onPressed: _CatalogState._noop,
+        ),
+        WbSwipeAction(
+          icon: Icons.delete_outline,
+          label: 'Удалить',
+          destructive: true,
+          onPressed: () => _delete(point),
+        ),
+      ],
+      child: WbListItem(
+        title: point,
+        showDivider: !isLast,
+        onLongPress: () => _openSheet(point),
+      ),
+    ),
   );
 }

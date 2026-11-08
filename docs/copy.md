@@ -37,6 +37,7 @@
 | `actionRetry` | Повторить | Try again | под Alert ошибки |
 | `actionDelete` | Удалить | Delete | |
 | `actionRename` | Переименовать | Rename | |
+| `actionUndo` | Вернуть | Undo | снекбар с отсчётом |
 | `actionAllow` | Разрешить | Allow | запрос разрешения |
 | `actionOpenSettings` | Открыть настройки | Open settings | системные настройки телефона |
 | `actionEnablePreciseLocation` | Включить точную геолокацию | Turn on precise location | системный диалог, затем настройки приложения |
@@ -64,6 +65,7 @@
 | `pointCreateLocating` | Определяем местоположение… | Getting your location… | loading, Save недоступен |
 | `pointNameLabel` | Название | Name | |
 | `pointNameHelper` | Можно оставить как есть | Optional | под полем, дефолт уже подставлен (§7) |
+| `pointNameRequired` | Введите название | Enter a name | ошибка в диалоге переименования; название до 40 символов |
 | `pointTypeLabel` | Иконка | Icon | заголовок пикера 4×2 |
 | `pointCoordinatesLabel` | Координаты | Coordinates | превью координат; та же подпись в карточке деталей |
 | `pointAccuracy` | Точность {accuracy} | Accuracy {accuracy} | `{accuracy}` = `±8 м`, §9 |
@@ -102,8 +104,14 @@
 | `pointNavigate` | Вести к точке | Navigate | Primary |
 | `pointRenameTitle` | Название точки | Place name | диалог переименования |
 | `pointDeleteTitle` | Удалить «{name}»? | Delete “{name}”? | диалог подтверждения |
-| `pointDeleteBody` | Точка пропадёт из списка и с главного экрана. Вернуть её не получится. | It will disappear from your list and home screen. This can't be undone. | названное последствие |
+| `pointDeleteBody` | Точка пропадёт из списка и с главного экрана. | It will disappear from your list and home screen. | названное последствие; вернуть можно из снекбара |
 | `pointDeletedSnackbar` | Точка «{name}» удалена | “{name}” deleted | |
+| `pointDeactivatedSnackbar` | «{name}» убрана с главного | “{name}” removed from Home | снекбар с отсчётом и `actionUndo` |
+| `pointActionDetails` | Подробнее | Details | шторка действий |
+| `pointActionDeactivate` | Сделать неактивной | Make inactive | шторка действий |
+| `pointActionActivate` | Сделать активной | Make active | шторка действий |
+| `pointSwipeDeactivate` | Отключить | Turn off | кнопка панели свайпа, 88 dp |
+| `pointSwipeActivate` | Включить | Turn on | кнопка панели свайпа, 88 dp |
 | `pointBackToList` | К списку точек | Back to places | под ошибкой `points_not_found` |
 
 ## 7. Типы точек и имя по умолчанию

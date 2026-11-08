@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/utils/geo/geo_point.dart';
 import 'package:wayback/features/points/domain/entities/point_type.dart';
+import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/save_point_bloc.dart';
@@ -61,9 +62,9 @@ void main() {
     await _settle();
     expect(points.points.single.isActive, isFalse);
 
-    delete.run('a');
+    delete.run(savedPoint('a'));
     await _settle();
     expect(points.points, isEmpty);
-    expect(delete.state, isA<ActionSuccess<void>>());
+    expect(delete.state, isA<ActionSuccess<SavedPoint>>());
   });
 }

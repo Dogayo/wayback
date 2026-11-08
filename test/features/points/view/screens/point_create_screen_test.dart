@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/core/error/failures.dart';
@@ -87,6 +88,17 @@ void main() {
     expect(points.points.single.name, 'Машина');
     expect(find.text('Точка «Машина» сохранена'), findsOneWidget);
     expect(find.text('route /'), findsOneWidget);
+  });
+
+  testWidgets('a name stops at 40 characters', (tester) async {
+    await _pump(tester);
+
+    await tester.enterText(find.byType(EditableText), 'x' * 50);
+    await settle(tester);
+
+    expect(find.text('40/40'), findsOneWidget);
+    await tester.tap(find.text('Сохранить'));
+    await settle(tester);
   });
 
   testWidgets('approximate access: no Save until precise is on', (

@@ -193,7 +193,7 @@
       }
     }
   },
-  "pointDeleteBody": "Точка пропадёт из списка и с главного экрана. Вернуть её не получится.",
+  "pointDeleteBody": "Точка пропадёт из списка и с главного экрана.",
   "pointDeleteTitle": "Удалить «{name}»?",
   "@pointDeleteTitle": {
     "placeholders": {
@@ -299,5 +299,20 @@
       }
     }
   },
-  "timeYesterday": "вчера"
+  "timeYesterday": "вчера",
+  "actionUndo": "Вернуть",
+  "pointActionDetails": "Подробнее",
+  "pointActionDeactivate": "Сделать неактивной",
+  "pointActionActivate": "Сделать активной",
+  "pointSwipeDeactivate": "Отключить",
+  "pointSwipeActivate": "Включить",
+  "pointDeactivatedSnackbar": "«{name}» убрана с главного",
+  "@pointDeactivatedSnackbar": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pointNameRequired": "Введите название"
 }

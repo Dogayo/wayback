@@ -9,7 +9,10 @@ import 'package:wayback/core/result/result.dart';
 import 'package:wayback/features/navigation/view/bloc/point_directions_bloc.dart';
 import 'package:wayback/features/navigation/view/widgets/point_direction.dart';
 import 'package:wayback/features/navigation/view/widgets/point_directions_gate.dart';
+import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
+import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
@@ -33,6 +36,9 @@ Future<_Home> _pump(WidgetTester tester) async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => HomeBloc(points, location)..fetch()),
+        BlocProvider(create: (_) => RenamePointBloc(points)),
+        BlocProvider(create: (_) => SetPointActiveBloc(points)),
+        BlocProvider(create: (_) => DeletePointBloc(points)),
         BlocProvider(
           create: (_) => PointDirectionsBloc(points, location, compass),
         ),

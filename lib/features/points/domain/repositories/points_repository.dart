@@ -30,4 +30,8 @@ abstract interface class PointsRepository {
   Future<Result<SavedPoint>> setActive(String id, {required bool active});
 
   Future<Result<void>> delete(String id);
+
+  /// Puts [point] back exactly as it was, with its id and date: after a
+  /// delete, or over a later change to the same point.
+  Future<Result<SavedPoint>> restore(SavedPoint point);
 }

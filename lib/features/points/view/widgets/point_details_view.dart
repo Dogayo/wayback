@@ -7,11 +7,10 @@ import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/core/utils/geo/geo_format.dart';
-import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/point_type_view.dart';
+import 'package:wayback/features/points/view/widgets/point_actions.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// What the details screen shows for a loaded point: type, name and
@@ -20,34 +19,6 @@ class PointDetailsView extends StatelessWidget {
   const PointDetailsView(this.item, {super.key});
 
   final PointDistance item;
-
-  Future<void> _rename(BuildContext context) async {
-    final l10n = context.l10n;
-    final rename = context.read<RenamePointBloc>();
-    final name = await WbDialogs.prompt(
-      context,
-      title: l10n.pointRenameTitle,
-      initialValue: item.point.name,
-      label: l10n.pointNameLabel,
-      confirmLabel: l10n.actionSave,
-      cancelLabel: l10n.actionCancel,
-    );
-    if (name != null) rename.run((id: item.point.id, name: name));
-  }
-
-  Future<void> _delete(BuildContext context) async {
-    final l10n = context.l10n;
-    final delete = context.read<DeletePointBloc>();
-    final confirmed = await WbDialogs.confirm(
-      context,
-      title: l10n.pointDeleteTitle(item.point.name),
-      message: l10n.pointDeleteBody,
-      confirmLabel: l10n.actionDelete,
-      cancelLabel: l10n.actionCancel,
-      destructive: true,
-    );
-    if (confirmed ?? false) delete.run(item.point.id);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,14 +92,14 @@ class PointDetailsView extends StatelessWidget {
               child: WbButton(
                 label: l10n.actionRename,
                 variant: WbButtonVariant.secondary,
-                onPressed: () => _rename(context),
+                onPressed: () => PointActions.rename(context, point),
               ),
             ),
             Expanded(
               child: WbButton(
                 label: l10n.actionDelete,
                 variant: WbButtonVariant.destructive,
-                onPressed: () => _delete(context),
+                onPressed: () => PointActions.delete(context, point),
               ),
             ),
           ],

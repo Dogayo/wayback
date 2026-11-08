@@ -82,6 +82,18 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
         (_, _) => MultiBlocProvider(
           providers: [
             BlocProvider(
+              create: (context) =>
+                  RenamePointBloc(context.di<PointsRepository>()),
+            ),
+            BlocProvider(
+              create: (context) =>
+                  SetPointActiveBloc(context.di<PointsRepository>()),
+            ),
+            BlocProvider(
+              create: (context) =>
+                  DeletePointBloc(context.di<PointsRepository>()),
+            ),
+            BlocProvider(
               lazy: false,
               create: (context) =>
                   LocationFixBloc(context.di<LocationRepository>())..fetch(),
@@ -155,11 +167,27 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
         GoRoute(
           path: 'points',
           pageBuilder: _page(
-            (_, _) => BlocProvider(
-              create: (context) => PointsListBloc(
-                context.di<PointsRepository>(),
-                context.di<LocationRepository>(),
-              )..fetch(),
+            (_, _) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => PointsListBloc(
+                    context.di<PointsRepository>(),
+                    context.di<LocationRepository>(),
+                  )..fetch(),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      RenamePointBloc(context.di<PointsRepository>()),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      SetPointActiveBloc(context.di<PointsRepository>()),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      DeletePointBloc(context.di<PointsRepository>()),
+                ),
+              ],
               child: const PointsListScreen(),
             ),
             WbTransition.drill,

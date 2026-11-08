@@ -1,3 +1,7 @@
+/// Longest name a point can be given; long enough for a real place, short
+/// enough for a list row and a dialog title.
+const pointNameMaxLength = 40;
+
 /// Default name for a new point: the type label, numbered when taken —
 /// "Машина", "Машина 2", "Машина 3" (docs/copy.md §7).
 ///

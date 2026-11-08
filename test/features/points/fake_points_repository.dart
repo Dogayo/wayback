@@ -110,4 +110,17 @@ final class FakePointsRepository implements PointsRepository {
     _publish();
     return const Result.success(null);
   }
+
+  @override
+  Future<Result<SavedPoint>> restore(SavedPoint point) async {
+    if (_failure<SavedPoint>() case final failure?) return failure;
+    final index = points.indexWhere((other) => other.id == point.id);
+    if (index == -1) {
+      points.add(point);
+    } else {
+      points[index] = point;
+    }
+    _publish();
+    return Result.success(point);
+  }
 }

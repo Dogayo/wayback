@@ -12,6 +12,7 @@ abstract final class WbMotion {
   static const Duration slowExit = Duration(milliseconds: 250);
   static const Duration compassSmoothing = Duration(milliseconds: 120);
   static const Duration shimmer = Duration(milliseconds: 1400);
+  static const Duration undoWindow = Duration(seconds: 5);
 
   static const Curve standard = Cubic(0.2, 0, 0, 1);
   static const Curve ios = Cubic(0.25, 0.1, 0.25, 1);
