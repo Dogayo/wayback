@@ -56,9 +56,11 @@ Future<GoRouter> pumpScreen(
 }
 
 /// Lets blocs settle without waiting for endless animations (skeletons,
-/// progress indicators) to stop.
+/// progress indicators) to stop, then lets the last state change finish
+/// its crossfade.
 Future<void> settle(WidgetTester tester) async {
   for (var i = 0; i < 5; i++) {
     await tester.pump(const Duration(milliseconds: 50));
   }
+  await tester.pump(WbMotion.slow);
 }

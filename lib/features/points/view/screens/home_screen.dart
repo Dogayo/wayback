@@ -55,17 +55,19 @@ class HomeScreen extends StatelessWidget {
             ),
           Expanded(
             child: BlocBuilder<HomeBloc, DataState<HomePoints>>(
-              builder: (context, state) => state.map(
-                initial: (_) => const _Loading(),
-                loading: (s) => switch (s.previous) {
-                  final points? => _HomeContent(points, direction),
-                  null => const _Loading(),
-                },
-                success: (s) => _HomeContent(s.data, direction),
-                failure: (s) => PointsErrorView(
-                  failure: s.failure,
-                  actionLabel: l10n.actionRetry,
-                  onAction: context.read<HomeBloc>().fetch,
+              builder: (context, state) => WbStateSwitcher(
+                child: state.map(
+                  initial: (_) => const _Loading(),
+                  loading: (s) => switch (s.previous) {
+                    final points? => _HomeContent(points, direction),
+                    null => const _Loading(),
+                  },
+                  success: (s) => _HomeContent(s.data, direction),
+                  failure: (s) => PointsErrorView(
+                    failure: s.failure,
+                    actionLabel: l10n.actionRetry,
+                    onAction: context.read<HomeBloc>().fetch,
+                  ),
                 ),
               ),
             ),
@@ -92,6 +94,14 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return WbStateSwitcher(
+      // Empty and no-active are both centred messages: tell them apart.
+      state: (points.hasNoPoints, points.hasNoActive),
+      child: _content(context),
+    );
+  }
+
+  Widget _content(BuildContext context) {
     final l10n = context.l10n;
     if (points.hasNoPoints) {
       return Center(

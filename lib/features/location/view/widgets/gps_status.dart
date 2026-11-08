@@ -70,15 +70,23 @@ class _GpsStatusState extends State<GpsStatus> {
       ),
     ],
     child: BlocBuilder<LocationFixBloc, DataState<LocationFix>>(
-      builder: (context, state) => state.map(
-        initial: (_) => const _Locating(),
-        loading: (s) => switch (s.previous) {
-          final fix? => _Accuracy(fix),
-          null => const _Locating(),
-        },
-        success: (s) => _Accuracy(s.data),
-        failure: (s) => _FailureView(s.failure),
-      ),
+      builder: (context, state) {
+        final child = state.map(
+          initial: (_) => const _Locating(),
+          loading: (s) => switch (s.previous) {
+            final fix? => _Accuracy(fix),
+            null => const _Locating(),
+          },
+          success: (s) => _Accuracy(s.data),
+          failure: (s) => _FailureView(s.failure),
+        );
+        return WbStateSwitcher(
+          // A weak signal adds a line: fade it in rather than jump.
+          state: (child.runtimeType, state.dataOrNull?.isWeakSignal),
+          animateSize: true,
+          child: child,
+        );
+      },
     ),
   );
 }

@@ -56,7 +56,7 @@ class NavigateScreen extends StatelessWidget {
                 final field = context.wbArrivalColors;
                 final arrived = _isArrived(state);
                 return AnimatedContainer(
-                  duration: WbMotion.slow,
+                  duration: WbMotion.of(context, WbMotion.slow),
                   curve: WbMotion.standard,
                   color: arrived
                       ? field.background
@@ -68,15 +68,21 @@ class NavigateScreen extends StatelessWidget {
                       onBack: context.back,
                       onField: arrived ? field.content : null,
                     ),
-                    body: AnimatedSwitcher(
-                      duration: WbMotion.base,
+                    // Arriving is a moment: the old view leaves first, in
+                    // step with the field changing colour.
+                    body: WbStateSwitcher(
+                      duration: arrived ? WbMotion.slow : WbMotion.base,
+                      fadeInStart: arrived
+                          ? WbStateSwitcher.fadeThroughStart
+                          : WbStateSwitcher.overlapStart,
+                      scaleFrom: WbStateSwitcher.growFrom,
                       child: state.map(
                         initial: (_) => const _Locating(),
                         loading: (s) => switch (s.previous) {
-                          final guidance? => _Guidance(guidance),
+                          final guidance? => _guidance(guidance),
                           null => const _Locating(),
                         },
-                        success: (s) => _Guidance(s.data),
+                        success: (s) => _guidance(s.data),
                         // A lost fix is shown as such, not as stale numbers.
                         failure: (s) => NavigationErrorView(
                           failure: s.failure,
@@ -96,16 +102,10 @@ class NavigateScreen extends StatelessWidget {
   }
 }
 
-class _Guidance extends StatelessWidget {
-  const _Guidance(this.guidance);
-
-  final NavigationGuidance guidance;
-
-  @override
-  Widget build(BuildContext context) => guidance.arrived
-      ? NavigationArrivedView(guidance)
-      : NavigationView(guidance);
-}
+/// Two different views, so arriving fades from one to the other.
+Widget _guidance(NavigationGuidance guidance) => guidance.arrived
+    ? NavigationArrivedView(guidance)
+    : NavigationView(guidance);
 
 class _Locating extends StatelessWidget {
   const _Locating();

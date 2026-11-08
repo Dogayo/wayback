@@ -40,6 +40,8 @@ Future<FakeLocationRepository> _pump(
     ),
   );
   await tester.pump();
+  // The first state fades in; taps land once it has.
+  await tester.pump(WbMotion.base);
   return repository;
 }
 
@@ -129,6 +131,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
     repository.fixes.add(Result.success(fixWithAccuracy(8)));
     await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump(WbMotion.base);
 
     expect(repository.preciseRequests, 1);
     expect(repository.opened, isEmpty);
