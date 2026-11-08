@@ -6,7 +6,7 @@ export 'src/components/cards/wb_content.dart';
 export 'src/components/feedback/wb_feedback.dart';
 export 'src/components/inputs/wb_inputs.dart';
 export 'src/components/navigation/wb_navigation.dart';
-export 'src/components/wayfinding/wb_compass_arrow.dart';
+export 'src/components/wayfinding/wb_direction_dial.dart';
 export 'src/components/wayfinding/wb_illustration.dart';
 export 'src/foundations/app_assets.dart';
 export 'src/foundations/app_colors.dart';

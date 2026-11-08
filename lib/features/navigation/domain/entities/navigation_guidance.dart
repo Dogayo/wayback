@@ -21,6 +21,7 @@ final class NavigationGuidance {
     required this.arrived,
     required this.compass,
     this.arrowDegrees,
+    this.compassAccuracyDegrees,
   });
 
   final SavedPoint point;
@@ -35,6 +36,12 @@ final class NavigationGuidance {
   /// `null` while there is no compass.
   final double? arrowDegrees;
 
+  /// How far the compass may be off, degrees; `null` when it does not say.
+  final double? compassAccuracyDegrees;
+
+  /// [arrowDegrees] wrapped into 0..359, for reading out loud.
+  int get arrowBearing => (arrowDegrees ?? 0).round() % 360;
+
   @override
   bool operator ==(Object other) =>
       other is NavigationGuidance &&
@@ -44,7 +51,8 @@ final class NavigationGuidance {
       other.weakSignal == weakSignal &&
       other.arrived == arrived &&
       other.compass == compass &&
-      other.arrowDegrees == arrowDegrees;
+      other.arrowDegrees == arrowDegrees &&
+      other.compassAccuracyDegrees == compassAccuracyDegrees;
 
   @override
   int get hashCode => Object.hash(
@@ -55,5 +63,6 @@ final class NavigationGuidance {
     arrived,
     compass,
     arrowDegrees,
+    compassAccuracyDegrees,
   );
 }

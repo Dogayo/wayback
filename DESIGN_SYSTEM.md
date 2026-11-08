@@ -53,7 +53,7 @@
 
 | Flutter `TextTheme` | Размер/интерлиньяж | Начертание | Применение |
 |---|---|---|---|
-| `displayLarge` | 56/64 | 700 | главный показатель расстояния («640 м») |
+| `displayLarge` | 88/96 | 700 | главный показатель расстояния («640 м»); единица измерения — `displaySmall` |
 | `displaySmall` | 34/40 | 700 | вторичные показатели расстояния/азимута |
 | `headlineSmall` | 24/30 | 700 | заголовок экрана (название точки) |
 | `titleLarge` | 20/26 | 600 | заголовки диалогов/шторок |
@@ -94,9 +94,11 @@ Material Symbols, Outlined, обводка 2dp — единый набор на 
 
 **Навигация**: верхний `AppBar` с адаптивной кнопкой «назад» (`AppBackButton`), нижняя навигация специфицирована, но не используется в MVP (всего 4 маршрута), вкладки/сегментированный переключатель `WbSegmentedTabs`: равные сегменты в плашке `segmentTrack` высотой 44 со скруглением `md`, выбранный — плашка `segmentSelected` 36 со скруглением `sm`, текст `labelMedium` 500 `contentPrimary`; тап принимает вся высота сегмента, при крупном шрифте подписи переносятся. В тёмной теме плашка светлее выбранного, поэтому у переключателя свои токены. `WbPageDots` — позиция в короткой последовательности экранов (онбординг): текущий шаг — пилюля 24×8 `brand600`, остальные — точки 8×8 `borderSubtle`, для скринридера — подпись «Шаг N из M».
 
+**Направление** (`wayfinding/wb_direction_dial.dart`): `WbDirectionDial(rotation, spread, tone, semanticLabel)` — диск `surfaceContainer` с гранёной стрелкой (`brand500` + `actionPrimaryBg`, как грани знака приложения) и лучом погрешности: `spread` — полуширина луча в градусах, 10–45, ширина и есть честный показ точности компаса; `tone: unreliable` красит стрелку и луч в янтарный. `WbDirectionSearching` — тот же диск с дугой, бегущей по краю, пока направления нет. `WbDirectionIcon(icon)` — диск с иконкой, когда направления не будет. `WbDirectionArrow` — маленькая одноцветная стрелка. `WbDistanceValue` — расстояние: число `displayLarge`, единица `displaySmall`. `WbArrivalMark` и `context.wbArrivalColors` — полноэкранное прибытие: насыщенный `positive` в светлой теме, приглушённый `positiveBg` в тёмной, чтобы не слепить ночью. `WbAppBar(onField:)` — бар поверх такого поля.
+
 **Иллюстрации**: `WbIllustration(kind)` — декоративная картинка в круге `surfaceContainer` для поясняющих экранов: `compassRose` (знак приложения), `trail` (точка, пунктир пути и стрелка назад), `location` (текущее местоположение с кольцами). Цвета — `brand500`/`brand600`/`contentDisabled`, скрыта от скринридера: смысл несёт текст рядом. Макеты — Penpot «03 · Screens», Onboarding / Step 1–3.
 
-**Обратная связь**: `AppDialog.confirm(...)` (платформо-адаптивный: `CupertinoAlertDialog` / Material `AlertDialog`), `BottomSheet` (грабер + скруглённые верхние углы, общая форма на обеих платформах), `Snackbar`, встроенный `Alert` (warning/negative/positive, всегда иконка + текст), `ProgressIndicator` (определённый/неопределённый), `Skeleton`.
+**Обратная связь**: `AppDialog.confirm(...)` (платформо-адаптивный: `CupertinoAlertDialog` / Material `AlertDialog`), `BottomSheet` (грабер + скруглённые верхние углы, общая форма на обеих платформах), `Snackbar`, встроенный `Alert` (warning/negative/positive, всегда иконка + текст), однострочный `WbAlertRow` («заголовок: текст») для экранов, которые читают на ходу: `WbAlertRow.slotHeight` резервирует место под две строки, чтобы контент ниже не прыгал, `ProgressIndicator` (определённый/неопределённый), `Skeleton`.
 
 Полная матрица состояний (компонент × default/pressed/focused/disabled/loading/error/selected) — в интерактивном плейграунде, раздел «Матрица состояний».
 

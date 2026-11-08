@@ -78,7 +78,7 @@ void main() {
     await settle(tester);
 
     expect(find.text('Машина'), findsOneWidget);
-    expect(find.byType(WbCompassArrow), findsOneWidget);
+    expect(find.byType(WbDirectionDial), findsOneWidget);
     expect(find.text('111 м'), findsOneWidget);
     expect(find.text('±5 м'), findsOneWidget);
   });
@@ -91,8 +91,8 @@ void main() {
     compass.readings.add(Result.success(heading(0, accuracy: 45)));
     await settle(tester);
 
-    expect(find.text('Компас неточен'), findsOneWidget);
-    expect(find.text('Слабый сигнал GPS'), findsOneWidget);
+    expect(find.textContaining('Компас неточен'), findsOneWidget);
+    expect(find.textContaining('Слабый GPS'), findsOneWidget);
   });
 
   Future<void> arrive(
@@ -106,6 +106,42 @@ void main() {
     location.fixes.add(Result.success(_fix(0.00005)));
     await settle(tester);
   }
+
+  testWidgets('the beam follows the compass accuracy', (tester) async {
+    final (location, compass) = await _pump(tester);
+    location.fixes.add(Result.success(_fix(0.001)));
+    compass.readings.add(Result.success(heading(0, accuracy: 12)));
+    await settle(tester);
+
+    final dial = tester.widget<WbDirectionDial>(find.byType(WbDirectionDial));
+    expect(dial.spread, 12);
+    expect(dial.tone, WbDirectionTone.ok);
+  });
+
+  testWidgets('warnings do not move the dial', (tester) async {
+    final (location, compass) = await _pump(tester);
+    location.fixes.add(Result.success(_fix(0.001)));
+    compass.readings.add(Result.success(heading(0)));
+    await settle(tester);
+    final before = tester.getTopLeft(find.byType(WbDirectionDial));
+
+    compass.readings.add(Result.success(heading(0, accuracy: 45)));
+    await settle(tester);
+
+    expect(find.byType(WbAlertRow), findsOneWidget);
+    expect(tester.getTopLeft(find.byType(WbDirectionDial)), before);
+  });
+
+  testWidgets('arrival replaces the dial and keeps a small arrow', (
+    tester,
+  ) async {
+    final (location, compass) = await _pump(tester);
+    await arrive(location, compass, tester);
+
+    expect(find.byType(WbArrivalMark), findsOneWidget);
+    expect(find.byType(WbDirectionArrow), findsOneWidget);
+    expect(find.byType(WbDirectionDial), findsNothing);
+  });
 
   testWidgets('arrival: text once and a single vibration', (tester) async {
     final vibration = FakeVibrationRepository();
@@ -255,7 +291,7 @@ void main() {
     await settle(tester);
 
     expect(find.text('Нужна точная геолокация'), findsOneWidget);
-    expect(find.byType(WbCompassArrow), findsNothing);
+    expect(find.byType(WbDirectionDial), findsNothing);
     expect(find.text('Вы на месте'), findsNothing);
 
     await tester.tap(find.text('Включить точную геолокацию'));
@@ -274,8 +310,8 @@ void main() {
     );
     await settle(tester);
 
-    expect(find.text('Компас недоступен'), findsOneWidget);
-    expect(find.byType(WbCompassArrow), findsNothing);
+    expect(find.textContaining('Компас недоступен'), findsOneWidget);
+    expect(find.byType(WbDirectionDial), findsNothing);
     expect(find.text('111 м'), findsOneWidget);
   });
 

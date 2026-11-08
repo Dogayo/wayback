@@ -58,10 +58,43 @@ class _NavigationErrorViewState extends State<NavigationErrorView> {
     return Padding(
       padding: const EdgeInsets.all(WbSpacing.screenPadding),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: WbSpacing.sm,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: WbSpacing.md,
         children: [
-          WbAlert(title: text.title, message: text.body, tone: WbTone.negative),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) => FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(
+                  width: constraints.maxWidth,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: WbSpacing.md,
+                    children: [
+                      const WbDirectionIcon(Icons.location_off_outlined),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: WbSpacing.md,
+                        ),
+                        child: Text(
+                          text.title,
+                          textAlign: TextAlign.center,
+                          style: context.wbText.headlineSmall,
+                        ),
+                      ),
+                      Text(
+                        text.body,
+                        textAlign: TextAlign.center,
+                        style: context.wbText.bodyLarge?.copyWith(
+                          color: context.wbColors.contentSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
           WbButton(
             label: _precise
                 ? l10n.actionEnablePreciseLocation

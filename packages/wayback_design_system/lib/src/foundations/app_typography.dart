@@ -7,11 +7,11 @@ abstract final class WbTypography {
 
   static TextTheme textTheme(Color color) => TextTheme(
     displayLarge: _style(
-      56,
-      64,
+      88,
+      96,
       FontWeight.w700,
       color,
-      letterSpacing: -1.12,
+      letterSpacing: -1.76,
       numeric: true,
     ),
     displaySmall: _style(

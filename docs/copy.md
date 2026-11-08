@@ -130,11 +130,14 @@
 | --- | --- | --- | --- |
 | `navigateTitle` | Навигация | Navigate | запасной заголовок, обычно — имя точки |
 | `navigateLocating` | Ждём GPS и компас… | Waiting for GPS and compass… | loading до первого фикса и показания компаса |
-| `navigateArrived` | Вы на месте | You're here | цвет `positive`, поверх контента |
-| `navigateCompassCalibrationTitle` | Компас неточен | Compass is off | Alert warning, стрелка остаётся |
-| `navigateCompassCalibrationBody` | Поводите телефоном восьмёркой. | Move your phone in a figure eight. | пояснение к нему |
-| `navigateWeakSignalTitle` | Слабый сигнал GPS | Weak GPS signal | Alert warning на экране навигации |
-| `navigateWeakSignalBody` | Расстояние может быть неточным. | Distance may be off. | пояснение к нему |
+| `navigateArrived` | Вы на месте | You're here | заголовок полноэкранного прибытия |
+| `navigateCompassCalibrationTitle` | Компас неточен | Compass is off | `WbAlertRow` warning, стрелка остаётся |
+| `navigateCompassCalibrationBody` | поводите восьмёркой | move in a figure eight | продолжение строки после двоеточия |
+| `navigateWeakSignalTitle` | Слабый GPS | Weak GPS | `WbAlertRow` warning на экране навигации |
+| `navigateWeakSignalBody` | расстояние неточно | distance may be off | продолжение строки после двоеточия |
+| `navigateCompassDistanceOnly` | только расстояние | distance only | продолжение строки «Компас недоступен» |
+| `navigateDirection` | Направление на точку, {degrees} градусов | Direction to the point, {degrees} degrees | для скринридера |
+| `navigateDirectionApproximate` | Примерное направление на точку, {degrees} градусов | Approximate direction to the point, {degrees} degrees | для скринридера, компас неточен |
 | `navigateWeakSignal` | Слабый сигнал GPS — расстояние может быть неточным. | Weak GPS signal — distance may be off. | Alert warning, при плохой точности |
 | `navigateSemantics` | До «{name}» {distance} | {distance} to “{name}” | live region, озвучивается с троттлингом |
 | `navigateNotificationStop` | Стоп | Stop | кнопка на плашке фоновой навигации, закрывает навигацию |

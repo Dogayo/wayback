@@ -354,7 +354,7 @@ arrowRotation = bearing - heading  // нормализуется в 0..360
 | слабый сигнал GPS | `weakSignalAccuracyMeters` (`location/domain`) | точность хуже 30 м |
 | ненадёжный компас | `unreliableCompassAccuracyDegrees` (`navigation/domain`) | погрешность больше 30° или неизвестна |
 
-Угол стрелки считает `NavigationGuidanceBloc` через `continuousRotationDegrees`: значение не сворачивается в 0..360, поэтому `WbCompassArrow` анимирует поворот по кратчайшей дуге.
+Угол стрелки считает `NavigationGuidanceBloc` через `continuousRotationDegrees`: значение не сворачивается в 0..360, поэтому `WbDirectionDial` анимирует поворот по кратчайшей дуге.
 
 ---
 

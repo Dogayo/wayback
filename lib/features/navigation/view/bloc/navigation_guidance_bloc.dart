@@ -91,6 +91,7 @@ final class NavigationGuidanceBloc extends DataBloc<NavigationGuidance> {
         arrived: arrived,
         compass: status,
         arrowDegrees: status == CompassStatus.unavailable ? null : arrow,
+        compassAccuracyDegrees: compass?.valueOrNull?.accuracyDegrees,
       );
       _telemetry.guided(
         fix: here,
