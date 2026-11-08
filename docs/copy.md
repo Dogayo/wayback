@@ -138,6 +138,7 @@
 | `navigateCompassDistanceOnly` | только расстояние | distance only | продолжение строки «Компас недоступен» |
 | `navigateDirection` | Направление на точку, {degrees} градусов | Direction to the point, {degrees} degrees | для скринридера |
 | `navigateDirectionApproximate` | Примерное направление на точку, {degrees} градусов | Approximate direction to the point, {degrees} degrees | для скринридера, компас неточен |
+| `pointDirectionApproximate` | Направление примерное | Approximate direction | для скринридера, карточка на главном, компас неточен |
 | `navigateWeakSignal` | Слабый сигнал GPS — расстояние может быть неточным. | Weak GPS signal — distance may be off. | Alert warning, при плохой точности |
 | `navigateSemantics` | До «{name}» {distance} | {distance} to “{name}” | live region, озвучивается с троттлингом |
 | `navigateNotificationStop` | Стоп | Stop | кнопка на плашке фоновой навигации, закрывает навигацию |

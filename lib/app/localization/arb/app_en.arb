@@ -59,6 +59,7 @@
   "navigateCompassDistanceOnly": "distance only",
   "navigateDirection": "Direction to the point, {degrees} degrees",
   "navigateDirectionApproximate": "Approximate direction to the point, {degrees} degrees",
+  "pointDirectionApproximate": "Approximate direction",
   "navigateLocating": "Waiting for GPS and compass…",
   "navigateSemantics": "{distance} to “{name}”",
   "navigateTitle": "Navigate",

@@ -19,7 +19,10 @@ import 'package:wayback/features/navigation/view/bloc/enable_precise_location_bl
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_notice_bloc.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_stop_bloc.dart';
+import 'package:wayback/features/navigation/view/bloc/point_directions_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
+import 'package:wayback/features/navigation/view/widgets/point_direction.dart';
+import 'package:wayback/features/navigation/view/widgets/point_directions_gate.dart';
 import 'package:wayback/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:wayback/features/onboarding/view/bloc/finish_onboarding_bloc.dart';
 import 'package:wayback/features/onboarding/view/screens/onboarding_screen.dart';
@@ -93,8 +96,20 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
               context.di<LocationRepository>(),
             )..fetch(),
           ),
+          BlocProvider(
+            create: (context) => PointDirectionsBloc(
+              context.di<PointsRepository>(),
+              context.di<LocationRepository>(),
+              context.di<CompassRepository>(),
+            ),
+          ),
         ],
-        child: const HomeScreen(gpsStatus: GpsStatus()),
+        child: PointDirectionsGate(
+          child: HomeScreen(
+            gpsStatus: const GpsStatus(),
+            direction: (pointId, icon) => PointDirection(pointId, icon: icon),
+          ),
+        ),
       ),
       routes: [
         GoRoute(

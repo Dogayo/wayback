@@ -140,7 +140,7 @@ features/
 
 | Блок | Для чего | Что реализует фича | События | Конкурентность |
 | --- | --- | --- | --- | --- |
-| `DataBloc<T>` | получить данные и показать: fetch, refresh, retry | `Stream<Result<T>> watch()` (разовая загрузка — `load().asStream()`) | `fetch()`, `refresh()` | `restartable` — новый запрос отменяет старый |
+| `DataBloc<T>` | получить данные и показать: fetch, refresh, retry | `Stream<Result<T>> watch()` (разовая загрузка — `load().asStream()`) | `fetch()`, `refresh()`, `stop()` | `restartable` — новый запрос отменяет старый, `stop()` только отменяет и оставляет состояние |
 | `ActionBloc<P, T>` | одно действие пользователя | `Future<Result<T>> perform(P params)` | `run(params)`, `reset()` | `droppable` — повторный запуск во время выполнения игнорируется |
 | `ListBloc<T>` | постраничный список: fetch, refresh, fetch more | `Future<Result<ListPage<T>>> fetchPage(Object? cursor)` | `fetch()`, `refresh()`, `fetchMore()` | перезагрузка — `restartable`, подгрузка — `droppable` |
 
