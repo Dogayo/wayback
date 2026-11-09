@@ -36,7 +36,6 @@
 | `actionCancel` | Отмена | Cancel | |
 | `actionRetry` | Повторить | Try again | под Alert ошибки |
 | `actionDelete` | Удалить | Delete | |
-| `actionRename` | Переименовать | Rename | |
 | `actionUndo` | Вернуть | Undo | снекбар с отсчётом |
 | `actionAllow` | Разрешить | Allow | запрос разрешения |
 | `actionOpenSettings` | Открыть настройки | Open settings | системные настройки телефона |
@@ -91,7 +90,10 @@
 | `pointTypeLabel` | Иконка | Icon | заголовок пикера 4×2 |
 | `pointCoordinatesLabel` | Координаты | Coordinates | превью координат; та же подпись в карточке деталей |
 | `pointAccuracy` | Точность {accuracy} | Accuracy {accuracy} | `{accuracy}` = `±8 м`, §9 |
-| `pointSavedSnackbar` | Точка «{name}» сохранена | “{name}” saved | Snackbar после сохранения |
+| `pointSavedSnackbar` | Точка «{name}» сохранена | “{name}” saved | Snackbar после сохранения из формы |
+| `pointQuickSavedSnackbar` | {name} сохранена | {name} saved | снекбар после сохранения одним нажатием, с `actionEdit` |
+| `pointEditTitle` | Изменить точку | Edit place | заголовок шторки |
+| `actionEdit` | Изменить | Edit | кнопка снекбара |
 
 ## 5. Points List (`/points`)
 
@@ -124,7 +126,6 @@
 | `pointSavedAt` | Сохранена {date} | Saved {date} | `{date}` — локальный формат даты и времени; для одной строки |
 | `pointSavedLabel` | Сохранена | Saved | подпись строки в карточке деталей, значение — дата отдельной строкой |
 | `pointNavigate` | Вести к точке | Navigate | Primary |
-| `pointRenameTitle` | Название точки | Place name | диалог переименования |
 | `pointDeleteTitle` | Удалить «{name}»? | Delete “{name}”? | диалог подтверждения |
 | `pointDeleteBody` | Точка пропадёт из списка и с главного экрана. | It will disappear from your list and home screen. | названное последствие; вернуть можно из снекбара |
 | `pointDeletedSnackbar` | Точка «{name}» удалена | “{name}” deleted | |
@@ -299,7 +300,6 @@
 | `pointNameHelper` | 23 | 8 | 2,9× |
 | `actionSave` | 9 | 4 | 2,3× |
 | `pointSavedSnackbar` | 18 | 8 | 2,3× |
-| `actionRename` | 13 | 6 | 2,2× |
 | `pointNavigate` | 13 | 8 | 1,6× |
 
 Самые длинные строки ru — многострочные блоки:

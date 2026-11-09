@@ -89,7 +89,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPageChanged: (page) => setState(() => _page = page),
                     children: [
                       OnboardingStep(
-                        illustration: WbIllustrationKind.compassRose,
+                        visual: const WbDirectionFinding(),
                         title: l10n.onboardingIntroTitle,
                         body: l10n.onboardingIntroBody,
                       ),

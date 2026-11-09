@@ -4,7 +4,7 @@ import 'package:wayback/core/utils/geo/geo_point.dart';
 import 'package:wayback/features/points/domain/entities/point_type.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/edit_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/save_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 
@@ -58,17 +58,18 @@ void main() {
     );
   });
 
-  test('rename, activity and delete each change the point', () async {
-    final rename = RenamePointBloc(points);
+  test('edit, activity and delete each change the point', () async {
+    final edit = EditPointBloc(points);
     final active = SetPointActiveBloc(points);
     final delete = DeletePointBloc(points);
-    addTearDown(rename.close);
+    addTearDown(edit.close);
     addTearDown(active.close);
     addTearDown(delete.close);
 
-    rename.run((id: 'a', name: 'Машина у леса'));
+    edit.run((id: 'a', name: 'Машина у леса', type: PointType.fishing));
     await _settle();
     expect(points.points.single.name, 'Машина у леса');
+    expect(points.points.single.type, PointType.fishing);
 
     active.run((id: 'a', active: false));
     await _settle();

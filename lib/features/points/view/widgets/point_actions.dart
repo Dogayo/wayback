@@ -6,34 +6,32 @@ import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
-import 'package:wayback/features/points/domain/entities/point_naming.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/edit_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/points_with_distance.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/restore_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/point_type_view.dart';
+import 'package:wayback/features/points/view/widgets/point_edit_form.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// What can be done to a point from any screen that shows one. Needs
-/// [RenamePointBloc], [SetPointActiveBloc], [DeletePointBloc] and
+/// [EditPointBloc], [SetPointActiveBloc], [DeletePointBloc] and
 /// [RestorePointBloc] above the `context`.
 abstract final class PointActions {
-  static Future<void> rename(BuildContext context, SavedPoint point) async {
-    final l10n = context.l10n;
-    final rename = context.read<RenamePointBloc>();
-    final name = await WbDialogs.prompt(
+  /// Name and type in a sheet.
+  static Future<void> edit(BuildContext context, SavedPoint point) {
+    final edit = context.read<EditPointBloc>();
+    return WbBottomSheet.show(
       context,
-      title: l10n.pointRenameTitle,
-      initialValue: point.name,
-      label: l10n.pointNameLabel,
-      confirmLabel: l10n.actionSave,
-      cancelLabel: l10n.actionCancel,
-      maxLength: pointNameMaxLength,
-      validator: (value) => value.isEmpty ? l10n.pointNameRequired : null,
+      title: context.l10n.pointEditTitle,
+      child: PointEditForm(
+        point: point,
+        onSave: (name, type) =>
+            edit.run((id: point.id, name: name, type: type)),
+      ),
     );
-    if (name != null) rename.run((id: point.id, name: name));
   }
 
   static Future<void> delete(BuildContext context, SavedPoint point) async {
@@ -87,8 +85,8 @@ abstract final class PointActions {
         ),
         WbSheetAction(
           icon: Icons.edit_outlined,
-          label: l10n.actionRename,
-          onSelected: ifMounted(() => rename(context, point)),
+          label: l10n.actionEdit,
+          onSelected: ifMounted(() => edit(context, point)),
         ),
         WbSheetAction(
           icon: point.isActive
@@ -124,8 +122,8 @@ abstract final class PointActions {
       ),
       WbSwipeAction(
         icon: Icons.edit_outlined,
-        label: l10n.actionRename,
-        onPressed: () => rename(context, point),
+        label: l10n.actionEdit,
+        onPressed: () => edit(context, point),
       ),
       WbSwipeAction(
         icon: Icons.delete_outline,
@@ -167,7 +165,7 @@ class PointActionsListener extends StatelessWidget {
         successHaptic: WbHaptic.press,
         onSuccess: PointActions.showDeleted,
       ),
-      ActionResultListener<RenamePointBloc, SavedPoint>(
+      ActionResultListener<EditPointBloc, SavedPoint>(
         successHaptic: WbHaptic.tick,
       ),
       ActionResultListener<SetPointActiveBloc, SavedPoint>(

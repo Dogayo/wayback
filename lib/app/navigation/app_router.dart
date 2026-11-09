@@ -31,6 +31,7 @@ import 'package:wayback/features/points/domain/entities/point_type.dart';
 import 'package:wayback/features/points/domain/repositories/point_share_repository.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/edit_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
 import 'package:wayback/features/points/view/bloc/open_fix_settings_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
@@ -38,7 +39,7 @@ import 'package:wayback/features/points/view/bloc/point_fix_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_form_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_import_bloc.dart';
 import 'package:wayback/features/points/view/bloc/points_list_bloc.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/quick_save_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/save_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/bloc/share_point_bloc.dart';
@@ -88,12 +89,21 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
     ),
     GoRoute(
       path: Routes.home,
-      pageBuilder: _page(
-        (_, _) => MultiBlocProvider(
+      pageBuilder: _page((context, _) {
+        final l10n = context.l10n;
+        return MultiBlocProvider(
           providers: [
             BlocProvider(
+              create: (context) => QuickSavePointBloc(
+                context.di<PointsRepository>(),
+                context.di<LocationRepository>(),
+                label: l10n.pointType(PointType.generic.design),
+                numbered: l10n.pointDefaultNameNumbered,
+              ),
+            ),
+            BlocProvider(
               create: (context) =>
-                  RenamePointBloc(context.di<PointsRepository>()),
+                  EditPointBloc(context.di<PointsRepository>()),
             ),
             BlocProvider(
               create: (context) =>
@@ -136,11 +146,12 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
             child: HomeScreen(
               gpsStatus: const GpsStatus(),
               direction: (pointId, icon) => PointDirection(pointId, icon: icon),
+              largeDirection: (pointId, icon) =>
+                  PointDirection(pointId, icon: icon, large: true),
             ),
           ),
-        ),
-        WbTransition.fade,
-      ),
+        );
+      }, WbTransition.fade),
       routes: [
         GoRoute(
           path: 'import',
@@ -220,7 +231,7 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
                 ),
                 BlocProvider(
                   create: (context) =>
-                      RenamePointBloc(context.di<PointsRepository>()),
+                      EditPointBloc(context.di<PointsRepository>()),
                 ),
                 BlocProvider(
                   create: (context) =>
@@ -250,7 +261,7 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
                 ),
                 BlocProvider(
                   create: (context) =>
-                      RenamePointBloc(context.di<PointsRepository>()),
+                      EditPointBloc(context.di<PointsRepository>()),
                 ),
                 BlocProvider(
                   create: (context) =>

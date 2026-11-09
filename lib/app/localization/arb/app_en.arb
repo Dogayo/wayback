@@ -5,9 +5,9 @@
   "actionAllow": "Allow",
   "actionCancel": "Cancel",
   "actionDelete": "Delete",
+  "actionEdit": "Edit",
   "actionEnablePreciseLocation": "Turn on precise location",
   "actionOpenSettings": "Open settings",
-  "actionRename": "Rename",
   "actionRetry": "Try again",
   "actionSave": "Save",
   "appTitle": "Wayback",
@@ -92,12 +92,12 @@
   "pointDeleteBody": "It will disappear from your list and home screen.",
   "pointDeleteTitle": "Delete “{name}”?",
   "pointDeletedSnackbar": "“{name}” deleted",
+  "pointEditTitle": "Edit place",
   "pointDetailsTitle": "Place",
   "pointDistanceFromYou": "{distance} away",
   "pointNameHelper": "Optional",
   "pointNameLabel": "Name",
   "pointNavigate": "Navigate",
-  "pointRenameTitle": "Place name",
   "pointSavedAt": "Saved {date}",
   "pointSavedLabel": "Saved",
   "pointSavedSnackbar": "“{name}” saved",
@@ -169,5 +169,6 @@
   "error_point_share_failed_body": "Try again.",
   "pointShareQrHint": "Point another phone’s camera at the code",
   "pointShareQrLabel": "QR code of this place",
-  "settingsTouchFeedback": "Haptic feedback"
+  "settingsTouchFeedback": "Haptic feedback",
+  "pointQuickSavedSnackbar": "{name} saved"
 }
