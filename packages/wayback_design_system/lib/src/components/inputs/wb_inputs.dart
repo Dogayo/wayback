@@ -1,3 +1,4 @@
+export 'wb_animated_point_icon.dart';
 export 'wb_checkbox.dart';
 export 'wb_point_type.dart';
 export 'wb_radio.dart';

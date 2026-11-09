@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:wayback_design_system/src/foundations/app_motion.dart';
+import 'package:wayback_design_system/src/foundations/app_typography.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
 
 const double _dialSize = 320;
@@ -167,6 +168,78 @@ class WbDirectionIcon extends StatelessWidget {
   }
 }
 
+/// The dial finding its direction, played once: an illustration of what the
+/// app does. It uses no sensors; with animations off it starts at the end.
+class WbDirectionFinding extends StatefulWidget {
+  const WbDirectionFinding({this.size = _findingSize, super.key});
+
+  final double size;
+
+  @override
+  State<WbDirectionFinding> createState() => _WbDirectionFindingState();
+}
+
+class _WbDirectionFindingState extends State<WbDirectionFinding>
+    with SingleTickerProviderStateMixin {
+  static final _rotation = _segments([-128, -52, 14, 0]);
+  static final _spread = _segments([45, 30, 16, WbDirectionDial.minSpread]);
+
+  static Animatable<double> _segments(List<double> values) => TweenSequence([
+    for (var i = 0; i < values.length - 1; i++)
+      TweenSequenceItem(
+        tween: Tween(
+          begin: values[i],
+          end: values[i + 1],
+        ).chain(CurveTween(curve: WbMotion.standard)),
+        weight: 1,
+      ),
+  ]);
+
+  late final AnimationController _progress = AnimationController(vsync: this);
+  var _started = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    _progress
+      ..duration = WbMotion.of(context, _findingDuration)
+      ..forward();
+  }
+
+  @override
+  void dispose() {
+    _progress.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.wbColors;
+    return ExcludeSemantics(
+      child: AnimatedBuilder(
+        animation: _progress,
+        builder: (context, _) => CustomPaint(
+          size: Size.square(widget.size),
+          painter: _BeamPainter(
+            disc: colors.surfaceContainer,
+            ring: colors.borderDefault,
+            tick: colors.contentPrimary,
+            lit: colors.brand500,
+            shade: colors.actionPrimaryBg,
+            rotation: _rotation.evaluate(_progress),
+            spread: _spread.evaluate(_progress),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+const double _findingSize = 240;
+const Duration _findingDuration = Duration(milliseconds: 1600);
+
 /// Small one-colour arrow, for the last steps after arrival.
 class WbDirectionArrow extends StatelessWidget {
   const WbDirectionArrow({
@@ -197,28 +270,42 @@ class WbDirectionArrow extends StatelessWidget {
 /// Distance as a hero value: the number large, the unit after the last
 /// space smaller. The caller gives it a semantic label.
 class WbDistanceValue extends StatelessWidget {
-  const WbDistanceValue(this.value, {super.key});
+  const WbDistanceValue(this.value, {this.compact = false, super.key});
 
   final String value;
+
+  /// The smaller size, for a card rather than a whole screen.
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final split = value.lastIndexOf(RegExp(r'\s'));
+    final text = context.wbText;
     return Text.rich(
       TextSpan(
-        style: context.wbText.displayLarge,
+        style: compact
+            ? text.displayLarge?.copyWith(fontSize: _compactNumber, height: 1.1)
+            : text.displayLarge,
         children: [
-          TextSpan(text: split < 0 ? value : value.substring(0, split)),
+          TextSpan(
+            text: split < 0 ? value : value.substring(0, split),
+            style: WbTypography.distanceNumber,
+          ),
           if (split >= 0)
             TextSpan(
               text: value.substring(split),
-              style: context.wbText.displaySmall,
+              style: compact
+                  ? text.displaySmall?.copyWith(fontSize: _compactUnit)
+                  : text.displaySmall,
             ),
         ],
       ),
     );
   }
 }
+
+const double _compactNumber = 72;
+const double _compactUnit = 28;
 
 /// Colours of the full-screen arrival state: a saturated field in the light
 /// theme, a muted one in the dark theme so it does not blind at night.

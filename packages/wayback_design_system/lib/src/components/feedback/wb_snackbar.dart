@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:wayback_design_system/src/foundations/app_elevation.dart';
+import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
 
@@ -17,10 +18,27 @@ class WbSnackbar extends StatelessWidget {
 
   /// Shows [message] at the bottom of the nearest Scaffold, replacing the
   /// current snackbar. The look comes from the theme's snackBarTheme.
-  static void show(BuildContext context, String message) =>
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(message)));
+  ///
+  /// With [actionLabel] it offers one action, and still goes away by itself.
+  static void show(
+    BuildContext context,
+    String message, {
+    String? actionLabel,
+    VoidCallback? onAction,
+  }) => ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(message),
+        persist: false,
+        duration: actionLabel == null
+            ? const Duration(milliseconds: 4000)
+            : WbMotion.undoWindow,
+        action: actionLabel == null
+            ? null
+            : SnackBarAction(label: actionLabel, onPressed: onAction ?? () {}),
+      ),
+    );
   @override
   Widget build(BuildContext context) => Container(
     constraints: const BoxConstraints(minHeight: 52),

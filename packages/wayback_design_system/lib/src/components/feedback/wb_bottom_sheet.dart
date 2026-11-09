@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:wayback_design_system/src/foundations/app_elevation.dart';
+import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
 
@@ -20,6 +21,27 @@ class WbBottomSheet extends StatelessWidget {
 
   /// What the sheet is about, before [title].
   final Widget? leading;
+
+  /// Shows [child] in a sheet that moves up with the keyboard.
+  static Future<void> show(
+    BuildContext context, {
+    required String title,
+    required Widget child,
+  }) => showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    barrierColor: context.wbColors.scrim,
+    sheetAnimationStyle: AnimationStyle(
+      duration: WbMotion.of(context, WbMotion.slow),
+      reverseDuration: WbMotion.of(context, WbMotion.slowExit),
+    ),
+    builder: (context) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: WbBottomSheet(title: title, child: child),
+    ),
+  );
   @override
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
