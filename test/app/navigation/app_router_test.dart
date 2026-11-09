@@ -56,6 +56,7 @@ Future<GoRouter> pumpApp(
   // Denied access keeps Home static: no system dialog, no progress spinner.
   final repository = FakeLocationRepository(
     access: const Result.success(LocationAccess.denied),
+    afterRequest: LocationAccess.denied,
   );
   final container = DependencyContainer(
     injectorName: 'router-test-${_containers++}',
@@ -180,7 +181,7 @@ void main() {
       // The test window's system language is English.
       await tester.tap(find.text('Skip'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Not now'));
+      await tester.tap(find.text('Continue'));
       await tester.pumpAndSettle();
 
       expect(find.byType(PointImportScreen), findsOneWidget);
@@ -193,7 +194,7 @@ void main() {
     // The test window's system language is English.
     await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Not now'));
+    await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.byType(HomeScreen), findsOneWidget);
   });

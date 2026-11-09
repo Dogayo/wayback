@@ -143,17 +143,30 @@ class _PointsList extends StatelessWidget {
                           ),
                           l10n.savedWhen(point.createdAt, now: now),
                         ),
-                        leading: Icon(point.type.design.icon),
-                        trailing: WbStateSwitcher(
-                          state: point.isActive,
-                          duration: WbMotion.fast,
-                          animateSize: true,
-                          child: point.isActive
-                              ? WbBadge(
-                                  label: l10n.pointActiveLabel,
-                                  tone: WbTone.positive,
-                                )
-                              : const Icon(Icons.chevron_right),
+                        leading: WbIconTile(
+                          icon: point.type.design.icon,
+                          compact: true,
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: WbSpacing.md,
+                          children: [
+                            WbStateSwitcher(
+                              state: point.isActive,
+                              duration: WbMotion.fast,
+                              animateSize: true,
+                              child: point.isActive
+                                  ? WbBadge(
+                                      label: l10n.pointActiveLabel,
+                                      tone: WbTone.positive,
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                            const Icon(
+                              Icons.chevron_right,
+                              size: WbIconSize.md,
+                            ),
+                          ],
                         ),
                         showDivider: !isLast,
                         onTap: () =>

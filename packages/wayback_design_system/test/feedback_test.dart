@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
@@ -88,6 +90,50 @@ void main() {
     expect(
       tester.getSize(find.byType(WbIconTile)),
       const Size.square(WbIconTile.size),
+    );
+  });
+
+  testWidgets('destructive confirm keeps cancel neutral', (tester) async {
+    late BuildContext context;
+    await tester.pumpWidget(
+      _host(
+        Builder(
+          builder: (c) {
+            context = c;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+
+    unawaited(
+      WbDialogs.confirm(
+        context,
+        title: 'Удалить?',
+        message: 'Точка пропадёт',
+        confirmLabel: 'Удалить',
+        destructive: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final cancel = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, 'Отмена'),
+    );
+    expect(
+      cancel.style!.foregroundColor!.resolve({}),
+      WbColors.light.contentPrimary,
+    );
+  });
+
+  testWidgets('compact icon tile fits a list row', (tester) async {
+    await tester.pumpWidget(
+      _host(const Center(child: WbIconTile(icon: Icons.cabin, compact: true))),
+    );
+
+    expect(
+      tester.getSize(find.byType(WbIconTile)),
+      const Size.square(WbIconTile.compactSize),
     );
   });
 }
