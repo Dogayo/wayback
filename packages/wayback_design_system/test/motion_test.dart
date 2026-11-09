@@ -107,6 +107,28 @@ void main() {
       expect(veil.opacity.value, inExclusiveRange(0, .5));
     });
 
+    testWidgets('no black shows beside the screen shifted away', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_pages([_page('A')]));
+      await tester.pumpWidget(_pages([_page('A'), _page('B')]));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 160));
+
+      final screen = tester.getRect(find.byType(Navigator));
+      expect(tester.getCenter(find.text('A')).dx, lessThan(screen.center.dx));
+      final surfaces = find
+          .byWidgetPredicate(
+            (w) => w is ColoredBox && w.color == WbColors.light.surfaceDefault,
+          )
+          .evaluate()
+          .map((element) {
+            final box = element.renderObject! as RenderBox;
+            return box.localToGlobal(Offset.zero) & box.size;
+          });
+      expect(surfaces, contains(screen));
+    });
+
     testWidgets('drill takes slow to open and slowExit to close', (
       tester,
     ) async {

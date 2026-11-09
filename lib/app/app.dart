@@ -98,11 +98,14 @@ class _AppState extends State<App> {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             routerConfig: _router,
-            builder: (context, child) => WbHapticsScope(
-              player: _haptics.play,
-              child: ActionResultListener<RestorePointBloc, SavedPoint>(
-                successHaptic: null,
-                child: child,
+            builder: (context, child) => WbSystemBars(
+              background: context.wbColors.surfaceDefault,
+              child: WbHapticsScope(
+                player: _haptics.play,
+                child: ActionResultListener<RestorePointBloc, SavedPoint>(
+                  successHaptic: null,
+                  child: child,
+                ),
               ),
             ),
           ),

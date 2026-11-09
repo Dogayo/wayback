@@ -23,7 +23,7 @@ class SettingsList extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return ListView(
-      padding: const EdgeInsets.all(WbSpacing.screenPadding),
+      padding: context.wbScrollPadding,
       children: [
         _SectionTitle(l10n.settingsUnits),
         WbSegmentedTabs<UnitSystem>(

@@ -185,13 +185,18 @@ class _WbPageRoute<T> extends PageRoute<T> {
   ) {
     final colors = context.wbColors;
     return switch (_page.transition) {
-      WbTransition.drill => _Shift(
-        animation: _curved(secondaryAnimation),
-        outgoing: true,
-        child: _Veil(
-          animation: _leaving(secondaryAnimation, end: _drillOut),
-          color: colors.surfaceDefault,
-          child: child,
+      // The backdrop stays put: the shift would otherwise bare a strip of
+      // black at the edge.
+      WbTransition.drill => ColoredBox(
+        color: colors.surfaceDefault,
+        child: _Shift(
+          animation: _curved(secondaryAnimation),
+          outgoing: true,
+          child: _Veil(
+            animation: _leaving(secondaryAnimation, end: _drillOut),
+            color: colors.surfaceDefault,
+            child: child,
+          ),
         ),
       ),
       WbTransition.modal => _Veil(

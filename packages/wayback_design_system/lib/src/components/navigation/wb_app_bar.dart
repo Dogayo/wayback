@@ -27,6 +27,8 @@ class WbAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: onBack == null ? null : WbBackButton(onPressed: onBack),
       automaticallyImplyLeading: false,
       title: Text(title),
+      // The title starts right after the back button's 56 dp slot.
+      titleSpacing: onBack == null ? null : 0,
       actions: actions,
       backgroundColor: field == null ? null : Colors.transparent,
       foregroundColor: field,
