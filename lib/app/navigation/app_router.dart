@@ -26,6 +26,8 @@ import 'package:wayback/features/navigation/view/widgets/point_directions_gate.d
 import 'package:wayback/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:wayback/features/onboarding/view/bloc/finish_onboarding_bloc.dart';
 import 'package:wayback/features/onboarding/view/screens/onboarding_screen.dart';
+import 'package:wayback/features/points/domain/entities/point_draft.dart';
+import 'package:wayback/features/points/domain/entities/point_type.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
@@ -33,6 +35,7 @@ import 'package:wayback/features/points/view/bloc/open_fix_settings_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_fix_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_form_bloc.dart';
+import 'package:wayback/features/points/view/bloc/point_import_bloc.dart';
 import 'package:wayback/features/points/view/bloc/points_list_bloc.dart';
 import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/save_point_bloc.dart';
@@ -41,6 +44,7 @@ import 'package:wayback/features/points/view/point_type_view.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
+import 'package:wayback/features/points/view/screens/point_import_screen.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
 import 'package:wayback/features/settings/domain/repositories/diagnostics_repository.dart';
 import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
@@ -132,6 +136,39 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
         WbTransition.fade,
       ),
       routes: [
+        GoRoute(
+          path: 'import',
+          pageBuilder: _page((context, state) {
+            final l10n = context.l10n;
+            final text = pointImportText(state.uri.queryParameters);
+            final draft = parsePointText(text);
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => PointFormBloc(
+                    context.di<PointsRepository>(),
+                    labelOf: (type) => l10n.pointType(type.design),
+                    numbered: l10n.pointDefaultNameNumbered,
+                    name: draft?.name,
+                    type: draft?.type ?? PointType.generic,
+                  )..add(const PointFormStarted()),
+                ),
+                BlocProvider(
+                  create: (context) => PointImportBloc(
+                    context.di<PointsRepository>(),
+                    context.di<LocationRepository>(),
+                    text: text,
+                  )..add(const PointImportStarted()),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      SavePointBloc(context.di<PointsRepository>()),
+                ),
+              ],
+              child: PointImportScreen(received: text.isNotEmpty),
+            );
+          }, WbTransition.modal),
+        ),
         GoRoute(
           path: 'points/new',
           pageBuilder: _page((context, _) {

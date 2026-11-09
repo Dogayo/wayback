@@ -3,6 +3,9 @@ abstract final class Routes {
   static const home = '/';
   static const pointCreate = '/points/new';
   static const pointsList = '/points';
+
+  /// By coordinates, or a point received from someone else.
+  static const pointImport = '/import';
   static const settings = '/settings';
   static const vibrationType = '/settings/vibration';
 

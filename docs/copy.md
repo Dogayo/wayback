@@ -65,6 +65,21 @@
 | `pointCreateLocating` | Определяем местоположение… | Getting your location… | loading, Save недоступен |
 | `pointNameLabel` | Название | Name | |
 | `pointNameHelper` | Можно оставить как есть | Optional | под полем, дефолт уже подставлен (§7) |
+| `pointImportTitle` | По координатам | By coordinates | заголовок экрана |
+| `pointImportDistance` | До точки | Distance | |
+| `pointCoordinatesHint` | 56.50353, 85.03131 | 56.50353, 85.03131 | подсказка в пустом поле |
+| `pointCoordinatesHelper` | Числа, градусы или ссылка на карту | Numbers, degrees or a map link | |
+| `pointCoordinatesPaste` | Вставить | Paste | |
+| `pointCoordinatesRead` | Широта {latitude}, долгота {longitude} | Latitude {latitude}, longitude {longitude} | как приложение поняло ввод |
+| `pointCoordinatesInvalid` | Не удалось распознать координаты | Could not read these coordinates | |
+| `pointImpreciseTitle` | Координаты неточные | Rough coordinates | |
+| `pointImpreciseBody` | Мало знаков после запятой: точка может быть смещена на сотни метров и больше. | Too few decimals: the place may be off by hundreds of meters or more. | |
+| `pointNearbyTitle` | Рядом уже есть «{name}» | “{name}” is right here | |
+| `pointNearbyBody` | До неё {distance}. Сохранить всё равно можно. | {distance} away. You can still save this one. | |
+| `pointAddTitle` | Новая точка | New place | шторка «+» |
+| `pointAddSubtitle` | Как задать место | How to set it | |
+| `pointAddCurrent` | Текущее место | Current location | |
+| `pointAddByCoordinates` | По координатам | By coordinates | |
 | `pointNameRequired` | Введите название | Enter a name | ошибка в диалоге переименования; название до 40 символов |
 | `pointTypeLabel` | Иконка | Icon | заголовок пикера 4×2 |
 | `pointCoordinatesLabel` | Координаты | Coordinates | превью координат; та же подпись в карточке деталей |

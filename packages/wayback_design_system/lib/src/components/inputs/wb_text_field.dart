@@ -22,6 +22,7 @@ class WbTextField extends StatelessWidget {
     this.minLines,
     this.keyboardType,
     this.maxLength,
+    this.autofocus = false,
     super.key,
   });
   final TextEditingController? controller;
@@ -40,6 +41,7 @@ class WbTextField extends StatelessWidget {
 
   /// Typing stops here; a counter appears as the limit gets close.
   final int? maxLength;
+  final bool autofocus;
 
   static Widget? _counter(
     BuildContext context, {
@@ -64,6 +66,7 @@ class WbTextField extends StatelessWidget {
     minLines: minLines,
     keyboardType: keyboardType,
     maxLength: maxLength,
+    autofocus: autofocus,
     buildCounter: _counter,
     onChanged: onChanged,
     style: context.wbText.bodyLarge,

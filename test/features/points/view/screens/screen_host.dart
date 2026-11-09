@@ -36,6 +36,7 @@ Future<GoRouter> pumpScreen(
           for (final path in [
             'points',
             'points/new',
+            'import',
             'points/:id',
             'navigate/:id',
             'settings',

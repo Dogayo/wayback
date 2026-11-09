@@ -155,7 +155,8 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
                     () => context.read<SavePointBloc>().run((
                       name: form.resolvedName,
                       type: form.type,
-                      fix: s.data,
+                      position: s.data.point,
+                      altitudeMeters: s.data.altitudeMeters,
                     )),
               ),
             ),

@@ -15,4 +15,17 @@ void main() {
       '-33.86882, 151.20930',
     );
   });
+
+  group('formatDegrees', () {
+    test('shows only the digits there are', () {
+      expect(formatDegrees(56.5), '56.5');
+      expect(formatDegrees(85), '85');
+      expect(formatDegrees(100), '100');
+      expect(formatDegrees(-33.86882), '-33.86882');
+    });
+
+    test('stops at the shown precision', () {
+      expect(formatDegrees(56.5035312), '56.50353');
+    });
+  });
 }
