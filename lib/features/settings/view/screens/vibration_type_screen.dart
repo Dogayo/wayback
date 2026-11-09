@@ -37,7 +37,7 @@ class VibrationTypeScreen extends StatelessWidget {
           onBack: context.back,
         ),
         body: ListView(
-          padding: const EdgeInsets.all(WbSpacing.screenPadding),
+          padding: context.wbScrollPadding,
           children: [
             Text(
               l10n.settingsVibrationPatternHint,

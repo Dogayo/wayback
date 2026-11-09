@@ -29,7 +29,7 @@ class PointDetailsView extends StatelessWidget {
       l10n.localeName,
     ).add_Hm().format(point.createdAt.toLocal());
     return ListView(
-      padding: const EdgeInsets.all(WbSpacing.screenPadding),
+      padding: context.wbScrollPadding,
       children: [
         Row(
           children: [

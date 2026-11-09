@@ -68,7 +68,7 @@ class _Content extends StatelessWidget {
     final l10n = context.l10n;
     final sharing = context.watch<SharePointBloc>().state.isInProgress;
     return ListView(
-      padding: const EdgeInsets.all(WbSpacing.screenPadding),
+      padding: context.wbScrollPadding,
       children: [
         const SizedBox(height: WbSpacing.sm),
         Text(

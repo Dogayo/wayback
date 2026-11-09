@@ -12,5 +12,16 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    FlutterMethodChannel(
+      name: "com.dogayo.wayback/screen",
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
+    ).setMethodCallHandler { call, result in
+      guard call.method == "keepOn" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      UIApplication.shared.isIdleTimerDisabled = call.arguments as? Bool ?? false
+      result(nil)
+    }
   }
 }

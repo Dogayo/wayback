@@ -1,4 +1,5 @@
 import 'package:app_di/app_di.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,7 @@ import 'package:wayback/app/diagnostics/log_bloc_observer.dart';
 /// Initialization order: architecture.md §5.
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   final logger = await openAppLog();
   logCrashes(logger);

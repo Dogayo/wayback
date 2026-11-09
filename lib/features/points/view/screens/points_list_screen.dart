@@ -95,7 +95,7 @@ class _Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView(
-    padding: const EdgeInsets.all(WbSpacing.screenPadding),
+    padding: context.wbScrollPadding,
     children: [
       for (var i = 0; i < _rows; i++)
         const Padding(

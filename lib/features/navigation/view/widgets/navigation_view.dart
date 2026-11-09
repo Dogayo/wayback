@@ -74,30 +74,33 @@ class NavigationFrame extends StatelessWidget {
   final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(WbSpacing.screenPadding),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: WbSpacing.md,
-      children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: WbAlertRow.slotHeight),
-          child: Column(spacing: WbSpacing.xs, children: status),
-        ),
-        // Scales down instead of overflowing: landscape and large text
-        // leave less room for the dial.
-        Expanded(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.topCenter,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: WbSpacing.md,
-              children: children,
+  Widget build(BuildContext context) => SafeArea(
+    top: false,
+    child: Padding(
+      padding: const EdgeInsets.all(WbSpacing.screenPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: WbSpacing.md,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: WbAlertRow.slotHeight),
+            child: Column(spacing: WbSpacing.xs, children: status),
+          ),
+          // Scales down instead of overflowing: landscape and large text
+          // leave less room for the dial.
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.topCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: WbSpacing.md,
+                children: children,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
