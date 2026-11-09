@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
-import 'package:wayback/app/localization/error_l10n.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
-import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
@@ -24,9 +23,6 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 class PointDetailsScreen extends StatelessWidget {
   const PointDetailsScreen({super.key});
 
-  static void _showFailure(BuildContext context, Failure failure) =>
-      WbSnackbar.show(context, context.l10n.error(failure.code).title);
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -39,24 +35,19 @@ class PointDetailsScreen extends StatelessWidget {
     );
     return MultiBlocListener(
       listeners: [
-        BlocListener<DeletePointBloc, ActionState<SavedPoint>>(
-          listener: (context, deleted) => deleted.mapOrNull(
-            success: (s) {
-              PointActions.showDeleted(context, s.result);
-              context.go(Routes.pointsList);
-            },
-            failure: (s) => _showFailure(context, s.failure),
-          ),
+        ActionResultListener<DeletePointBloc, SavedPoint>(
+          successHaptic: WbHaptic.press,
+          onSuccess: (context, point) {
+            PointActions.showDeleted(context, point);
+            context.go(Routes.pointsList);
+          },
         ),
-        BlocListener<RenamePointBloc, ActionState<SavedPoint>>(
-          listener: (context, renamed) => renamed.mapOrNull(
-            failure: (s) => _showFailure(context, s.failure),
-          ),
+        ActionResultListener<RenamePointBloc, SavedPoint>(
+          successHaptic: WbHaptic.tick,
         ),
-        BlocListener<SetPointActiveBloc, ActionState<SavedPoint>>(
-          listener: (context, toggled) => toggled.mapOrNull(
-            failure: (s) => _showFailure(context, s.failure),
-          ),
+        // The switch has already answered the tap.
+        ActionResultListener<SetPointActiveBloc, SavedPoint>(
+          successHaptic: null,
         ),
       ],
       child: Scaffold(

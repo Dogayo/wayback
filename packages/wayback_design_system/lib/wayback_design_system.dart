@@ -11,6 +11,7 @@ export 'src/components/wayfinding/wb_illustration.dart';
 export 'src/foundations/app_assets.dart';
 export 'src/foundations/app_colors.dart';
 export 'src/foundations/app_elevation.dart';
+export 'src/foundations/app_haptics.dart';
 export 'src/foundations/app_motion.dart';
 export 'src/foundations/app_radius.dart';
 export 'src/foundations/app_spacing.dart';

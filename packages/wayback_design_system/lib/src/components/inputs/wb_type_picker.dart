@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:wayback_design_system/src/components/inputs/wb_point_type.dart';
+import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
@@ -56,7 +57,10 @@ class _TypeTile extends StatelessWidget {
     label: label,
     child: InkWell(
       key: ValueKey('wb-type-${type.name}'),
-      onTap: onTap,
+      onTap: () {
+        if (!selected) WbHaptics.play(context, WbHaptic.tick);
+        onTap();
+      },
       borderRadius: WbRadius.medium,
       child: AnimatedContainer(
         duration: WbMotion.of(context, WbMotion.fast),

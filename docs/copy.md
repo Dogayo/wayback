@@ -218,6 +218,7 @@
 | `settingsLanguageRu` | Русский | Русский | самоназвание, одинаково в обеих локалях |
 | `settingsLanguageEn` | English | English | самоназвание |
 | `settingsVibration` | Вибрация при прибытии | Vibrate on arrival | Switch |
+| `settingsTouchFeedback` | Отклик при нажатиях | Haptic feedback | Switch, включён по умолчанию |
 | `settingsVibrationPattern` | Вид вибрации | Vibration type | ListItem, заголовок экрана |
 | `settingsVibrationPatternHint` | Выберите вибрацию, которую хорошо чувствуете на своём телефоне | Pick a vibration you can clearly feel on your phone | Подсказка |
 | `settingsVibrationStandard` | Обычная | Standard | ListItem |

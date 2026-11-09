@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
@@ -63,18 +64,10 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
     super.dispose();
   }
 
-  void _onSaved(BuildContext context, ActionState<SavedPoint> state) =>
-      state.mapOrNull(
-        success: (s) {
-          WbSnackbar.show(
-            context,
-            context.l10n.pointSavedSnackbar(s.result.name),
-          );
-          context.pop();
-        },
-        failure: (s) =>
-            WbSnackbar.show(context, context.l10n.error(s.failure.code).title),
-      );
+  void _onSaved(BuildContext context, SavedPoint point) {
+    WbSnackbar.show(context, context.l10n.pointSavedSnackbar(point.name));
+    context.pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,17 +85,18 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
             }
           },
         ),
-        BlocListener<SavePointBloc, ActionState<SavedPoint>>(
-          listener: _onSaved,
+        ActionResultListener<SavePointBloc, SavedPoint>(
+          successHaptic: WbHaptic.success,
+          onSuccess: _onSaved,
         ),
-        BlocListener<OpenFixSettingsBloc, ActionState<void>>(
-          listener: (context, state) => state.mapOrNull(
-            success: (_) {
-              _inSettings = true;
-              // The precise location dialog may have changed access already.
-              context.read<PointFixBloc>().fetch();
-            },
-          ),
+        ActionResultListener<OpenFixSettingsBloc, void>(
+          successHaptic: null,
+          reportFailure: false,
+          onSuccess: (context, _) {
+            _inSettings = true;
+            // The precise location dialog may have changed access already.
+            context.read<PointFixBloc>().fetch();
+          },
         ),
       ],
       child: Scaffold(

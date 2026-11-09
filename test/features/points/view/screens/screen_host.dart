@@ -17,6 +17,7 @@ Future<GoRouter> pumpScreen(
   Widget screen, {
   AppSettings settings = AppSettings.defaults,
   PointsRepository? points,
+  List<WbHaptic>? haptics,
 }) async {
   // A phone-sized window, so lazily built lists show whole screens.
   tester.view
@@ -54,7 +55,10 @@ Future<GoRouter> pumpScreen(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     routerConfig: router,
-    builder: (_, child) => SettingsScope(settings: settings, child: child!),
+    builder: (_, child) => WbHapticsScope(
+      player: haptics?.add ?? (_) {},
+      child: SettingsScope(settings: settings, child: child!),
+    ),
   );
   await tester.pumpWidget(
     points == null

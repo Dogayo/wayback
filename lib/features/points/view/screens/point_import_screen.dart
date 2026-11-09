@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
-import 'package:wayback/app/localization/error_l10n.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/localization/point_type_l10n.dart';
 import 'package:wayback/core/utils/geo/geo_format.dart';
@@ -87,6 +87,7 @@ class _PointImportScreenState extends State<PointImportScreen> {
   void _save(PointFormState form, PointImportState import) {
     final draft = import.draft;
     if (draft == null) {
+      WbHaptics.play(context, WbHaptic.warning);
       context.read<PointImportBloc>().add(const PointImportRejected());
       return;
     }
@@ -98,18 +99,10 @@ class _PointImportScreenState extends State<PointImportScreen> {
     ));
   }
 
-  void _onSaved(BuildContext context, ActionState<SavedPoint> state) =>
-      state.mapOrNull(
-        success: (s) {
-          WbSnackbar.show(
-            context,
-            context.l10n.pointSavedSnackbar(s.result.name),
-          );
-          context.pop();
-        },
-        failure: (s) =>
-            WbSnackbar.show(context, context.l10n.error(s.failure.code).title),
-      );
+  void _onSaved(BuildContext context, SavedPoint point) {
+    WbSnackbar.show(context, context.l10n.pointSavedSnackbar(point.name));
+    context.pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,8 +121,9 @@ class _PointImportScreenState extends State<PointImportScreen> {
             }
           },
         ),
-        BlocListener<SavePointBloc, ActionState<SavedPoint>>(
-          listener: _onSaved,
+        ActionResultListener<SavePointBloc, SavedPoint>(
+          successHaptic: WbHaptic.success,
+          onSuccess: _onSaved,
         ),
       ],
       child: Scaffold(

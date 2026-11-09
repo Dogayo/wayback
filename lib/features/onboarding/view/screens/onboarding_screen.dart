@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/features/onboarding/view/bloc/finish_onboarding_bloc.dart';
@@ -48,11 +49,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   /// Onward whatever the outcome: a failed save must not trap the user.
-  void _onFinished(BuildContext context, ActionState<void> state) =>
-      state.mapOrNull(
-        success: (_) => context.go(widget.next ?? Routes.home),
-        failure: (_) => context.go(widget.next ?? Routes.home),
-      );
+  void _moveOn(BuildContext context) => context.go(widget.next ?? Routes.home);
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +57,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final finishing = context.watch<FinishOnboardingBloc>().state.isInProgress;
     final finish = context.read<FinishOnboardingBloc>().run;
     final onLast = _page == _last;
-    return BlocListener<FinishOnboardingBloc, ActionState<void>>(
-      listener: _onFinished,
+    return ActionResultListener<FinishOnboardingBloc, void>(
+      successHaptic: null,
+      reportFailure: false,
+      onSuccess: (context, _) => _moveOn(context),
+      onFailure: () => _moveOn(context),
       // System back steps through the pages; from the first it leaves.
       child: PopScope(
         canPop: _page == 0,

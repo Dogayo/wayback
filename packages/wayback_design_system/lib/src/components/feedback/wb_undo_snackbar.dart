@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
 
@@ -78,6 +79,7 @@ abstract final class WbUndoSnackbar {
     required VoidCallback onUndo,
     Duration window = WbMotion.undoWindow,
   }) {
+    final haptics = WbHaptics.playerOf(context);
     final timed = !MediaQuery.accessibleNavigationOf(context);
     final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
     late final ScaffoldFeatureController<SnackBar, SnackBarClosedReason> shown;
@@ -89,7 +91,13 @@ abstract final class WbUndoSnackbar {
         duration: _untilClosed,
         showCloseIcon: !timed,
         content: _Content(message: message, countdown: countdown),
-        action: SnackBarAction(label: actionLabel, onPressed: onUndo),
+        action: SnackBarAction(
+          label: actionLabel,
+          onPressed: () {
+            haptics?.call(WbHaptic.tick);
+            onUndo();
+          },
+        ),
       ),
     );
     unawaited(shown.closed.whenComplete(() => countdown?.dispose()));

@@ -12,6 +12,7 @@ import 'package:wayback/features/points/view/bloc/home_bloc.dart';
 import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
+import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../../location/fake_location_repository.dart';
 import '../../fake_points_repository.dart';
@@ -19,8 +20,9 @@ import 'screen_host.dart';
 
 Future<FakeLocationRepository> _pump(
   WidgetTester tester,
-  FakePointsRepository points,
-) async {
+  FakePointsRepository points, {
+  List<WbHaptic>? haptics,
+}) async {
   final location = FakeLocationRepository(
     access: const Result.success(LocationAccess.denied),
   );
@@ -39,6 +41,7 @@ Future<FakeLocationRepository> _pump(
       child: const HomeScreen(gpsStatus: GpsStatus()),
     ),
     points: points,
+    haptics: haptics,
   );
   await settle(tester);
   return location;
@@ -108,6 +111,30 @@ void main() {
         expect(find.text(label), findsOneWidget);
       }
       expect(find.textContaining('route'), findsNothing);
+    });
+
+    testWidgets('answers the press', (tester) async {
+      final haptics = <WbHaptic>[];
+      await _pump(tester, FakePointsRepository([car]), haptics: haptics);
+
+      await openSheet(tester);
+
+      expect(haptics, [WbHaptic.press]);
+    });
+
+    testWidgets('deleting answers once it is done', (tester) async {
+      final haptics = <WbHaptic>[];
+      await _pump(tester, FakePointsRepository([car]), haptics: haptics);
+      await openSheet(tester);
+      await tester.tap(find.text('Удалить'));
+      await settle(tester);
+      expect(haptics, [WbHaptic.press], reason: 'not before confirming');
+
+      await tester.tap(find.text('Удалить').last);
+      await settle(tester);
+
+      expect(haptics, [WbHaptic.press, WbHaptic.press]);
+      await expireUndo(tester);
     });
 
     testWidgets('share opens the share screen', (tester) async {

@@ -15,6 +15,7 @@ final class AppSettings {
     this.language = AppLanguage.system,
     this.vibrationOnArrival = true,
     this.vibrationPattern = VibrationPattern.standard,
+    this.touchFeedback = true,
   });
 
   /// Before anything is saved.
@@ -25,16 +26,21 @@ final class AppSettings {
   final bool vibrationOnArrival;
   final VibrationPattern vibrationPattern;
 
+  /// Short vibrations on selections and results.
+  final bool touchFeedback;
+
   AppSettings copyWith({
     UnitSystem? units,
     AppLanguage? language,
     bool? vibrationOnArrival,
     VibrationPattern? vibrationPattern,
+    bool? touchFeedback,
   }) => AppSettings(
     units: units ?? this.units,
     language: language ?? this.language,
     vibrationOnArrival: vibrationOnArrival ?? this.vibrationOnArrival,
     vibrationPattern: vibrationPattern ?? this.vibrationPattern,
+    touchFeedback: touchFeedback ?? this.touchFeedback,
   );
 
   @override
@@ -43,9 +49,15 @@ final class AppSettings {
       other.units == units &&
       other.language == language &&
       other.vibrationOnArrival == vibrationOnArrival &&
-      other.vibrationPattern == vibrationPattern;
+      other.vibrationPattern == vibrationPattern &&
+      other.touchFeedback == touchFeedback;
 
   @override
-  int get hashCode =>
-      Object.hash(units, language, vibrationOnArrival, vibrationPattern);
+  int get hashCode => Object.hash(
+    units,
+    language,
+    vibrationOnArrival,
+    vibrationPattern,
+    touchFeedback,
+  );
 }

@@ -53,6 +53,7 @@ import 'package:wayback/features/settings/domain/repositories/diagnostics_reposi
 import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
 import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_touch_feedback_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_pattern_bloc.dart';
@@ -344,6 +345,10 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
                   create: (context) => SetVibrationOnArrivalBloc(
                     context.di<SettingsRepository>(),
                   ),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      SetTouchFeedbackBloc(context.di<SettingsRepository>()),
                 ),
                 BlocProvider(
                   create: (context) =>

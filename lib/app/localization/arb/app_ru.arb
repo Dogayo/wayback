@@ -362,5 +362,6 @@
   "error_point_share_failed": "Не удалось поделиться точкой",
   "error_point_share_failed_body": "Попробуйте ещё раз.",
   "pointShareQrHint": "Наведите камеру другого телефона на код",
-  "pointShareQrLabel": "QR-код точки"
+  "pointShareQrLabel": "QR-код точки",
+  "settingsTouchFeedback": "Отклик при нажатиях"
 }

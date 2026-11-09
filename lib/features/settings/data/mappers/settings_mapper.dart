@@ -12,6 +12,7 @@ extension SettingsModelMapper on SettingsModel {
       vibrationPattern:
           VibrationPattern.values.asNameMap()[vibrationPattern] ??
           defaults.vibrationPattern,
+      touchFeedback: touchFeedback ?? defaults.touchFeedback,
     );
   }
 }
@@ -22,5 +23,6 @@ extension AppSettingsMapper on AppSettings {
     language: language.name,
     vibrationOnArrival: vibrationOnArrival,
     vibrationPattern: vibrationPattern.name,
+    touchFeedback: touchFeedback,
   );
 }

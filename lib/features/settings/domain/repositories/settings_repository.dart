@@ -18,4 +18,6 @@ abstract interface class SettingsRepository {
   Future<Result<void>> setVibrationOnArrival({required bool enabled});
 
   Future<Result<void>> setVibrationPattern(VibrationPattern pattern);
+
+  Future<Result<void>> setTouchFeedback({required bool enabled});
 }

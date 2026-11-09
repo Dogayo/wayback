@@ -5,6 +5,7 @@ import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
 import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_touch_feedback_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/settings_bloc.dart';
@@ -27,6 +28,7 @@ Future<void> _pump(
         BlocProvider(create: (_) => SetUnitsBloc(repository)),
         BlocProvider(create: (_) => SetLanguageBloc(repository)),
         BlocProvider(create: (_) => SetVibrationOnArrivalBloc(repository)),
+        BlocProvider(create: (_) => SetTouchFeedbackBloc(repository)),
         BlocProvider(
           create: (_) =>
               SendLogBloc(diagnostics ?? FakeDiagnosticsRepository()),
@@ -52,7 +54,7 @@ void main() {
     expect(find.text('Вибрация при прибытии'), findsOneWidget);
     expect(find.text('Вид вибрации'), findsOneWidget);
     expect(find.text('Обычная'), findsOneWidget);
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+    expect(tester.widget<Switch>(find.byType(Switch).first).value, isTrue);
   });
 
   testWidgets('every change is saved right away', (tester) async {
@@ -63,7 +65,7 @@ void main() {
     await settle(tester);
     await tester.tap(find.text('English'));
     await settle(tester);
-    await tester.tap(find.byType(Switch));
+    await tester.tap(find.byType(Switch).first);
     await settle(tester);
 
     expect(
@@ -74,7 +76,23 @@ void main() {
         vibrationOnArrival: false,
       ),
     );
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+    expect(tester.widget<Switch>(find.byType(Switch).first).value, isFalse);
+  });
+
+  testWidgets('haptic feedback has its own switch, on by default', (
+    tester,
+  ) async {
+    final repository = FakeSettingsRepository();
+    await _pump(tester, repository);
+
+    expect(find.text('Отклик при нажатиях'), findsOneWidget);
+    expect(tester.widget<Switch>(find.byType(Switch).last).value, isTrue);
+
+    await tester.tap(find.byType(Switch).last);
+    await settle(tester);
+
+    expect(repository.settings.touchFeedback, isFalse);
+    expect(repository.settings.vibrationOnArrival, isTrue);
   });
 
   testWidgets('vibration turned off hides its type', (tester) async {
@@ -91,11 +109,11 @@ void main() {
       ..failNext = const StorageFailure(code: 'settings_storage_failed');
     await _pump(tester, repository);
 
-    await tester.tap(find.byType(Switch));
+    await tester.tap(find.byType(Switch).first);
     await settle(tester);
 
     expect(find.text('Не удалось сохранить настройки'), findsOneWidget);
-    expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+    expect(tester.widget<Switch>(find.byType(Switch).first).value, isTrue);
   });
 
   testWidgets('Send log shares it with a subject', (tester) async {

@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:wayback/app/localization/error_l10n.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
+import 'package:wayback/app/haptics/app_haptics.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/app_router.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/app/theme/app_theme.dart';
+import 'package:wayback/features/navigation/domain/repositories/vibration_repository.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/bloc/restore_point_bloc.dart';
@@ -32,12 +34,14 @@ class _AppState extends State<App> {
   late final GoRouter _router = widget.router ?? createRouter();
   late final AppLogger _logger;
   late final AppLifecycleListener _lifecycle;
+  late final AppHaptics _haptics;
   String? _route;
 
   @override
   void initState() {
     super.initState();
     _logger = context.di<AppLogger>();
+    _haptics = AppHaptics(context.di<VibrationRepository>());
     _lifecycle = AppLifecycleListener(
       onResume: () => _logger.info('app', 'resumed'),
       // The system may kill the app from here on: nothing stays buffered.
@@ -83,6 +87,7 @@ class _AppState extends State<App> {
     child: BlocBuilder<SettingsBloc, DataState<AppSettings>>(
       builder: (context, state) {
         final settings = state.dataOrNull ?? AppSettings.defaults;
+        _haptics.enabled = settings.touchFeedback;
         return SettingsScope(
           settings: settings,
           child: MaterialApp.router(
@@ -93,16 +98,13 @@ class _AppState extends State<App> {
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             routerConfig: _router,
-            builder: (context, child) =>
-                BlocListener<RestorePointBloc, ActionState<SavedPoint>>(
-                  listener: (context, state) => state.mapOrNull(
-                    failure: (s) => WbSnackbar.show(
-                      context,
-                      context.l10n.error(s.failure.code).title,
-                    ),
-                  ),
-                  child: child,
-                ),
+            builder: (context, child) => WbHapticsScope(
+              player: _haptics.play,
+              child: ActionResultListener<RestorePointBloc, SavedPoint>(
+                successHaptic: null,
+                child: child,
+              ),
+            ),
           ),
         );
       },
