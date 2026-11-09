@@ -122,25 +122,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   padding: const EdgeInsets.all(WbSpacing.screenPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: WbSpacing.xs,
                     children: [
-                      if (!onLast)
+                      if (onLast)
+                        WbButton(
+                          label: l10n.onboardingLocationContinue,
+                          loading: finishing,
+                          onPressed: () => finish(null),
+                        )
+                      else
                         WbButton(
                           label: l10n.onboardingNext,
                           onPressed: () => _goTo(_page + 1),
-                        )
-                      else ...[
-                        WbButton(
-                          label: l10n.onboardingLocationAllow,
-                          loading: finishing,
-                          onPressed: () => finish(true),
                         ),
-                        WbButton(
-                          label: l10n.onboardingLocationLater,
-                          variant: WbButtonVariant.tertiary,
-                          onPressed: finishing ? null : () => finish(false),
-                        ),
-                      ],
                     ],
                   ),
                 ),

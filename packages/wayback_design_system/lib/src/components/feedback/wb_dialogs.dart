@@ -48,6 +48,12 @@ abstract final class WbDialogs {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
+            // Beside a red action the accent would compete with it.
+            style: destructive
+                ? TextButton.styleFrom(
+                    foregroundColor: context.wbColors.contentPrimary,
+                  )
+                : null,
             child: Text(cancelLabel),
           ),
           TextButton(
