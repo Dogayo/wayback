@@ -160,5 +160,12 @@
   "pointAddTitle": "New place",
   "pointAddSubtitle": "How to set it",
   "pointAddCurrent": "Current location",
-  "pointAddByCoordinates": "By coordinates"
+  "pointAddByCoordinates": "By coordinates",
+  "pointActionShare": "Share",
+  "pointShareTitle": "Share",
+  "pointShareSend": "Send",
+  "pointShareCopy": "Copy coordinates",
+  "pointCoordinatesCopied": "Coordinates copied",
+  "error_point_share_failed": "Couldn't share this place",
+  "error_point_share_failed_body": "Try again."
 }

@@ -65,6 +65,11 @@
 | `pointCreateLocating` | Определяем местоположение… | Getting your location… | loading, Save недоступен |
 | `pointNameLabel` | Название | Name | |
 | `pointNameHelper` | Можно оставить как есть | Optional | под полем, дефолт уже подставлен (§7) |
+| `pointActionShare` | Поделиться | Share | шторка действий, кнопка в деталях |
+| `pointShareTitle` | Поделиться | Share | заголовок экрана |
+| `pointShareSend` | Отправить | Send | системное меню «Поделиться» |
+| `pointShareCopy` | Скопировать координаты | Copy coordinates | |
+| `pointCoordinatesCopied` | Координаты скопированы | Coordinates copied | снекбар |
 | `pointImportTitle` | По координатам | By coordinates | заголовок экрана |
 | `pointImportDistance` | До точки | Distance | |
 | `pointCoordinatesHint` | 56.50353, 85.03131 | 56.50353, 85.03131 | подсказка в пустом поле |
@@ -253,6 +258,7 @@
 | `points_not_found` | Точка не найдена | Возможно, её удалили. | К списку точек |
 | `settings_storage_failed` | Не удалось сохранить настройки | Попробуйте ещё раз. | Повторить |
 | `diagnostics_export_failed` | Не удалось подготовить журнал | Попробуйте ещё раз. | — |
+| `point_share_failed` | Не удалось поделиться точкой | Попробуйте ещё раз. | — |
 
 **en**
 
@@ -270,6 +276,7 @@
 | `points_not_found` | Place not found | It may have been deleted. |
 | `settings_storage_failed` | Couldn't save settings | Try again. |
 | `diagnostics_export_failed` | Couldn't prepare the log | Try again. |
+| `point_share_failed` | Couldn't share this place | Try again. |
 
 Пара `error_generic` / `error_generic_body` показывается для любого кода без перевода; сам код при этом логируется (architecture.md §4.2).
 

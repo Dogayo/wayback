@@ -1,6 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:wayback/core/utils/geo/geo_point.dart';
 import 'package:wayback/features/points/domain/entities/point_draft.dart';
 import 'package:wayback/features/points/domain/entities/point_type.dart';
+
+import '../fake_points_repository.dart';
 
 void main() {
   test('a link brings name and type', () {
@@ -98,6 +101,48 @@ void main() {
 
     test('a link with no point in it is dropped', () {
       expect(pointImportText(const {'lat': '95', 'lon': '20.1'}), '');
+    });
+  });
+
+  group('sharing', () {
+    final point = savedPoint(
+      'a',
+      name: 'Красная площадь',
+      type: PointType.meeting,
+      active: false,
+      position: const GeoPoint(latitude: 55.75393, longitude: 37.62086),
+    );
+
+    test('the link reads back as the same place', () {
+      final draft = parsePointText(pointShareLink(point))!;
+
+      expect(draft.position, point.position);
+      expect(draft.name, 'Красная площадь');
+      expect(draft.type, PointType.meeting);
+      expect(draft.isPrecise, isTrue);
+    });
+
+    test('the link carries nothing about this phone', () {
+      final link = pointShareLink(point);
+
+      expect(link, isNot(contains('id=')));
+      expect(link, isNot(contains('active')));
+      expect(link, isNot(contains('2026')));
+    });
+
+    test('the message reads well and imports whole', () {
+      final text = pointShareText(point);
+
+      expect(text.split('\n').first, 'Красная площадь');
+      expect(text.split('\n')[1], '55.75393, 37.62086');
+      final draft = parsePointText(text)!;
+      expect(draft.name, 'Красная площадь');
+      expect(draft.type, PointType.meeting);
+    });
+
+    test('a name with odd characters survives the link', () {
+      final odd = savedPoint('a', name: 'Дом & сад #1 = "тут"');
+      expect(parsePointText(pointShareLink(odd))!.name, 'Дом & сад #1 = "тут"');
     });
   });
 }

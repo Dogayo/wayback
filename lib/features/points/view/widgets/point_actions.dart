@@ -80,6 +80,13 @@ abstract final class PointActions {
           ),
         ),
         WbSheetAction(
+          icon: Icons.share_outlined,
+          label: l10n.pointActionShare,
+          onSelected: ifMounted(
+            () => context.push(Routes.pointShare(point.id)),
+          ),
+        ),
+        WbSheetAction(
           icon: Icons.edit_outlined,
           label: l10n.actionRename,
           onSelected: ifMounted(() => rename(context, point)),

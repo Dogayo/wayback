@@ -28,6 +28,7 @@ import 'package:wayback/features/onboarding/view/bloc/finish_onboarding_bloc.dar
 import 'package:wayback/features/onboarding/view/screens/onboarding_screen.dart';
 import 'package:wayback/features/points/domain/entities/point_draft.dart';
 import 'package:wayback/features/points/domain/entities/point_type.dart';
+import 'package:wayback/features/points/domain/repositories/point_share_repository.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
@@ -40,11 +41,13 @@ import 'package:wayback/features/points/view/bloc/points_list_bloc.dart';
 import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/save_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
+import 'package:wayback/features/points/view/bloc/share_point_bloc.dart';
 import 'package:wayback/features/points/view/point_type_view.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
 import 'package:wayback/features/points/view/screens/point_import_screen.dart';
+import 'package:wayback/features/points/view/screens/point_share_screen.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
 import 'package:wayback/features/settings/domain/repositories/diagnostics_repository.dart';
 import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
@@ -70,12 +73,14 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
     GoRoute(
       path: Routes.onboarding,
       pageBuilder: _page(
-        (_, _) => BlocProvider(
+        (_, state) => BlocProvider(
           create: (context) => FinishOnboardingBloc(
             context.di<OnboardingRepository>(),
             context.di<LocationRepository>(),
           ),
-          child: const OnboardingScreen(),
+          child: OnboardingScreen(
+            next: _importAfterOnboarding(state.uri.queryParameters['next']),
+          ),
         ),
         WbTransition.fade,
       ),
@@ -261,6 +266,28 @@ GoRouter createRouter({String initialLocation = Routes.home}) => GoRouter(
           ),
         ),
         GoRoute(
+          path: 'points/:${Routes.pointIdParam}/share',
+          pageBuilder: _page(
+            (_, state) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => PointDetailsBloc(
+                    context.di<PointsRepository>(),
+                    context.di<LocationRepository>(),
+                    pointId: state.pathParameters[Routes.pointIdParam]!,
+                  )..fetch(),
+                ),
+                BlocProvider(
+                  create: (context) =>
+                      SharePointBloc(context.di<PointShareRepository>()),
+                ),
+              ],
+              child: const PointShareScreen(),
+            ),
+            WbTransition.drill,
+          ),
+        ),
+        GoRoute(
           path: 'navigate/:${Routes.pointIdParam}',
           pageBuilder: _page(
             (_, state) => MultiBlocProvider(
@@ -367,6 +394,11 @@ GoRouterPageBuilder _page(
       child: builder(context, state),
     );
 
+/// Where to go after onboarding: only ever the import screen, whatever the
+/// link says.
+String? _importAfterOnboarding(String? next) =>
+    next != null && next.startsWith(Routes.pointImport) ? next : null;
+
 /// Until onboarding is done every route leads to it; afterwards it leads
 /// Home (mvp-scope.md §2.6). An unreadable flag never locks the user out.
 Future<String?> _onboardingFirst(
@@ -377,6 +409,21 @@ Future<String?> _onboardingFirst(
       (await context.di<OnboardingRepository>().isCompleted()).valueOrNull ??
       true;
   final atOnboarding = state.matchedLocation == Routes.onboarding;
-  if (!completed) return atOnboarding ? null : Routes.onboarding;
+  if (!completed) {
+    if (atOnboarding) return null;
+    // A point someone sent must survive the first launch.
+    if (state.matchedLocation == Routes.pointImport) {
+      return Uri(
+        path: Routes.onboarding,
+        queryParameters: {
+          'next': Uri(
+            path: Routes.pointImport,
+            query: state.uri.query,
+          ).toString(),
+        },
+      ).toString();
+    }
+    return Routes.onboarding;
+  }
   return atOnboarding ? Routes.home : null;
 }

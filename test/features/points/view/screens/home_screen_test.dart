@@ -110,6 +110,16 @@ void main() {
       expect(find.textContaining('route'), findsNothing);
     });
 
+    testWidgets('share opens the share screen', (tester) async {
+      await _pump(tester, FakePointsRepository([car]));
+      await openSheet(tester);
+
+      await tester.tap(find.text('Поделиться'));
+      await settle(tester);
+
+      expect(find.text('route /points/a/share'), findsOneWidget);
+    });
+
     testWidgets('details opens the point', (tester) async {
       await _pump(tester, FakePointsRepository([car]));
       await openSheet(tester);

@@ -14,6 +14,7 @@ const localizedErrorCodes = {
   'points_not_found',
   'settings_storage_failed',
   'diagnostics_export_failed',
+  'point_share_failed',
 };
 
 typedef ErrorText = ({String title, String body});
@@ -24,6 +25,10 @@ extension ErrorL10n on AppLocalizations {
   /// Unknown codes get the generic text; the caller logs the code
   /// (architecture.md §4.2), the user never sees it.
   ErrorText error(String code) => switch (code) {
+    'point_share_failed' => (
+      title: error_point_share_failed,
+      body: error_point_share_failed_body,
+    ),
     'location_permission_denied' => (
       title: error_location_permission_denied,
       body: error_location_permission_denied_body,

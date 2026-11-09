@@ -78,6 +78,15 @@ void main() {
     expect(find.text('Вернуть'), findsNothing);
   });
 
+  testWidgets('the app bar leads to sharing', (tester) async {
+    await _pump(tester, 'a');
+
+    await tester.tap(find.byTooltip('Поделиться'));
+    await settle(tester);
+
+    expect(find.text('route /points/a/share'), findsOneWidget);
+  });
+
   testWidgets('a missing point offers the way back', (tester) async {
     await _pump(tester, 'gone');
 

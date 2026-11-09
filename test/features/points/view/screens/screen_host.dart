@@ -38,6 +38,7 @@ Future<GoRouter> pumpScreen(
             'points/new',
             'import',
             'points/:id',
+            'points/:id/share',
             'navigate/:id',
             'settings',
           ])
