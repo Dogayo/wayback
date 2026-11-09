@@ -7,6 +7,7 @@ import 'package:wayback/features/points/domain/repositories/point_share_reposito
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
 import 'package:wayback/features/points/view/bloc/share_point_bloc.dart';
 import 'package:wayback/features/points/view/screens/point_share_screen.dart';
+import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../../location/fake_location_repository.dart';
 import '../../fake_point_share_repository.dart';
@@ -49,6 +50,18 @@ void main() {
 
     expect(find.text('Машина'), findsOneWidget);
     expect(find.text('56.50353, 85.03131'), findsOneWidget);
+  });
+
+  testWidgets('shows a QR of the link', (tester) async {
+    await _pump(tester);
+
+    final qr = tester.widget<WbQrCode>(find.byType(WbQrCode));
+    expect(qr.data, startsWith('wayback://app/import?'));
+    expect(qr.data, contains('lat=56.50353'));
+    expect(
+      find.text('Наведите камеру другого телефона на код'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('nothing is sent until asked', (tester) async {

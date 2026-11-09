@@ -360,5 +360,7 @@
   "pointShareCopy": "Скопировать координаты",
   "pointCoordinatesCopied": "Координаты скопированы",
   "error_point_share_failed": "Не удалось поделиться точкой",
-  "error_point_share_failed_body": "Попробуйте ещё раз."
+  "error_point_share_failed_body": "Попробуйте ещё раз.",
+  "pointShareQrHint": "Наведите камеру другого телефона на код",
+  "pointShareQrLabel": "QR-код точки"
 }

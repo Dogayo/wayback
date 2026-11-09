@@ -67,6 +67,8 @@
 | `pointNameHelper` | Можно оставить как есть | Optional | под полем, дефолт уже подставлен (§7) |
 | `pointActionShare` | Поделиться | Share | шторка действий, кнопка в деталях |
 | `pointShareTitle` | Поделиться | Share | заголовок экрана |
+| `pointShareQrHint` | Наведите камеру другого телефона на код | Point another phone’s camera at the code | |
+| `pointShareQrLabel` | QR-код точки | QR code of this place | для скринридера |
 | `pointShareSend` | Отправить | Send | системное меню «Поделиться» |
 | `pointShareCopy` | Скопировать координаты | Copy coordinates | |
 | `pointCoordinatesCopied` | Координаты скопированы | Coordinates copied | снекбар |

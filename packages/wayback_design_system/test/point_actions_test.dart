@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
@@ -587,6 +588,39 @@ void main() {
       await tester.pump();
       expect(controller.text, 'x' * 40);
       expect(find.text('40/40'), findsOneWidget);
+    });
+  });
+
+  group('WbQrCode', () {
+    testWidgets('stays square and within its limit', (tester) async {
+      await tester.pumpWidget(
+        _host(const WbQrCode(data: 'wayback://app/import?lat=1.5&lon=2.5')),
+      );
+      expect(tester.getSize(find.byType(AspectRatio)), const Size(285, 285));
+    });
+
+    testWidgets('fits a narrow screen', (tester) async {
+      await tester.pumpWidget(
+        _host(const SizedBox(width: 200, child: WbQrCode(data: 'wayback'))),
+      );
+      expect(tester.getSize(find.byType(AspectRatio)).width, 200);
+    });
+
+    testWidgets('new data draws a new code', (tester) async {
+      await tester.pumpWidget(_host(const WbQrCode(data: 'a')));
+      RenderCustomPaint box() => tester.renderObject<RenderCustomPaint>(
+        find.descendant(
+          of: find.byType(WbQrCode),
+          matching: find.byType(CustomPaint),
+        ),
+      );
+      final before = box().painter;
+
+      await tester.pumpWidget(_host(const WbQrCode(data: 'a')));
+      expect(box().painter!.shouldRepaint(before!), isFalse);
+
+      await tester.pumpWidget(_host(const WbQrCode(data: 'b')));
+      expect(box().painter!.shouldRepaint(before), isTrue);
     });
   });
 }

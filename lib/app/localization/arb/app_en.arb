@@ -167,5 +167,7 @@
   "pointShareCopy": "Copy coordinates",
   "pointCoordinatesCopied": "Coordinates copied",
   "error_point_share_failed": "Couldn't share this place",
-  "error_point_share_failed_body": "Try again."
+  "error_point_share_failed_body": "Try again.",
+  "pointShareQrHint": "Point another phone’s camera at the code",
+  "pointShareQrLabel": "QR code of this place"
 }
