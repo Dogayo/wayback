@@ -7,6 +7,7 @@ import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/core/utils/geo/geo_format.dart';
+import 'package:wayback/features/points/domain/entities/point_draft.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
 import 'package:wayback/features/points/view/bloc/share_point_bloc.dart';
@@ -82,6 +83,19 @@ class _Content extends StatelessWidget {
           formatCoordinates(point.position),
           textAlign: TextAlign.center,
           style: context.wbText.bodyLarge?.copyWith(
+            color: context.wbColors.contentSecondary,
+          ),
+        ),
+        const SizedBox(height: WbSpacing.lg),
+        WbQrCode(
+          data: pointShareLink(point),
+          semanticLabel: l10n.pointShareQrLabel,
+        ),
+        const SizedBox(height: WbSpacing.sm),
+        Text(
+          l10n.pointShareQrHint,
+          textAlign: TextAlign.center,
+          style: context.wbText.bodyMedium?.copyWith(
             color: context.wbColors.contentSecondary,
           ),
         ),

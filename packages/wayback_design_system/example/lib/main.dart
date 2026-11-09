@@ -1179,6 +1179,11 @@ class _MotionSection extends StatelessWidget {
       _Specimen(title: 'Переходы экранов', child: _TransitionsDemo()),
       _Specimen(title: 'Смена состояний', child: _StatesDemo()),
       _Specimen(title: 'Действия над точкой', child: _PointActionsDemo()),
+      _Specimen(
+        title: 'QR',
+        width: 340,
+        child: WbQrCode(data: 'wayback://app/import?lat=56.50353&lon=85.03131'),
+      ),
     ],
   );
 }

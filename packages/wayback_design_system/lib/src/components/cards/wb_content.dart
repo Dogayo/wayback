@@ -9,3 +9,4 @@ export 'wb_point_card.dart';
 export 'wb_tone.dart';
 export 'wb_animated_items.dart';
 export 'wb_swipe_actions.dart';
+export 'wb_qr_code.dart';
