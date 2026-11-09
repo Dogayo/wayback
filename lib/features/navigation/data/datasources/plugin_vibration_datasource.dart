@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:flutter/services.dart';
 import 'package:vibration/vibration.dart';
+import 'package:wayback/core/utils/vibration/haptic_level.dart';
 import 'package:wayback/core/utils/vibration/vibration_pattern.dart';
 import 'package:wayback/features/navigation/data/datasources/vibration_datasource.dart';
 
@@ -19,5 +23,25 @@ final class PluginVibrationDatasource implements VibrationDatasource {
       pattern: [0, 800, 150, 800, 150, 800],
       intensities: [0, _maxAmplitude, 0, _maxAmplitude, 0, _maxAmplitude],
     ),
+  };
+
+  /// Pulses are tuned by hand on real phones: the motor of a Samsung M32 does
+  /// not spin up in 20 ms, though the system reports the pulse as played.
+  /// iOS has a haptic engine and short vibrations of its own.
+  @override
+  Future<void> pulse(HapticLevel level) =>
+      Platform.isIOS ? _iosPulse(level) : _vibratorPulse(level);
+
+  Future<void> _vibratorPulse(HapticLevel level) => switch (level) {
+    HapticLevel.tick => Vibration.vibrate(duration: 30),
+    HapticLevel.press => Vibration.vibrate(duration: 40),
+    HapticLevel.success => Vibration.vibrate(pattern: [0, 40, 60, 40]),
+    HapticLevel.warning => Vibration.vibrate(pattern: [0, 70, 60, 70]),
+  };
+
+  Future<void> _iosPulse(HapticLevel level) => switch (level) {
+    HapticLevel.tick => HapticFeedback.selectionClick(),
+    HapticLevel.press || HapticLevel.success => HapticFeedback.mediumImpact(),
+    HapticLevel.warning => HapticFeedback.heavyImpact(),
   };
 }

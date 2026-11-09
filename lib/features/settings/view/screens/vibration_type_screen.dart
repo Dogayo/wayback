@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
-import 'package:wayback/app/localization/error_l10n.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/localization/settings_l10n.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
@@ -18,12 +18,6 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 class VibrationTypeScreen extends StatelessWidget {
   const VibrationTypeScreen({super.key});
 
-  static void _onFailed(BuildContext context, ActionState<void> state) =>
-      state.mapOrNull(
-        failure: (s) =>
-            WbSnackbar.show(context, context.l10n.error(s.failure.code).title),
-      );
-
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -31,11 +25,11 @@ class VibrationTypeScreen extends StatelessWidget {
         context.watch<SettingsBloc>().state.dataOrNull?.vibrationPattern ??
         AppSettings.defaults.vibrationPattern;
     return MultiBlocListener(
-      listeners: const [
-        BlocListener<SetVibrationPatternBloc, ActionState<void>>(
-          listener: _onFailed,
+      listeners: [
+        ActionResultListener<SetVibrationPatternBloc, void>(
+          successHaptic: null,
         ),
-        BlocListener<TestVibrationBloc, ActionState<void>>(listener: _onFailed),
+        ActionResultListener<TestVibrationBloc, void>(successHaptic: null),
       ],
       child: Scaffold(
         appBar: WbAppBar(
@@ -56,8 +50,12 @@ class VibrationTypeScreen extends StatelessWidget {
               WbListItem(
                 title: l10n.vibrationPattern(pattern),
                 selected: pattern == selected,
-                onTap: () =>
-                    context.read<SetVibrationPatternBloc>().run(pattern),
+                onTap: () {
+                  if (pattern != selected) {
+                    WbHaptics.play(context, WbHaptic.tick);
+                  }
+                  context.read<SetVibrationPatternBloc>().run(pattern);
+                },
               ),
             const SizedBox(height: WbSpacing.lg),
             WbButton(

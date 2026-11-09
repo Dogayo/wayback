@@ -9,6 +9,7 @@ import 'package:wayback/features/points/view/bloc/point_form_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_import_bloc.dart';
 import 'package:wayback/features/points/view/bloc/save_point_bloc.dart';
 import 'package:wayback/features/points/view/screens/point_import_screen.dart';
+import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../../location/fake_location_repository.dart';
 import '../../fake_points_repository.dart';
@@ -18,6 +19,7 @@ Future<FakePointsRepository> _pump(
   WidgetTester tester, {
   String text = '',
   FakePointsRepository? repository,
+  List<WbHaptic>? haptics,
 }) async {
   final points = repository ?? FakePointsRepository();
   final draft = parsePointText(text);
@@ -43,6 +45,7 @@ Future<FakePointsRepository> _pump(
       ],
       child: PointImportScreen(received: text.isNotEmpty),
     ),
+    haptics: haptics,
   );
   await settle(tester);
   return points;
@@ -66,6 +69,21 @@ void main() {
     expect(find.text('Не удалось распознать координаты'), findsOneWidget);
     expect(points.points, isEmpty);
     expect(find.text('По координатам'), findsOneWidget);
+  });
+
+  testWidgets('a refusal and a save each answer', (tester) async {
+    final haptics = <WbHaptic>[];
+    await _pump(tester, haptics: haptics);
+
+    await tester.tap(find.text('Сохранить'));
+    await settle(tester);
+    expect(haptics, [WbHaptic.warning]);
+
+    await tester.enterText(_field(0), '56.50353, 85.03131');
+    await settle(tester);
+    await tester.tap(find.text('Сохранить'));
+    await settle(tester);
+    expect(haptics, [WbHaptic.warning, WbHaptic.success]);
   });
 
   testWidgets('typing takes the error away', (tester) async {

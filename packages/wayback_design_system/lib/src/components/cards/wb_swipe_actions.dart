@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
@@ -72,6 +73,7 @@ class _WbSwipeActionsState extends State<WbSwipeActions>
 
   void _settle({required bool open}) {
     if (open) {
+      if (!identical(_open, this)) WbHaptics.play(context, WbHaptic.tick);
       _open = this;
     } else if (identical(_open, this)) {
       _open = null;

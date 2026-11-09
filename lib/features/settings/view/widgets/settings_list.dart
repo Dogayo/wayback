@@ -7,6 +7,7 @@ import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
 import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_touch_feedback_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
@@ -39,7 +40,12 @@ class SettingsList extends StatelessWidget {
           WbListItem(
             title: l10n.appLanguage(language),
             selected: language == settings.language,
-            onTap: () => context.read<SetLanguageBloc>().run(language),
+            onTap: () {
+              if (language != settings.language) {
+                WbHaptics.play(context, WbHaptic.tick);
+              }
+              context.read<SetLanguageBloc>().run(language);
+            },
           ),
         const SizedBox(height: WbSpacing.lg),
         WbSwitch(
@@ -54,6 +60,11 @@ class SettingsList extends StatelessWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(Routes.vibrationType),
           ),
+        WbSwitch(
+          value: settings.touchFeedback,
+          label: l10n.settingsTouchFeedback,
+          onChanged: context.read<SetTouchFeedbackBloc>().run,
+        ),
         const SizedBox(height: WbSpacing.lg),
         WbListItem(
           title: l10n.settingsSendLog,

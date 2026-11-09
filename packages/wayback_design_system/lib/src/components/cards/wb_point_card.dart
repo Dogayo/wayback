@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:wayback_design_system/src/components/feedback/wb_skeleton.dart';
 import 'package:wayback_design_system/src/components/wayfinding/wb_direction_dial.dart';
+import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
@@ -75,7 +76,12 @@ class WbPointCard extends StatelessWidget {
       label: '$title, $distance',
       child: _PointCardFrame(
         onTap: onTap,
-        onLongPress: onLongPress,
+        onLongPress: onLongPress == null
+            ? null
+            : () {
+                WbHaptics.play(context, WbHaptic.press);
+                onLongPress!();
+              },
         dial: direction ?? WbPointDirection(icon: typeIcon),
         body: ExcludeSemantics(
           child: Column(
@@ -159,6 +165,8 @@ class _PointCardFrame extends StatelessWidget {
     clipBehavior: Clip.antiAlias,
     child: InkWell(
       onTap: onTap,
+      // The system's own long press answer would come on top of ours.
+      enableFeedback: onLongPress == null,
       onLongPress: onLongPress,
       child: Padding(
         padding: const EdgeInsets.all(WbSpacing.md),

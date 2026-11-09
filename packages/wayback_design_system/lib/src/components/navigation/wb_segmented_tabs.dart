@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
@@ -119,7 +120,12 @@ class _Segment extends StatelessWidget {
     inMutuallyExclusiveGroup: true,
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: selected ? null : onTap,
+      onTap: selected
+          ? null
+          : () {
+              WbHaptics.play(context, WbHaptic.tick);
+              onTap();
+            },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: _inset),
         child: Container(

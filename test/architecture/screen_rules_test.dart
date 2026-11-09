@@ -84,6 +84,31 @@ void main() {
     );
   });
 
+  group('action-result-listener', () {
+    test('flags a plain listener on an action', () {
+      expect(
+        _rules(
+          actionListeners(
+            _file('BlocListener<SaveBloc, ActionState<void>>(listener: f)'),
+          ),
+        ),
+        ['action-result-listener'],
+      );
+    });
+
+    test('allows ActionResultListener and listeners on other states', () {
+      expect(
+        actionListeners(
+          _file(
+            'ActionResultListener<SaveBloc, void>(successHaptic: null); '
+            'BlocListener<HomeBloc, DataState<Home>>(listener: f)',
+          ),
+        ),
+        isEmpty,
+      );
+    });
+  });
+
   group('thin-screens', () {
     test('no DI, repositories, data, bloc creation or calculations', () {
       final rules = _rules(

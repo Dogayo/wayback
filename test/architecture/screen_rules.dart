@@ -45,6 +45,7 @@ List<Violation> checkScreenRules(
       ...noHardcodedText(file),
       ...designTokens(file),
       ...designSystemComponents(file),
+      ...actionListeners(file),
       ...thinScreens(file),
       ...screenSize(file),
       ...screenHasTest(file, testExists ?? (path) => File(path).existsSync()),
@@ -113,6 +114,19 @@ List<Violation> designSystemComponents(SourceFile file) {
         ),
   ];
 }
+
+/// The result of an action always goes through `ActionResultListener`, which adds
+/// the haptic and the error: a plain listener is how one gets forgotten.
+List<Violation> actionListeners(SourceFile file) => [
+  if (RegExp(
+    r'BlocListener<\w+,\s*ActionState<',
+  ).hasMatch(stripComments(file.content)))
+    Violation(
+      'action-result-listener',
+      file.path,
+      'a BlocListener on an ActionState; use ActionResultListener',
+    ),
+];
 
 /// Screens show state and send events: no DI, no repositories, no bloc
 /// creation, no calculations. Error-code constants are fine.

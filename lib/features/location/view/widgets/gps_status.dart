@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
@@ -54,19 +55,19 @@ class _GpsStatusState extends State<GpsStatus> {
   @override
   Widget build(BuildContext context) => MultiBlocListener(
     listeners: [
-      BlocListener<RequestLocationPermissionBloc, ActionState<LocationAccess>>(
-        listener: (context, state) => state.mapOrNull(
-          success: (_) => context.read<LocationFixBloc>().fetch(),
-        ),
+      ActionResultListener<RequestLocationPermissionBloc, LocationAccess>(
+        successHaptic: null,
+        reportFailure: false,
+        onSuccess: (context, _) => context.read<LocationFixBloc>().fetch(),
       ),
-      BlocListener<OpenLocationSettingsBloc, ActionState<void>>(
-        listener: (context, state) => state.mapOrNull(
-          success: (_) {
-            _inSettings = true;
-            // The precise location dialog may have changed access already.
-            context.read<LocationFixBloc>().fetch();
-          },
-        ),
+      ActionResultListener<OpenLocationSettingsBloc, void>(
+        successHaptic: null,
+        reportFailure: false,
+        onSuccess: (context, _) {
+          _inSettings = true;
+          // The precise location dialog may have changed access already.
+          context.read<LocationFixBloc>().fetch();
+        },
       ),
     ],
     child: BlocBuilder<LocationFixBloc, DataState<LocationFix>>(

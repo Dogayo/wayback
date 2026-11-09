@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
-import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
-import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/features/points/domain/entities/point_naming.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
@@ -140,9 +139,6 @@ abstract final class PointActions {
   static void showDeleted(BuildContext context, SavedPoint point) =>
       _offerUndo(context, context.l10n.pointDeletedSnackbar(point.name), point);
 
-  static void showFailure(BuildContext context, Failure failure) =>
-      WbSnackbar.show(context, context.l10n.error(failure.code).title);
-
   static void _offerUndo(
     BuildContext context,
     String message,
@@ -167,29 +163,23 @@ class PointActionsListener extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiBlocListener(
     listeners: [
-      BlocListener<DeletePointBloc, ActionState<SavedPoint>>(
-        listener: (context, state) => state.mapOrNull(
-          success: (s) => PointActions.showDeleted(context, s.result),
-          failure: (s) => PointActions.showFailure(context, s.failure),
-        ),
+      ActionResultListener<DeletePointBloc, SavedPoint>(
+        successHaptic: WbHaptic.press,
+        onSuccess: PointActions.showDeleted,
       ),
-      BlocListener<RenamePointBloc, ActionState<SavedPoint>>(
-        listener: (context, state) => state.mapOrNull(
-          failure: (s) => PointActions.showFailure(context, s.failure),
-        ),
+      ActionResultListener<RenamePointBloc, SavedPoint>(
+        successHaptic: WbHaptic.tick,
       ),
-      BlocListener<SetPointActiveBloc, ActionState<SavedPoint>>(
-        listener: (context, state) => state.mapOrNull(
-          success: (s) {
-            if (s.result.isActive) return;
-            PointActions._offerUndo(
-              context,
-              context.l10n.pointDeactivatedSnackbar(s.result.name),
-              s.result.copyWith(isActive: true),
-            );
-          },
-          failure: (s) => PointActions.showFailure(context, s.failure),
-        ),
+      ActionResultListener<SetPointActiveBloc, SavedPoint>(
+        successHaptic: WbHaptic.tick,
+        onSuccess: (context, point) {
+          if (point.isActive) return;
+          PointActions._offerUndo(
+            context,
+            context.l10n.pointDeactivatedSnackbar(point.name),
+            point.copyWith(isActive: true),
+          );
+        },
       ),
     ],
     child: child,

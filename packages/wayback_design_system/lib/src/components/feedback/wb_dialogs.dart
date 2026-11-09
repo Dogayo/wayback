@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:wayback_design_system/src/components/feedback/wb_state_switcher.dart';
+import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
@@ -138,6 +139,7 @@ class _PromptDialogState extends State<_PromptDialog> {
     final value = _controller.text.trim();
     final error = widget.validator?.call(value);
     if (error != null) {
+      WbHaptics.play(context, WbHaptic.warning);
       setState(() => _error = error);
       return;
     }

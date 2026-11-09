@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
-import 'package:wayback/app/localization/error_l10n.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/core/utils/geo/geo_format.dart';
@@ -25,11 +25,8 @@ class PointShareScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final state = context.watch<PointDetailsBloc>().state;
-    return BlocListener<SharePointBloc, ActionState<void>>(
-      listener: (context, shared) => shared.mapOrNull(
-        failure: (s) =>
-            WbSnackbar.show(context, l10n.error(s.failure.code).title),
-      ),
+    return ActionResultListener<SharePointBloc, void>(
+      successHaptic: null,
       child: Scaffold(
         appBar: WbAppBar(title: l10n.pointShareTitle, onBack: context.back),
         body: WbStateSwitcher(
@@ -59,6 +56,7 @@ class _Content extends StatelessWidget {
 
   Future<void> _copy(BuildContext context) async {
     final copied = context.l10n.pointCoordinatesCopied;
+    WbHaptics.play(context, WbHaptic.tick);
     await Clipboard.setData(
       ClipboardData(text: formatCoordinates(point.position)),
     );

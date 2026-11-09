@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
@@ -34,7 +35,14 @@ class WbListItem extends StatelessWidget {
         button: onTap != null,
         child: InkWell(
           onTap: onTap,
-          onLongPress: onLongPress,
+          // The system's own long press answer would come on top of ours.
+          enableFeedback: onLongPress == null,
+          onLongPress: onLongPress == null
+              ? null
+              : () {
+                  WbHaptics.play(context, WbHaptic.press);
+                  onLongPress!();
+                },
           borderRadius: WbRadius.medium,
           child: AnimatedContainer(
             duration: WbMotion.of(context, WbMotion.fast),
