@@ -13,8 +13,11 @@ const double _ringRadius = 152;
 const double _ringWidth = 2;
 const double _beamRadius = 150;
 const double _beamArcWidth = 9;
-const double _beamOpacity = .32;
-const double _arrowRadius = 92;
+const double _beamOpacity = .4;
+const double _arrowRadius = 112;
+const double _tickTop = 4;
+const double _tickBottom = 22;
+const double _tickWidth = 4;
 const double _searchingHalfArc = 40;
 
 enum WbDirectionTone { ok, unreliable }
@@ -71,7 +74,8 @@ class WbDirectionDial extends StatelessWidget {
             size: Size.square(size),
             painter: _BeamPainter(
               disc: colors.surfaceContainer,
-              ring: colors.borderSubtle,
+              ring: colors.borderDefault,
+              tick: colors.contentPrimary,
               lit: lit,
               shade: shade,
               rotation: angle,
@@ -127,7 +131,7 @@ class _WbDirectionSearchingState extends State<WbDirectionSearching>
           size: Size.square(widget.size),
           painter: _SearchingPainter(
             disc: colors.surfaceContainer,
-            ring: colors.borderSubtle,
+            ring: colors.borderDefault,
             arc: colors.actionPrimaryBg,
             turn: _turn.value,
           ),
@@ -152,7 +156,7 @@ class WbDirectionIcon extends StatelessWidget {
         size: Size.square(size),
         painter: _DiscPainter(
           disc: colors.surfaceContainer,
-          ring: colors.borderSubtle,
+          ring: colors.borderDefault,
         ),
         child: SizedBox.square(
           dimension: size,
@@ -276,11 +280,26 @@ void _paintDisc(Canvas canvas, Size size, Color disc, Color ring) {
     );
 }
 
+/// Fixed mark at the top of the dial: where the phone is facing. It does not
+/// turn with the arrow, so lining the two up means walking the right way.
+void _paintTick(Canvas canvas, Size size, Color color) {
+  final scale = size.width / _dialSize;
+  final x = size.width / 2;
+  canvas.drawLine(
+    Offset(x, _tickTop * scale),
+    Offset(x, _tickBottom * scale),
+    Paint()
+      ..color = color
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = _tickWidth * scale,
+  );
+}
+
 /// Arrow pointing up around the origin, split down its axis into two facets.
 void _paintArrow(Canvas canvas, double radius, Color lit, Color shade) {
   final tip = Offset(0, -radius);
-  final notch = Offset(0, radius * .42);
-  final wing = Offset(radius * .68, radius * .86);
+  final notch = Offset(0, radius * .3);
+  final wing = Offset(radius * .52, radius * .62);
   canvas
     ..drawPath(
       Path()
@@ -318,6 +337,7 @@ class _BeamPainter extends CustomPainter {
   const _BeamPainter({
     required this.disc,
     required this.ring,
+    required this.tick,
     required this.lit,
     required this.shade,
     required this.rotation,
@@ -326,6 +346,7 @@ class _BeamPainter extends CustomPainter {
 
   final Color disc;
   final Color ring;
+  final Color tick;
   final Color lit;
   final Color shade;
   final double rotation;
@@ -335,6 +356,7 @@ class _BeamPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     _paintDisc(canvas, size, disc, ring);
     final scale = size.width / _dialSize;
+    _paintTick(canvas, size, tick);
     final start = -math.pi / 2 - _radians(spread);
     final sweep = _radians(spread * 2);
     canvas
@@ -369,6 +391,7 @@ class _BeamPainter extends CustomPainter {
       old.spread != spread ||
       old.disc != disc ||
       old.ring != ring ||
+      old.tick != tick ||
       old.lit != lit ||
       old.shade != shade;
 }

@@ -88,4 +88,9 @@ void main() {
 
     expect(find.text('Компас неточен: поводите восьмёркой'), findsOneWidget);
   });
+
+  test('positive meets AA for white text on it', () {
+    final luminance = WbColors.light.positive.computeLuminance();
+    expect(1.05 / (luminance + .05), greaterThanOrEqualTo(4.5));
+  });
 }

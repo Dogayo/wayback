@@ -32,7 +32,7 @@ abstract final class WbPalette {
   static const Color brand700 = Color(0xFF9E390D);
 
   // --- status ---
-  static const Color green500 = Color(0xFF1E8E5A);
+  static const Color green500 = Color(0xFF197A4D);
   static const Color green400 = Color(0xFF34A873);
   static const Color green50 = Color(0xFFE6F4EC);
   static const Color green900 = Color(0xFF10261C);
@@ -155,7 +155,7 @@ class WbColors extends ThemeExtension<WbColors> {
     actionPrimaryPressed: Color(0xFF9E390D),
     actionSecondaryBorder: Color(0xFF6B7885),
     actionSecondaryFg: Color(0xFF1B2025),
-    positive: Color(0xFF1E8E5A),
+    positive: Color(0xFF197A4D),
     positiveBg: Color(0xFFE6F4EC),
     warning: Color(0xFF8F5B08),
     warningBg: Color(0xFFB8790A),
