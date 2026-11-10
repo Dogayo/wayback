@@ -55,7 +55,7 @@ void main() {
     expect(find.byIcon(Icons.cabin_outlined), findsNWidgets(2));
   });
 
-  testWidgets('unreliable compass paints the arrow in warning and says so', (
+  testWidgets('approximate direction keeps the brand arrow and says so', (
     tester,
   ) async {
     final handle = tester.ensureSemantics();
@@ -68,7 +68,6 @@ void main() {
           direction: WbPointDirection(
             icon: Icons.cabin_outlined,
             rotation: 0,
-            tone: WbDirectionTone.unreliable,
             semanticLabel: 'Направление примерное',
           ),
         ),
@@ -78,7 +77,7 @@ void main() {
     final arrow = tester.widget<WbDirectionArrow>(
       find.byType(WbDirectionArrow),
     );
-    expect(arrow.color, WbColors.light.warning);
+    expect(arrow.color, WbColors.light.brand600);
     expect(
       find.bySemanticsLabel(
         RegExp('1,2 км.*Направление примерное', dotAll: true),

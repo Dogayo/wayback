@@ -4,13 +4,17 @@ import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/navigation/domain/entities/navigation_guidance.dart';
 import 'package:wayback/features/navigation/view/widgets/navigation_view.dart';
+import 'package:wayback/features/points/view/point_type_view.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
-/// Arrival, readable at arm's length (SCREENS.md §4.5). A small arrow and the
-/// distance stay: the radius is wide enough that the point may not be in
-/// sight yet.
+/// Arrival, readable at arm's length (SCREENS.md §4.5). The direction and the
+/// distance stay large: the radius is wide enough that the point may not be
+/// in sight yet, so the title promises nearness, not a hit.
 class NavigationArrivedView extends StatelessWidget {
   const NavigationArrivedView(this.guidance, {super.key});
+
+  /// Wide enough for a long name in two lines at 360 dp.
+  static const double _titleWidth = 328;
 
   final NavigationGuidance guidance;
 
@@ -21,33 +25,35 @@ class NavigationArrivedView extends StatelessWidget {
     final units = context.settings.units;
     final field = context.wbArrivalColors;
     final distance = l10n.distance(g.distanceMeters, units: units);
-    final detail = context.wbText.titleLarge?.copyWith(color: field.content);
     return NavigationFrame(
       children: [
-        const WbArrivalMark(),
+        WbArrivalDial(
+          g.point.type.design,
+          rotation: g.arrowDegrees,
+          // Comes in once the old view is gone, in step with the screen.
+          delay: WbMotion.slow * WbStateSwitcher.fadeThroughStart,
+        ),
         Semantics(
           liveRegion: true,
-          child: Text(
-            l10n.navigateArrived,
-            style: context.wbText.displaySmall?.copyWith(color: field.accent),
+          child: SizedBox(
+            width: _titleWidth,
+            child: Text(
+              l10n.navigateArrived(g.point.name),
+              textAlign: TextAlign.center,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: context.wbText.displaySmall?.copyWith(color: field.accent),
+            ),
           ),
         ),
         Semantics(
           label: l10n.navigateSemantics(g.point.name, distance),
           excludeSemantics: true,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: WbSpacing.xs,
-            children: [
-              if (g.arrowDegrees case final degrees?)
-                WbDirectionArrow(rotation: degrees, color: field.accent),
-              Text(distance, style: detail),
-              Text(
-                l10n.accuracy(g.accuracyMeters, units: units),
-                style: detail,
-              ),
-            ],
-          ),
+          child: WbDistanceValue(distance, compact: true, color: field.content),
+        ),
+        Text(
+          l10n.accuracy(g.accuracyMeters, units: units),
+          style: context.wbText.titleLarge?.copyWith(color: field.content),
         ),
       ],
     );

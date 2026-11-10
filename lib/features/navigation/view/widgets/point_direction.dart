@@ -38,15 +38,11 @@ class PointDirection extends StatelessWidget {
         builder: (context, direction) {
           final (rotation, unreliable, spread) = direction;
           final approximate = rotation != null && unreliable;
-          final tone = approximate
-              ? WbDirectionTone.unreliable
-              : WbDirectionTone.ok;
           final label = context.l10n.pointDirectionApproximate;
-          if (large) return _dial(rotation, spread, tone, label, approximate);
+          if (large) return _dial(rotation, spread, label, approximate);
           return WbPointDirection(
             icon: icon,
             rotation: rotation,
-            tone: tone,
             semanticLabel: approximate ? label : null,
           );
         },
@@ -56,7 +52,6 @@ class PointDirection extends StatelessWidget {
   Widget _dial(
     double? rotation,
     double? spread,
-    WbDirectionTone tone,
     String label,
     bool approximate,
   ) => Semantics(
@@ -66,7 +61,6 @@ class PointDirection extends StatelessWidget {
         final angle? => WbDirectionDial(
           rotation: angle,
           spread: spread ?? WbDirectionDial.maxSpread,
-          tone: tone,
           semanticLabel: label,
           size: WbPointHeroCard.dialSize,
         ),

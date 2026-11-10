@@ -191,7 +191,7 @@ void main() {
   testWidgets('points but none active: offers to choose one', (tester) async {
     await _pump(tester, FakePointsRepository([savedPoint('a', active: false)]));
 
-    expect(find.text('Нет активных точек'), findsOneWidget);
+    expect(find.text('На главной пока пусто'), findsOneWidget);
     await tester.tap(find.text('Выбрать точку'));
     await settle(tester);
     expect(find.text('route /points'), findsOneWidget);
@@ -236,7 +236,7 @@ void main() {
       for (final label in [
         'Подробнее',
         'Изменить',
-        'Сделать неактивной',
+        'Убрать с главной',
         'Удалить',
       ]) {
         expect(find.text(label), findsOneWidget);
@@ -342,12 +342,12 @@ void main() {
       await _pump(tester, points);
       await openSheet(tester);
 
-      await tester.tap(find.text('Сделать неактивной'));
+      await tester.tap(find.text('Убрать с главной'));
       await settle(tester);
 
       expect(points.points.first.isActive, isFalse);
       expect(find.text('Машина'), findsNothing);
-      expect(find.text('«Машина» убрана с главного'), findsOneWidget);
+      expect(find.text('«Машина» убрана с главной'), findsOneWidget);
 
       await tester.tap(find.text('Вернуть'));
       await settle(tester);

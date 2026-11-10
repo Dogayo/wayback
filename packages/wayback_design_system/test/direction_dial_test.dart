@@ -118,6 +118,42 @@ void main() {
     expect(dark.background, WbColors.dark.positiveBg);
   });
 
+  testWidgets('distance takes the colour of its field', (tester) async {
+    await tester.pumpWidget(
+      _host(const WbDistanceValue('8 м', color: Color(0xFFFFFFFF))),
+    );
+
+    final text = tester.widget<Text>(find.byType(Text));
+    final root = text.textSpan! as TextSpan;
+    final spans = root.children!.cast<TextSpan>();
+    expect(root.style?.color, const Color(0xFFFFFFFF));
+    expect(spans.last.style?.color, const Color(0xFFFFFFFF));
+  });
+
+  testWidgets('arrival shows the point and settles once', (tester) async {
+    await tester.pumpWidget(
+      _host(const WbArrivalDial(WbPointType.house, rotation: 38)),
+    );
+
+    expect(find.byIcon(WbPointType.house.icon), findsOneWidget);
+    expect(tester.hasRunningAnimations, isTrue);
+    await tester.pumpAndSettle();
+    expect(tester.hasRunningAnimations, isFalse);
+  });
+
+  testWidgets('arrival is in place when animations are off', (tester) async {
+    await tester.pumpWidget(
+      MediaQuery(
+        data: const MediaQueryData(disableAnimations: true),
+        child: _host(const WbArrivalDial(WbPointType.car)),
+      ),
+    );
+    await tester.pump();
+
+    expect(tester.hasRunningAnimations, isFalse);
+    expect(find.byIcon(WbPointType.car.icon), findsOneWidget);
+  });
+
   testWidgets('alert row joins title and message', (tester) async {
     await tester.pumpWidget(
       _host(

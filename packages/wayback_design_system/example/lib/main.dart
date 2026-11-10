@@ -856,7 +856,6 @@ class _ContentSection extends StatelessWidget {
               direction: WbPointDirection(
                 icon: Icons.cabin_outlined,
                 rotation: 240,
-                tone: WbDirectionTone.unreliable,
               ),
             ),
             SizedBox(height: 12),
@@ -1019,7 +1018,6 @@ class _WayfindingSection extends StatelessWidget {
               detail: 'unreliable · луч ±45°, GPS ±42 м',
               rotation: 68,
               spread: 45,
-              tone: WbDirectionTone.unreliable,
             ),
           ],
         ),
@@ -1053,13 +1051,11 @@ class _CompassSample extends StatelessWidget {
     required this.detail,
     required this.rotation,
     required this.spread,
-    this.tone = WbDirectionTone.ok,
   });
   final String distance;
   final String detail;
   final double rotation;
   final double spread;
-  final WbDirectionTone tone;
   @override
   Widget build(BuildContext context) => SizedBox(
     width: 240,
@@ -1068,7 +1064,6 @@ class _CompassSample extends StatelessWidget {
         WbDirectionDial(
           rotation: rotation,
           spread: spread,
-          tone: tone,
           size: 200,
           semanticLabel: detail,
         ),

@@ -39,7 +39,9 @@ void main() {
     expect(find.text('Сохранить место'), findsOneWidget);
   });
 
-  testWidgets('points with save time, activity and navigation', (tester) async {
+  testWidgets('points with save time, the hidden badge and navigation', (
+    tester,
+  ) async {
     await _pump(
       tester,
       FakePointsRepository([
@@ -50,7 +52,8 @@ void main() {
 
     expect(find.text('Машина'), findsOneWidget);
     expect(find.text('Лагерь'), findsOneWidget);
-    expect(find.text('Активна'), findsOneWidget);
+    // Only the point off Home carries a badge.
+    expect(find.text('Скрыта'), findsOneWidget);
     expect(find.textContaining('сохранено'), findsNWidgets(2));
 
     await tester.tap(find.text('Лагерь'));
@@ -85,7 +88,7 @@ void main() {
 
       await swipe(tester, 'Машина');
 
-      expect(find.text('Отключить'), findsOneWidget);
+      expect(find.text('Убрать'), findsOneWidget);
       expect(find.text('Изменить'), findsOneWidget);
       expect(find.text('Удалить'), findsOneWidget);
       expect(points.points.single.isActive, isTrue);
@@ -98,7 +101,7 @@ void main() {
       await _pump(tester, points);
       await swipe(tester, 'Машина');
 
-      await tester.tap(find.text('Включить'));
+      await tester.tap(find.text('На главную'));
       await settle(tester);
 
       expect(points.points.single.isActive, isTrue);
@@ -137,7 +140,7 @@ void main() {
       await tester.longPress(find.text('Машина'));
       await settle(tester);
 
-      expect(find.text('Сделать активной'), findsOneWidget);
+      expect(find.text('Показать на главной'), findsOneWidget);
     });
   });
 

@@ -46,12 +46,19 @@
   "homeEmptyTitle": "No places yet",
   "homeNoActiveAction": "Choose a place",
   "homeNoActiveBody": "Choose the places you're heading to.",
-  "homeNoActiveTitle": "No active places",
+  "homeNoActiveTitle": "Nothing on Home yet",
   "homePointSemantics": "{name}, {distance}",
   "homeSaveLocation": "Save location",
   "homeSettingsTooltip": "Settings",
   "homeTitle": "Wayback",
-  "navigateArrived": "You're here",
+  "navigateArrived": "{name} is close by",
+  "@navigateArrived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "navigateNotificationStop": "Stop",
   "navigateNotificationChannel": "Navigation",
   "navigateCompassCalibrationBody": "move in a figure eight",
@@ -82,7 +89,8 @@
   "permissionBody": "Wayback remembers where you've been and shows the way back. Your data stays on your phone.",
   "permissionTitle": "Location access",
   "pointAccuracy": "Accuracy {accuracy}",
-  "pointActiveLabel": "Active",
+  "pointActiveLabel": "On Home",
+  "pointHiddenLabel": "Hidden",
   "pointActiveToggleSemantics": "Show on home screen",
   "pointBackToList": "Back to places",
   "pointCoordinatesLabel": "Coordinates",
@@ -139,10 +147,10 @@
   "timeYesterday": "yesterday",
   "actionUndo": "Undo",
   "pointActionDetails": "Details",
-  "pointActionDeactivate": "Make inactive",
-  "pointActionActivate": "Make active",
-  "pointSwipeDeactivate": "Turn off",
-  "pointSwipeActivate": "Turn on",
+  "pointActionDeactivate": "Remove from Home",
+  "pointActionActivate": "Show on Home",
+  "pointSwipeDeactivate": "Remove",
+  "pointSwipeActivate": "To Home",
   "pointDeactivatedSnackbar": "“{name}” removed from Home",
   "pointNameRequired": "Enter a name",
   "pointImportTitle": "By coordinates",
