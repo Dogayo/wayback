@@ -197,21 +197,23 @@ void main() {
       expect(find.text('B'), findsOneWidget);
     });
 
-    testWidgets('iOS keeps the Cupertino transition for a drill', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_pages([_page('A')]));
-      await tester.pumpWidget(_pages([_page('A'), _page('B')]));
-      await tester.pump();
+    testWidgets(
+      'iOS keeps the Cupertino transition for a drill',
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+      (tester) async {
+        await tester.pumpWidget(_pages([_page('A')]));
+        await tester.pumpWidget(_pages([_page('A'), _page('B')]));
+        await tester.pump();
 
-      expect(
-        find.ancestor(
-          of: find.text('B'),
-          matching: find.byType(CupertinoPageTransition),
-        ),
-        findsOneWidget,
-      );
-    }, variant: TargetPlatformVariant.only(TargetPlatform.iOS));
+        expect(
+          find.ancestor(
+            of: find.text('B'),
+            matching: find.byType(CupertinoPageTransition),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
   });
 
   group('WbStateSwitcher', () {
