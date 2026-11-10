@@ -37,7 +37,7 @@ class WbSwitch extends StatelessWidget {
           );
     return Row(
       children: [
-        Expanded(child: Text(label, style: context.wbText.bodyMedium)),
+        Expanded(child: Text(label, style: context.wbText.bodyLarge)),
         control,
       ],
     );

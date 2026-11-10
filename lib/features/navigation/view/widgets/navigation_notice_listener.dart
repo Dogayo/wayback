@@ -37,7 +37,8 @@ class _NavigationNoticeListenerState extends State<NavigationNoticeListener> {
   void _update(NavigationGuidance guidance) {
     final l10n = context.l10n;
     final text = guidance.arrived
-        ? l10n.navigateArrived(guidance.point.name)
+        // The title already names the point.
+        ? l10n.navigateArrivedNotice
         : l10n.distance(guidance.distanceMeters, units: context.settings.units);
     if (text == _shownText) return;
     if (guidance.arrived == _shownArrived &&

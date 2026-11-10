@@ -162,7 +162,7 @@
 | --- | --- | --- | --- |
 | `navigateTitle` | Навигация | Navigate | запасной заголовок, обычно — имя точки |
 | `navigateLocating` | Ждём GPS и компас… | Waiting for GPS and compass… | loading до первого фикса и показания компаса |
-| `navigateArrived` | {name} где‑то рядом | {name} is close by | заголовок прибытия и текст плашки; неразрывный дефис U+2011, чтобы «где‑то» не разрывалось |
+| `navigateArrived` | {name} где‑то рядом | {name} is close by | заголовок прибытия; неразрывный дефис U+2011, чтобы «где‑то» не разрывалось |
 | `navigateCompassCalibrationTitle` | Компас неточен | Compass is off | `WbAlertRow` warning, стрелка остаётся |
 | `navigateCompassCalibrationBody` | поводите восьмёркой | move in a figure eight | продолжение строки после двоеточия |
 | `navigateWeakSignalTitle` | Слабый GPS | Weak GPS | `WbAlertRow` warning на экране навигации |
@@ -173,10 +173,11 @@
 | `pointDirectionApproximate` | Направление примерное | Approximate direction | для скринридера, карточка на главном, компас неточен |
 | `navigateWeakSignal` | Слабый сигнал GPS — расстояние может быть неточным. | Weak GPS signal — distance may be off. | Alert warning, при плохой точности |
 | `navigateSemantics` | До «{name}» {distance} | {distance} to “{name}” | live region, озвучивается с троттлингом |
-| `navigateNotificationStop` | Стоп | Stop | кнопка на плашке фоновой навигации, закрывает навигацию |
+| `navigateNotificationStop` | Завершить навигацию | End navigation | кнопка на плашке фоновой навигации, закрывает навигацию |
+| `navigateArrivedNotice` | Где‑то рядом | Close by | текст плашки при прибытии, под именем точки в заголовке |
 | `navigateNotificationChannel` | Навигация | Navigation | имя канала уведомлений в настройках Android |
 
-Плашка фоновой навигации (mvp-scope.md §2.8): заголовок — имя точки, текст — расстояние по §9 или `navigateArrived`. Новых строк для них нет.
+Плашка фоновой навигации (mvp-scope.md §2.8): заголовок — имя точки, текст — расстояние по §9 или `navigateArrivedNotice`, кнопка `navigateNotificationStop`. Нажатие на плашку возвращает в приложение на экран навигации: плашка живёт, только пока он открыт.
 
 ## 9. Расстояние и точность
 

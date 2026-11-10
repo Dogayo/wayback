@@ -111,7 +111,8 @@
       }
     }
   },
-  "navigateNotificationStop": "Стоп",
+  "navigateNotificationStop": "Завершить навигацию",
+  "navigateArrivedNotice": "Где‑то рядом",
   "navigateNotificationChannel": "Навигация",
   "navigateCompassCalibrationBody": "поводите восьмёркой",
   "navigateCompassCalibrationTitle": "Компас неточен",
@@ -272,6 +273,8 @@
   },
   "pointsListTitle": "Точки",
   "settingsLanguage": "Язык",
+  "settingsGroupVibration": "Вибрация",
+  "settingsGroupDiagnostics": "Диагностика",
   "settingsLanguageEn": "English",
   "settingsLanguageRu": "Русский",
   "settingsLanguageSystem": "Как в системе",

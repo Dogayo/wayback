@@ -14,6 +14,9 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// Units, language and vibration, every change saved right away, and the
 /// way to send the diagnostic log.
+///
+/// Rows run the full width and keep their own 16 dp inset, so every line of
+/// text starts at the same place (03 · Screens, «Settings / Unified»).
 class SettingsList extends StatelessWidget {
   const SettingsList(this.settings, {super.key});
 
@@ -22,24 +25,28 @@ class SettingsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    const languages = AppLanguage.values;
     return ListView(
-      padding: context.wbScrollPadding,
+      padding: context.wbScrollPadding.copyWith(left: 0, right: 0),
       children: [
         _SectionTitle(l10n.settingsUnits),
-        WbSegmentedTabs<UnitSystem>(
-          items: {
-            for (final units in UnitSystem.values)
-              units: l10n.unitSystem(units),
-          },
-          value: settings.units,
-          onChanged: context.read<SetUnitsBloc>().run,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: WbSpacing.md),
+          child: WbSegmentedTabs<UnitSystem>(
+            items: {
+              for (final units in UnitSystem.values)
+                units: l10n.unitSystem(units),
+            },
+            value: settings.units,
+            onChanged: context.read<SetUnitsBloc>().run,
+          ),
         ),
-        const SizedBox(height: WbSpacing.lg),
         _SectionTitle(l10n.settingsLanguage),
-        for (final language in AppLanguage.values)
+        for (final language in languages)
           WbListItem(
             title: l10n.appLanguage(language),
             selected: language == settings.language,
+            showDivider: language != languages.last,
             onTap: () {
               if (language != settings.language) {
                 WbHaptics.play(context, WbHaptic.tick);
@@ -47,28 +54,35 @@ class SettingsList extends StatelessWidget {
               context.read<SetLanguageBloc>().run(language);
             },
           ),
-        const SizedBox(height: WbSpacing.lg),
-        WbSwitch(
-          value: settings.vibrationOnArrival,
-          label: l10n.settingsVibration,
-          onChanged: context.read<SetVibrationOnArrivalBloc>().run,
+        _SectionTitle(l10n.settingsGroupVibration),
+        _SwitchRow(
+          WbSwitch(
+            value: settings.vibrationOnArrival,
+            label: l10n.settingsVibration,
+            onChanged: context.read<SetVibrationOnArrivalBloc>().run,
+          ),
         ),
         if (settings.vibrationOnArrival)
           WbListItem(
             title: l10n.settingsVibrationPattern,
             subtitle: l10n.vibrationPattern(settings.vibrationPattern),
             trailing: const Icon(Icons.chevron_right),
+            showDivider: true,
             onTap: () => context.push(Routes.vibrationType),
           ),
-        WbSwitch(
-          value: settings.touchFeedback,
-          label: l10n.settingsTouchFeedback,
-          onChanged: context.read<SetTouchFeedbackBloc>().run,
+        _SwitchRow(
+          WbSwitch(
+            value: settings.touchFeedback,
+            label: l10n.settingsTouchFeedback,
+            onChanged: context.read<SetTouchFeedbackBloc>().run,
+          ),
+          divider: false,
         ),
-        const SizedBox(height: WbSpacing.lg),
+        _SectionTitle(l10n.settingsGroupDiagnostics),
         WbListItem(
           title: l10n.settingsSendLog,
           subtitle: l10n.settingsSendLogHint,
+          trailing: const Icon(Icons.chevron_right),
           onTap: () =>
               context.read<SendLogBloc>().run(l10n.diagnosticsShareSubject),
         ),
@@ -84,12 +98,38 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: WbSpacing.xs),
+    padding: const EdgeInsets.fromLTRB(
+      WbSpacing.md,
+      WbSpacing.lg,
+      WbSpacing.md,
+      WbSpacing.xs,
+    ),
     child: Text(
       text,
       style: context.wbText.labelMedium?.copyWith(
         color: context.wbColors.contentSecondary,
       ),
     ),
+  );
+}
+
+/// A switch as one more 56 dp row of the list.
+class _SwitchRow extends StatelessWidget {
+  const _SwitchRow(this.child, {this.divider = true});
+
+  final WbSwitch child;
+  final bool divider;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    children: [
+      Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(horizontal: WbSpacing.md),
+        alignment: Alignment.center,
+        child: child,
+      ),
+      if (divider) const Divider(indent: WbSpacing.md, endIndent: WbSpacing.md),
+    ],
   );
 }

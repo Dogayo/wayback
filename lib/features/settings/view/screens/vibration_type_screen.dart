@@ -37,12 +37,15 @@ class VibrationTypeScreen extends StatelessWidget {
           onBack: context.back,
         ),
         body: ListView(
-          padding: context.wbScrollPadding,
+          padding: context.wbScrollPadding.copyWith(left: 0, right: 0),
           children: [
-            Text(
-              l10n.settingsVibrationPatternHint,
-              style: context.wbText.bodyMedium?.copyWith(
-                color: context.wbColors.contentSecondary,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: WbSpacing.md),
+              child: Text(
+                l10n.settingsVibrationPatternHint,
+                style: context.wbText.bodyMedium?.copyWith(
+                  color: context.wbColors.contentSecondary,
+                ),
               ),
             ),
             const SizedBox(height: WbSpacing.sm),
@@ -50,6 +53,7 @@ class VibrationTypeScreen extends StatelessWidget {
               WbListItem(
                 title: l10n.vibrationPattern(pattern),
                 selected: pattern == selected,
+                showDivider: pattern != VibrationPattern.values.last,
                 onTap: () {
                   if (pattern != selected) {
                     WbHaptics.play(context, WbHaptic.tick);
@@ -58,10 +62,14 @@ class VibrationTypeScreen extends StatelessWidget {
                 },
               ),
             const SizedBox(height: WbSpacing.lg),
-            WbButton(
-              label: l10n.settingsVibrationTest,
-              variant: WbButtonVariant.secondary,
-              onPressed: () => context.read<TestVibrationBloc>().run(selected),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: WbSpacing.md),
+              child: WbButton(
+                label: l10n.settingsVibrationTest,
+                variant: WbButtonVariant.secondary,
+                onPressed: () =>
+                    context.read<TestVibrationBloc>().run(selected),
+              ),
             ),
           ],
         ),

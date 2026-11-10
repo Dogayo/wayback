@@ -59,7 +59,8 @@
       }
     }
   },
-  "navigateNotificationStop": "Stop",
+  "navigateNotificationStop": "End navigation",
+  "navigateArrivedNotice": "Close by",
   "navigateNotificationChannel": "Navigation",
   "navigateCompassCalibrationBody": "move in a figure eight",
   "navigateCompassCalibrationTitle": "Compass is off",
@@ -124,6 +125,8 @@
   "pointsListSubtitle": "{distance} · saved {when}",
   "pointsListTitle": "Places",
   "settingsLanguage": "Language",
+  "settingsGroupVibration": "Vibration",
+  "settingsGroupDiagnostics": "Diagnostics",
   "settingsLanguageEn": "English",
   "settingsLanguageRu": "Русский",
   "settingsLanguageSystem": "System default",
