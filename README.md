@@ -12,8 +12,17 @@ left, and it keeps working in the woods without a mobile network.
 [Architecture (RU)](docs/architecture.md) ·
 [Design system (RU)](DESIGN_SYSTEM.md)
 
-<!-- Media: put a short GIF of the arrow in use and 3–4 screenshots
-     (home, navigation, arrival, dark theme) under docs/media/ and show them here. -->
+<!-- Media: a short GIF of the arrow in use goes above the screenshots. -->
+
+<p align="center">
+  <img src="docs/media/home.png" width="180" alt="Home screen with saved points">
+  <img src="docs/media/navigate.png" width="180" alt="Arrow and distance to the point">
+  <img src="docs/media/arrived.png" width="180" alt="Arrival at the point">
+  <img src="docs/media/navigate-dark.png" width="180" alt="Navigation in the dark theme">
+  <img src="docs/media/lock-screen.png" width="180" alt="Navigation keeps going on the lock screen">
+</p>
+
+<p align="center"><sub>Home · Navigation · Arrival · Dark theme · Lock screen. Screens are shown in Russian; the app also speaks English.</sub></p>
 
 ## Features
 
