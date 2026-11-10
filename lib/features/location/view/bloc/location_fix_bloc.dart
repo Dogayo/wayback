@@ -11,7 +11,8 @@ export 'package:wayback/core/bloc/data/data_bloc.dart';
 ///
 /// Checks access without asking first. Missing access arrives as a failure
 /// with a [LocationErrorCodes] code: `permissionDenied` (the system dialog
-/// can still be shown), `permissionDeniedForever`, `serviceDisabled`.
+/// can still be shown), `preciseRequired`, `permissionDeniedForever`,
+/// `serviceDisabled`.
 final class LocationFixBloc extends DataBloc<LocationFix> {
   LocationFixBloc(this._repository);
 
@@ -24,6 +25,10 @@ final class LocationFixBloc extends DataBloc<LocationFix> {
         yield Result.failure(failure);
       case Success(value: LocationAccess.granted):
         yield* _repository.watchFix();
+      case Success(value: LocationAccess.approximate):
+        yield const Result.failure(
+          PermissionFailure(code: LocationErrorCodes.preciseRequired),
+        );
       case Success(value: LocationAccess.denied):
         yield const Result.failure(
           PermissionFailure(code: LocationErrorCodes.permissionDenied),

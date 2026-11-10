@@ -63,8 +63,13 @@ final class PointsRepositoryImpl
   });
 
   @override
-  Future<Result<SavedPoint>> rename(String id, String name) =>
-      handle(() => _update(id, (point) => point.copyWith(name: name)));
+  Future<Result<SavedPoint>> edit(
+    String id, {
+    required String name,
+    required PointType type,
+  }) => handle(
+    () => _update(id, (point) => point.copyWith(name: name, type: type.name)),
+  );
 
   @override
   Future<Result<SavedPoint>> setActive(String id, {required bool active}) =>
@@ -75,6 +80,16 @@ final class PointsRepositoryImpl
     final points = await _models();
     final target = _find(points, id);
     await _save([...points]..remove(target));
+  });
+
+  @override
+  Future<Result<SavedPoint>> restore(SavedPoint point) => handle(() async {
+    await _save([
+      for (final other in await _models())
+        if (other.id != point.id) other,
+      point.toModel(),
+    ]);
+    return point;
   });
 
   Stream<List<SavedPoint>> _watch() async* {

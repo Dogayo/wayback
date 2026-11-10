@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
@@ -54,26 +55,39 @@ class _GpsStatusState extends State<GpsStatus> {
   @override
   Widget build(BuildContext context) => MultiBlocListener(
     listeners: [
-      BlocListener<RequestLocationPermissionBloc, ActionState<LocationAccess>>(
-        listener: (context, state) => state.mapOrNull(
-          success: (_) => context.read<LocationFixBloc>().fetch(),
-        ),
+      ActionResultListener<RequestLocationPermissionBloc, LocationAccess>(
+        successHaptic: null,
+        reportFailure: false,
+        onSuccess: (context, _) => context.read<LocationFixBloc>().fetch(),
       ),
-      BlocListener<OpenLocationSettingsBloc, ActionState<void>>(
-        listener: (context, state) =>
-            state.mapOrNull(success: (_) => _inSettings = true),
+      ActionResultListener<OpenLocationSettingsBloc, void>(
+        successHaptic: null,
+        reportFailure: false,
+        onSuccess: (context, _) {
+          _inSettings = true;
+          // The precise location dialog may have changed access already.
+          context.read<LocationFixBloc>().fetch();
+        },
       ),
     ],
     child: BlocBuilder<LocationFixBloc, DataState<LocationFix>>(
-      builder: (context, state) => state.map(
-        initial: (_) => const _Locating(),
-        loading: (s) => switch (s.previous) {
-          final fix? => _Accuracy(fix),
-          null => const _Locating(),
-        },
-        success: (s) => _Accuracy(s.data),
-        failure: (s) => _FailureView(s.failure),
-      ),
+      builder: (context, state) {
+        final child = state.map(
+          initial: (_) => const _Locating(),
+          loading: (s) => switch (s.previous) {
+            final fix? => _Accuracy(fix),
+            null => const _Locating(),
+          },
+          success: (s) => _Accuracy(s.data),
+          failure: (s) => _FailureView(s.failure),
+        );
+        return WbStateSwitcher(
+          // A weak signal adds a line: fade it in rather than jump.
+          state: (child.runtimeType, state.dataOrNull?.isWeakSignal),
+          animateSize: true,
+          child: child,
+        );
+      },
     ),
   );
 }
@@ -157,7 +171,9 @@ class _FailureView extends StatelessWidget {
       );
     }
     final text = l10n.error(code);
+    final precise = code == LocationErrorCodes.preciseRequired;
     final opensSettings =
+        precise ||
         code == LocationErrorCodes.permissionDeniedForever ||
         code == LocationErrorCodes.serviceDisabled;
     return _AlertWithAction(
@@ -166,7 +182,11 @@ class _FailureView extends StatelessWidget {
         message: text.body,
         tone: WbTone.negative,
       ),
-      action: opensSettings ? l10n.actionOpenSettings : l10n.actionRetry,
+      action: precise
+          ? l10n.actionEnablePreciseLocation
+          : opensSettings
+          ? l10n.actionOpenSettings
+          : l10n.actionRetry,
       busy: busy,
       onPressed: opensSettings
           ? () => context.read<OpenLocationSettingsBloc>().run(code)

@@ -1,13 +1,31 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Foreground location only: the app saves and navigates to points while
-         it is open. Coarse is declared too, since Android 12+ lets the user
-         grant approximate location instead of precise. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- Location "while using the app" only: navigation keeps it with the
+         screen off through a foreground service, never asks for "all the
+         time". Coarse is declared too, since Android 12+ lets the user grant
+         approximate location instead of precise. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- The vibration on arrival. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Background navigation, mvp-scope.md §2.8. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <!-- flutter_foreground_task asks for it; navigation never starts on boot. -->
+    <uses-permission
+        android:name="android.permission.RECEIVE_BOOT_COMPLETED"
+        tools:node="remove" />
     <application
         android:label="Wayback"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <service
+            android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="location"
+            android:stopWithTask="true" />
+        <meta-data
+            android:name="com.dogayo.wayback.NOTIFICATION_ICON"
+            android:resource="@drawable/ic_stat_wayback" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -36,6 +54,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="wayback" android:host="app" />
+            </intent-filter>
+            <!-- "Share → Wayback" from any app; MainActivity turns the text
+                 into a deep link to the import screen. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

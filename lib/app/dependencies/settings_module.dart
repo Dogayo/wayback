@@ -1,9 +1,14 @@
 import 'package:app_di/app_di.dart';
+import 'package:app_logger/app_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wayback/core/result/result_handler.dart';
+import 'package:wayback/features/settings/data/datasources/diagnostics_datasource.dart';
 import 'package:wayback/features/settings/data/datasources/settings_local_datasource.dart';
+import 'package:wayback/features/settings/data/datasources/share_diagnostics_datasource.dart';
 import 'package:wayback/features/settings/data/datasources/shared_preferences_settings_datasource.dart';
+import 'package:wayback/features/settings/data/repositories/diagnostics_repository_impl.dart';
 import 'package:wayback/features/settings/data/repositories/settings_repository_impl.dart';
+import 'package:wayback/features/settings/domain/repositories/diagnostics_repository.dart';
 import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
 
 final class SettingsModule extends DependencyCollection {
@@ -22,6 +27,17 @@ final class SettingsModule extends DependencyCollection {
     RegFactory<SettingsRepository>(
       (i) => SettingsRepositoryImpl(
         i.get<SettingsLocalDatasource>(),
+        resultOptions: i.get<ResultHandlerOptions>(),
+      ),
+      isSingleton: true,
+    ),
+    RegFactory<DiagnosticsDatasource>(
+      (i) => ShareDiagnosticsDatasource(i.get<AppLogger>()),
+      isSingleton: true,
+    ),
+    RegFactory<DiagnosticsRepository>(
+      (i) => DiagnosticsRepositoryImpl(
+        i.get<DiagnosticsDatasource>(),
         resultOptions: i.get<ResultHandlerOptions>(),
       ),
       isSingleton: true,

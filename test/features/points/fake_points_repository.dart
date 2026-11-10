@@ -96,8 +96,11 @@ final class FakePointsRepository implements PointsRepository {
   }
 
   @override
-  Future<Result<SavedPoint>> rename(String id, String name) =>
-      _change(id, (point) => point.copyWith(name: name));
+  Future<Result<SavedPoint>> edit(
+    String id, {
+    required String name,
+    required PointType type,
+  }) => _change(id, (point) => point.copyWith(name: name, type: type));
 
   @override
   Future<Result<SavedPoint>> setActive(String id, {required bool active}) =>
@@ -109,5 +112,18 @@ final class FakePointsRepository implements PointsRepository {
     points.removeWhere((point) => point.id == id);
     _publish();
     return const Result.success(null);
+  }
+
+  @override
+  Future<Result<SavedPoint>> restore(SavedPoint point) async {
+    if (_failure<SavedPoint>() case final failure?) return failure;
+    final index = points.indexWhere((other) => other.id == point.id);
+    if (index == -1) {
+      points.add(point);
+    } else {
+      points[index] = point;
+    }
+    _publish();
+    return Result.success(point);
   }
 }

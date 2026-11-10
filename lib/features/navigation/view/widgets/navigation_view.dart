@@ -7,8 +7,9 @@ import 'package:wayback/features/navigation/domain/entities/navigation_guidance.
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
-/// Arrow and distance dominate; accuracy and warnings stay secondary
-/// (SCREENS.md §4.5).
+/// Direction and distance dominate; accuracy and warnings stay secondary
+/// (SCREENS.md §4.5). Only the warning row takes the warning colour, so the
+/// screen stays calm while the compass settles.
 class NavigationView extends StatelessWidget {
   const NavigationView(this.guidance, {super.key});
 
@@ -22,50 +23,17 @@ class NavigationView extends StatelessWidget {
       g.distanceMeters,
       units: context.settings.units,
     );
-    return Padding(
-      padding: const EdgeInsets.all(WbSpacing.screenPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: WbSpacing.md,
-        children: [
-          ..._alerts(context),
-          // Scales down instead of overflowing: landscape, large text and
-          // several warnings at once all leave less room for the arrow.
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                spacing: WbSpacing.lg,
-                children: [
-                  if (g.arrived) const _Arrived(),
-                  switch (g.arrowDegrees) {
-                    final degrees? => WbCompassArrow(
-                      rotation: degrees,
-                      state: g.arrived
-                          ? WbCompassState.arrived
-                          : g.compass == CompassStatus.unreliable
-                          ? WbCompassState.unreliable
-                          : WbCompassState.ok,
-                    ),
-                    null => Icon(
-                      Icons.explore_off_outlined,
-                      size: WbIconSize.xxl,
-                      color: context.wbColors.contentTertiary,
-                    ),
-                  },
-                  Semantics(
-                    label: l10n.navigateSemantics(g.point.name, distance),
-                    excludeSemantics: true,
-                    child: Text(distance, style: context.wbText.displayLarge),
-                  ),
-                  _Accuracy(g),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+    return NavigationFrame(
+      status: _alerts(context),
+      children: [
+        _Direction(g),
+        Semantics(
+          label: l10n.navigateSemantics(g.point.name, distance),
+          excludeSemantics: true,
+          child: WbDistanceValue(distance),
+        ),
+        _Accuracy(g),
+      ],
     );
   }
 
@@ -73,19 +41,19 @@ class NavigationView extends StatelessWidget {
     final l10n = context.l10n;
     return [
       if (guidance.compass == CompassStatus.unavailable)
-        WbAlert(
+        WbAlertRow(
           title: l10n.error(NavigationErrorCodes.compassUnavailable).title,
-          message: l10n.error(NavigationErrorCodes.compassUnavailable).body,
+          message: l10n.navigateCompassDistanceOnly,
           tone: WbTone.negative,
         ),
       if (guidance.compass == CompassStatus.unreliable)
-        WbAlert(
+        WbAlertRow(
           title: l10n.navigateCompassCalibrationTitle,
           message: l10n.navigateCompassCalibrationBody,
           tone: WbTone.warning,
         ),
       if (guidance.weakSignal)
-        WbAlert(
+        WbAlertRow(
           title: l10n.navigateWeakSignalTitle,
           message: l10n.navigateWeakSignalBody,
           tone: WbTone.warning,
@@ -94,22 +62,71 @@ class NavigationView extends StatelessWidget {
   }
 }
 
-class _Arrived extends StatelessWidget {
-  const _Arrived();
+/// Layout shared by the navigation states: warnings in a slot of their own,
+/// so the dial keeps its place while they come and go.
+class NavigationFrame extends StatelessWidget {
+  const NavigationFrame({
+    required this.children,
+    this.status = const [],
+    super.key,
+  });
+
+  final List<Widget> status;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    top: false,
+    child: Padding(
+      padding: const EdgeInsets.all(WbSpacing.screenPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: WbSpacing.md,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: WbAlertRow.slotHeight),
+            child: Column(spacing: WbSpacing.xs, children: status),
+          ),
+          // Scales down instead of overflowing: landscape and large text
+          // leave less room for the dial.
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.topCenter,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: WbSpacing.md,
+                children: children,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _Direction extends StatelessWidget {
+  const _Direction(this.guidance);
+
+  final NavigationGuidance guidance;
 
   @override
   Widget build(BuildContext context) {
-    final color = context.wbColors.positive;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: WbSpacing.xs,
-      children: [
-        Icon(Icons.check_circle_outline, color: color),
-        Text(
-          context.l10n.navigateArrived,
-          style: context.wbText.headlineSmall?.copyWith(color: color),
-        ),
-      ],
+    final l10n = context.l10n;
+    final g = guidance;
+    if (g.compass == CompassStatus.unavailable) {
+      return const WbDirectionIcon(Icons.explore_off_outlined);
+    }
+    final degrees = g.arrowDegrees;
+    if (degrees == null) return const WbDirectionSearching();
+    final unreliable = g.compass == CompassStatus.unreliable;
+    return WbDirectionDial(
+      rotation: degrees,
+      spread: g.compassAccuracyDegrees ?? WbDirectionDial.maxSpread,
+      semanticLabel: unreliable
+          ? l10n.navigateDirectionApproximate(g.arrowBearing)
+          : l10n.navigateDirection(g.arrowBearing),
     );
   }
 }
@@ -122,19 +139,30 @@ class _Accuracy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final color = guidance.weakSignal
-        ? context.wbColors.warning
-        : context.wbColors.contentSecondary;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: WbSpacing.xs,
-      children: [
-        Icon(Icons.my_location, size: WbIconSize.sm, color: color),
-        Text(
-          l10n.accuracy(guidance.accuracyMeters, units: context.settings.units),
-          style: context.wbText.bodyMedium?.copyWith(color: color),
-        ),
-      ],
+    final color = context.wbColors.contentSecondary;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: WbSpacing.md,
+        vertical: WbSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: context.wbColors.surfaceContainer,
+        borderRadius: WbRadius.pill,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: WbSpacing.xs,
+        children: [
+          Icon(Icons.my_location, size: WbIconSize.sm, color: color),
+          Text(
+            l10n.accuracy(
+              guidance.accuracyMeters,
+              units: context.settings.units,
+            ),
+            style: context.wbText.titleMedium?.copyWith(color: color),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -66,7 +66,7 @@ void main() {
     await pumpEventQueue();
 
     final point = await create('Машина');
-    await repository.rename(point.id, 'Машина у леса');
+    await repository.edit(point.id, name: 'Машина у леса', type: point.type);
     await repository.delete(point.id);
     await pumpEventQueue();
     await sub.cancel();
@@ -89,10 +89,35 @@ void main() {
     expect(on.valueOrNull!.isActive, isTrue);
   });
 
+  test('a deleted point comes back as it was and in its place', () async {
+    await create('Первая');
+    final second = await create('Вторая');
+    await create('Третья');
+    await repository.setActive(second.id, active: false);
+    final deleted = (await repository.getById(second.id)).valueOrNull!;
+
+    await repository.delete(second.id);
+    await repository.restore(deleted);
+
+    final all = (await repository.watchAll().first).valueOrNull!;
+    expect(all.map((point) => point.name), ['Третья', 'Вторая', 'Первая']);
+    expect(all[1], deleted);
+  });
+
+  test('restoring over a later change replaces the point', () async {
+    final point = await create('Первая');
+    await repository.setActive(point.id, active: false);
+
+    await repository.restore(point);
+
+    final all = (await repository.watchAll().first).valueOrNull!;
+    expect(all.single, point);
+  });
+
   test('a missing point is a not-found failure', () async {
     for (final result in [
       await repository.getById('nope'),
-      await repository.rename('nope', 'x'),
+      await repository.edit('nope', name: 'x', type: PointType.generic),
       await repository.delete('nope'),
     ]) {
       expect(

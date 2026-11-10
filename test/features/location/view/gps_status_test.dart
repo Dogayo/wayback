@@ -40,6 +40,8 @@ Future<FakeLocationRepository> _pump(
     ),
   );
   await tester.pump();
+  // The first state fades in; taps land once it has.
+  await tester.pump(WbMotion.base);
   return repository;
 }
 
@@ -112,7 +114,29 @@ void main() {
     await tester.pump();
 
     expect(repository.opened, ['location']);
-    expect(repository.checks, checks + 1);
+    // Once when the settings open, once on the way back.
+    expect(repository.checks, checks + 2);
+  });
+
+  testWidgets('approximate access offers precise and recovers', (tester) async {
+    final repository = await _pump(
+      tester,
+      access: const Result.success(LocationAccess.approximate),
+    );
+    await tester.pump();
+    expect(find.text('Нужна точная геолокация'), findsOneWidget);
+
+    await tester.tap(find.text('Включить точную геолокацию'));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump(const Duration(milliseconds: 50));
+    repository.fixes.add(Result.success(fixWithAccuracy(8)));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.pump(WbMotion.base);
+
+    expect(repository.preciseRequests, 1);
+    expect(repository.opened, isEmpty);
+    expect(find.text('Нужна точная геолокация'), findsNothing);
+    expect(find.textContaining('±8'), findsOneWidget);
   });
 
   testWidgets('no fix offers a retry', (tester) async {

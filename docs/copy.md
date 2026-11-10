@@ -36,9 +36,10 @@
 | `actionCancel` | Отмена | Cancel | |
 | `actionRetry` | Повторить | Try again | под Alert ошибки |
 | `actionDelete` | Удалить | Delete | |
-| `actionRename` | Переименовать | Rename | |
+| `actionUndo` | Вернуть | Undo | снекбар с отсчётом |
 | `actionAllow` | Разрешить | Allow | запрос разрешения |
 | `actionOpenSettings` | Открыть настройки | Open settings | системные настройки телефона |
+| `actionEnablePreciseLocation` | Включить точную геолокацию | Turn on precise location | системный диалог, затем настройки приложения |
 
 ## 3. Home (`/`)
 
@@ -50,7 +51,7 @@
 | `homeSettingsTooltip` | Настройки | Settings | иконка в шапке |
 | `homeEmptyTitle` | Пока нет точек | No places yet | пустое (а): точек нет вовсе |
 | `homeEmptyBody` | Сохраните место, куда хотите вернуться, — например, где оставили машину. | Save a spot you want to return to, like where you parked. | |
-| `homeNoActiveTitle` | Нет активных точек | No active places | пустое (б): точки есть, активных нет |
+| `homeNoActiveTitle` | На главной пока пусто | Nothing on Home yet | пустое (б): точки есть, активных нет |
 | `homeNoActiveBody` | Выберите, к каким точкам сейчас идёте. | Choose the places you're heading to. | |
 | `homeNoActiveAction` | Выбрать точку | Choose a place | → `/points` |
 | `homePointSemantics` | {name}, {distance} | {name}, {distance} | метка карточки для скринридера |
@@ -63,10 +64,36 @@
 | `pointCreateLocating` | Определяем местоположение… | Getting your location… | loading, Save недоступен |
 | `pointNameLabel` | Название | Name | |
 | `pointNameHelper` | Можно оставить как есть | Optional | под полем, дефолт уже подставлен (§7) |
+| `pointActionShare` | Поделиться | Share | шторка действий, кнопка в деталях |
+| `pointShareTitle` | Поделиться | Share | заголовок экрана |
+| `pointShareQrHint` | Наведите камеру другого телефона на код | Point another phone’s camera at the code | |
+| `pointShareQrLabel` | QR-код точки | QR code of this place | для скринридера |
+| `pointShareSend` | Отправить | Send | системное меню «Поделиться» |
+| `pointShareCopy` | Скопировать координаты | Copy coordinates | |
+| `pointCoordinatesCopied` | Координаты скопированы | Coordinates copied | снекбар |
+| `pointImportTitle` | По координатам | By coordinates | заголовок экрана |
+| `pointImportDistance` | До точки | Distance | |
+| `pointCoordinatesHint` | 56.50353, 85.03131 | 56.50353, 85.03131 | подсказка в пустом поле |
+| `pointCoordinatesHelper` | Числа, градусы или ссылка на карту | Numbers, degrees or a map link | |
+| `pointCoordinatesPaste` | Вставить | Paste | |
+| `pointCoordinatesRead` | Широта {latitude}, долгота {longitude} | Latitude {latitude}, longitude {longitude} | как приложение поняло ввод |
+| `pointCoordinatesInvalid` | Не удалось распознать координаты | Could not read these coordinates | |
+| `pointImpreciseTitle` | Координаты неточные | Rough coordinates | |
+| `pointImpreciseBody` | Мало знаков после запятой: точка может быть смещена на сотни метров и больше. | Too few decimals: the place may be off by hundreds of meters or more. | |
+| `pointNearbyTitle` | Рядом уже есть «{name}» | “{name}” is right here | |
+| `pointNearbyBody` | До неё {distance}. Сохранить всё равно можно. | {distance} away. You can still save this one. | |
+| `pointAddTitle` | Новая точка | New place | шторка «+» |
+| `pointAddSubtitle` | Как задать место | How to set it | |
+| `pointAddCurrent` | Текущее место | Current location | |
+| `pointAddByCoordinates` | По координатам | By coordinates | |
+| `pointNameRequired` | Введите название | Enter a name | ошибка в диалоге переименования; название до 40 символов |
 | `pointTypeLabel` | Иконка | Icon | заголовок пикера 4×2 |
 | `pointCoordinatesLabel` | Координаты | Coordinates | превью координат; та же подпись в карточке деталей |
 | `pointAccuracy` | Точность {accuracy} | Accuracy {accuracy} | `{accuracy}` = `±8 м`, §9 |
-| `pointSavedSnackbar` | Точка «{name}» сохранена | “{name}” saved | Snackbar после сохранения |
+| `pointSavedSnackbar` | Точка «{name}» сохранена | “{name}” saved | Snackbar после сохранения из формы |
+| `pointQuickSavedSnackbar` | {name} сохранена | {name} saved | снекбар после сохранения одним нажатием, с `actionEdit` |
+| `pointEditTitle` | Изменить точку | Edit place | заголовок шторки |
+| `actionEdit` | Изменить | Edit | кнопка снекбара |
 
 ## 5. Points List (`/points`)
 
@@ -76,7 +103,8 @@
 | `pointsAddTooltip` | Новая точка | New place | иконка «+» в шапке |
 | `pointsEmptyTitle` | Нет сохранённых точек | No saved places | |
 | `pointsEmptyBody` | Сохраните первое место — стрелка приведёт вас обратно. | Save your first place and the arrow will lead you back. | |
-| `pointActiveLabel` | Активна | Active | бейдж / подпись переключателя |
+| `pointActiveLabel` | На главной | On Home | подпись переключателя на экране точки |
+| `pointHiddenLabel` | Скрыта | Hidden | бейдж в списке, только у точек не на главной |
 | `pointActiveToggleSemantics` | Показывать на главном экране | Show on home screen | метка Switch для скринридера |
 | `pointsListSubtitle` | {distance} · сохранено {when} | {distance} · saved {when} | подзаголовок строки списка: `640 м · сохранено 12 мин назад` |
 
@@ -99,10 +127,15 @@
 | `pointSavedAt` | Сохранена {date} | Saved {date} | `{date}` — локальный формат даты и времени; для одной строки |
 | `pointSavedLabel` | Сохранена | Saved | подпись строки в карточке деталей, значение — дата отдельной строкой |
 | `pointNavigate` | Вести к точке | Navigate | Primary |
-| `pointRenameTitle` | Название точки | Place name | диалог переименования |
 | `pointDeleteTitle` | Удалить «{name}»? | Delete “{name}”? | диалог подтверждения |
-| `pointDeleteBody` | Точка пропадёт из списка и с главного экрана. Вернуть её не получится. | It will disappear from your list and home screen. This can't be undone. | названное последствие |
+| `pointDeleteBody` | Точка пропадёт из списка и с главного экрана. | It will disappear from your list and home screen. | названное последствие; вернуть можно из снекбара |
 | `pointDeletedSnackbar` | Точка «{name}» удалена | “{name}” deleted | |
+| `pointDeactivatedSnackbar` | «{name}» убрана с главной | “{name}” removed from Home | снекбар с отсчётом и `actionUndo` |
+| `pointActionDetails` | Подробнее | Details | шторка действий |
+| `pointActionDeactivate` | Убрать с главной | Remove from Home | шторка действий |
+| `pointActionActivate` | Показать на главной | Show on Home | шторка действий |
+| `pointSwipeDeactivate` | Убрать | Remove | кнопка панели свайпа, 88 dp |
+| `pointSwipeActivate` | На главную | To Home | кнопка панели свайпа, 88 dp |
 | `pointBackToList` | К списку точек | Back to places | под ошибкой `points_not_found` |
 
 ## 7. Типы точек и имя по умолчанию
@@ -129,13 +162,22 @@
 | --- | --- | --- | --- |
 | `navigateTitle` | Навигация | Navigate | запасной заголовок, обычно — имя точки |
 | `navigateLocating` | Ждём GPS и компас… | Waiting for GPS and compass… | loading до первого фикса и показания компаса |
-| `navigateArrived` | Вы на месте | You're here | цвет `positive`, поверх контента |
-| `navigateCompassCalibrationTitle` | Компас неточен | Compass is off | Alert warning, стрелка остаётся |
-| `navigateCompassCalibrationBody` | Поводите телефоном восьмёркой. | Move your phone in a figure eight. | пояснение к нему |
-| `navigateWeakSignalTitle` | Слабый сигнал GPS | Weak GPS signal | Alert warning на экране навигации |
-| `navigateWeakSignalBody` | Расстояние может быть неточным. | Distance may be off. | пояснение к нему |
+| `navigateArrived` | {name} где‑то рядом | {name} is close by | заголовок прибытия; неразрывный дефис U+2011, чтобы «где‑то» не разрывалось |
+| `navigateCompassCalibrationTitle` | Компас неточен | Compass is off | `WbAlertRow` warning, стрелка остаётся |
+| `navigateCompassCalibrationBody` | поводите восьмёркой | move in a figure eight | продолжение строки после двоеточия |
+| `navigateWeakSignalTitle` | Слабый GPS | Weak GPS | `WbAlertRow` warning на экране навигации |
+| `navigateWeakSignalBody` | расстояние неточно | distance may be off | продолжение строки после двоеточия |
+| `navigateCompassDistanceOnly` | только расстояние | distance only | продолжение строки «Компас недоступен» |
+| `navigateDirection` | Направление на точку, {degrees} градусов | Direction to the point, {degrees} degrees | для скринридера |
+| `navigateDirectionApproximate` | Примерное направление на точку, {degrees} градусов | Approximate direction to the point, {degrees} degrees | для скринридера, компас неточен |
+| `pointDirectionApproximate` | Направление примерное | Approximate direction | для скринридера, карточка на главном, компас неточен |
 | `navigateWeakSignal` | Слабый сигнал GPS — расстояние может быть неточным. | Weak GPS signal — distance may be off. | Alert warning, при плохой точности |
 | `navigateSemantics` | До «{name}» {distance} | {distance} to “{name}” | live region, озвучивается с троттлингом |
+| `navigateNotificationStop` | Завершить навигацию | End navigation | кнопка на плашке фоновой навигации, закрывает навигацию |
+| `navigateArrivedNotice` | Где‑то рядом | Close by | текст плашки при прибытии, под именем точки в заголовке |
+| `navigateNotificationChannel` | Навигация | Navigation | имя канала уведомлений в настройках Android |
+
+Плашка фоновой навигации (mvp-scope.md §2.8): заголовок — имя точки, текст — расстояние по §9 или `navigateArrivedNotice`, кнопка `navigateNotificationStop`. Нажатие на плашку возвращает в приложение на экран навигации: плашка живёт, только пока он открыт.
 
 ## 9. Расстояние и точность
 
@@ -179,6 +221,17 @@
 | `settingsLanguageRu` | Русский | Русский | самоназвание, одинаково в обеих локалях |
 | `settingsLanguageEn` | English | English | самоназвание |
 | `settingsVibration` | Вибрация при прибытии | Vibrate on arrival | Switch |
+| `settingsTouchFeedback` | Отклик при нажатиях | Haptic feedback | Switch, включён по умолчанию |
+| `settingsVibrationPattern` | Вид вибрации | Vibration type | ListItem, заголовок экрана |
+| `settingsVibrationPatternHint` | Выберите вибрацию, которую хорошо чувствуете на своём телефоне | Pick a vibration you can clearly feel on your phone | Подсказка |
+| `settingsVibrationStandard` | Обычная | Standard | ListItem |
+| `settingsVibrationLong` | Длинная | Long | ListItem |
+| `settingsVibrationTwice` | Двойная | Double | ListItem |
+| `settingsVibrationStrong` | Сильная | Strong | ListItem |
+| `settingsVibrationTest` | Проверить | Test | Кнопка |
+| `settingsSendLog` | Отправить журнал | Send log | открывает меню «Поделиться» |
+| `settingsSendLogHint` | Для разбора ошибок, без координат | To look into problems, no coordinates | подпись пункта |
+| `diagnosticsShareSubject` | Журнал Wayback | Wayback log | тема письма |
 
 ## 11. Разрешения и ошибки
 
@@ -204,11 +257,14 @@
 | `location_permission_denied_forever` | Доступ к геолокации запрещён | Включите его в настройках телефона. | Открыть настройки |
 | `location_service_disabled` | Геолокация выключена | Включите её, чтобы сохранять и находить точки. | Открыть настройки |
 | `location_unavailable` | Не получается определить, где вы | Выйдите на открытое место. | Повторить |
+| `location_precise_required` | Нужна точная геолокация | С приблизительной дорогу назад не показать. | Включить точную геолокацию |
 | `navigation_compass_unavailable` | Компас недоступен | На этом телефоне нет компаса, поэтому направление не показать. | — |
 | `points_storage_read_failed` | Не удалось загрузить точки | Попробуйте ещё раз. | Повторить |
 | `points_storage_write_failed` | Не удалось сохранить точку | Попробуйте ещё раз. | Повторить |
 | `points_not_found` | Точка не найдена | Возможно, её удалили. | К списку точек |
 | `settings_storage_failed` | Не удалось сохранить настройки | Попробуйте ещё раз. | Повторить |
+| `diagnostics_export_failed` | Не удалось подготовить журнал | Попробуйте ещё раз. | — |
+| `point_share_failed` | Не удалось поделиться точкой | Попробуйте ещё раз. | — |
 
 **en**
 
@@ -219,11 +275,14 @@
 | `location_permission_denied_forever` | Location access is blocked | Turn it on in your phone settings. |
 | `location_service_disabled` | Location is off | Turn it on to save and find places. |
 | `location_unavailable` | Can't find your location | Try moving into the open. |
+| `location_precise_required` | Precise location needed | Approximate location can't show the way back. |
 | `navigation_compass_unavailable` | No compass | This phone has no compass, so direction can't be shown. |
 | `points_storage_read_failed` | Couldn't load your places | Try again. |
 | `points_storage_write_failed` | Couldn't save the place | Try again. |
 | `points_not_found` | Place not found | It may have been deleted. |
 | `settings_storage_failed` | Couldn't save settings | Try again. |
+| `diagnostics_export_failed` | Couldn't prepare the log | Try again. |
+| `point_share_failed` | Couldn't share this place | Try again. |
 
 Пара `error_generic` / `error_generic_body` показывается для любого кода без перевода; сам код при этом логируется (architecture.md §4.2).
 
@@ -243,7 +302,6 @@
 | `pointNameHelper` | 23 | 8 | 2,9× |
 | `actionSave` | 9 | 4 | 2,3× |
 | `pointSavedSnackbar` | 18 | 8 | 2,3× |
-| `actionRename` | 13 | 6 | 2,2× |
 | `pointNavigate` | 13 | 8 | 1,6× |
 
 Самые длинные строки ru — многострочные блоки:
@@ -268,12 +326,12 @@
 - **Футы и мили** — оба, с переходом на мили от 0,1 мили (§9). Форматтер расширяется в settings (#15).
 - **Код ошибки настроек — `settings_storage_failed`** (§11.2); SCREENS.md §4.6 обновлён.
 - **Подписи типов точек** берутся из ключей `pointType*`, а не из `WbPointType.label` в дизайн-системе, где они захардкожены на русском. Переключить — в l10n (#11).
-- **Онбординг — три шага, доступ можно отложить** (§14): шаг геолокации объясняет, зачем доступ, а «Не сейчас» не блокирует приложение — так требуют правила Google Play и App Store.
+- **Онбординг — три шага, одна кнопка на шаге доступа** (§14): шаг объясняет, зачем нужна геолокация, а «Продолжить» открывает системный диалог, где и делается выбор. Кнопка не говорит «Разрешить» и не предлагает отказ до диалога: так советует Apple HIG. Отказ приложение не блокирует.
 - **Слабый сигнал и калибровка** — предупреждения, а не ошибки: ключи без префикса `error_`, порог «плохой точности» задаётся в navigation (#14).
 
 ## 14. Onboarding (`/onboarding`)
 
-Три шага при первом запуске (SCREENS.md §4.0). Шаг 3 предваряет системный диалог; плашка на Home (§11.1) остаётся для тех, кто нажал «Не сейчас».
+Три шага при первом запуске (SCREENS.md §4.0). Шаг 3 предваряет системный диалог; плашка на Home (§11.1) остаётся для тех, кто отказал в системном диалоге.
 
 | Ключ | ru | en | Примечание |
 | --- | --- | --- | --- |
@@ -287,7 +345,6 @@
 | `onboardingHowReturn` | Возвращайтесь по стрелке — она покажет направление и расстояние. | Follow the arrow back — it shows direction and distance. | пункт 3 |
 | `onboardingHowOffline` | Работает без интернета. Точки хранятся только на телефоне. | Works offline. Your places stay on your phone. | строка под пунктами |
 | `onboardingLocationTitle` | Доступ к геолокации | Location access | шаг 3; тот же текст, что `permissionTitle` |
-| `onboardingLocationBody` | Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто, и остаётся на телефоне. | Without it, Wayback can't save a spot or show the way back. Location is used only while the app is open and stays on your phone. | |
-| `onboardingLocationAllow` | Разрешить | Allow | вызывает системный диалог; = `actionAllow` |
-| `onboardingLocationLater` | Не сейчас | Not now | без запроса на Home |
+| `onboardingLocationBody` | Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто или идёт навигация, и остаётся на телефоне. Выберите точное местоположение — с приблизительным дорога назад не сработает. | Without it, Wayback can't save a spot or show the way back. Location is used only while the app is open or navigating and stays on your phone. Choose precise location — the way back won't work with approximate. | |
+| `onboardingLocationContinue` | Продолжить | Continue | вызывает системный диалог |
 | `onboardingProgress` | Шаг {step} из {total} | Step {step} of {total} | подпись индикатора шагов для скринридера |

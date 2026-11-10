@@ -1,4 +1,5 @@
 import 'package:app_di/app_di.dart';
+import 'package:app_logger/app_logger.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -9,25 +10,36 @@ import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/core/result/result.dart';
 import 'package:wayback/features/location/domain/entities/location_access.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
+import 'package:wayback/features/navigation/domain/repositories/background_navigation_repository.dart';
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
+import 'package:wayback/features/navigation/domain/repositories/vibration_repository.dart';
 import 'package:wayback/features/navigation/view/bloc/navigation_guidance_bloc.dart';
 import 'package:wayback/features/navigation/view/screens/navigate_screen.dart';
 import 'package:wayback/features/onboarding/domain/repositories/onboarding_repository.dart';
 import 'package:wayback/features/onboarding/view/screens/onboarding_screen.dart';
+import 'package:wayback/features/points/domain/repositories/point_share_repository.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback/features/points/view/screens/point_create_screen.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
+import 'package:wayback/features/points/view/screens/point_import_screen.dart';
+import 'package:wayback/features/points/view/screens/point_share_screen.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
+import 'package:wayback/features/settings/domain/repositories/diagnostics_repository.dart';
 import 'package:wayback/features/settings/domain/repositories/settings_repository.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
+import 'package:wayback/features/settings/view/screens/vibration_type_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../features/location/fake_location_repository.dart';
+import '../../features/navigation/fake_background_navigation_repository.dart';
 import '../../features/navigation/fake_compass_repository.dart';
+import '../../features/navigation/fake_vibration_repository.dart';
 import '../../features/onboarding/fake_onboarding_repository.dart';
+import '../../features/points/fake_point_share_repository.dart';
 import '../../features/points/fake_points_repository.dart';
+import '../../features/settings/fake_diagnostics_repository.dart';
 import '../../features/settings/fake_settings_repository.dart';
 
 var _containers = 0;
@@ -37,19 +49,28 @@ Future<GoRouter> pumpApp(
   String location, {
   AppSettings settings = AppSettings.defaults,
   bool onboardingCompleted = true,
+  FakeBackgroundNavigationRepository? background,
 }) async {
   final router = createRouter(initialLocation: location);
   addTearDown(router.dispose);
   // Denied access keeps Home static: no system dialog, no progress spinner.
   final repository = FakeLocationRepository(
     access: const Result.success(LocationAccess.denied),
+    afterRequest: LocationAccess.denied,
   );
   final container = DependencyContainer(
     injectorName: 'router-test-${_containers++}',
     commonDependencies: DependencyList([
       RegFactory<LocationRepository>((_) => repository),
       RegFactory<PointsRepository>((_) => FakePointsRepository()),
+      RegFactory<PointShareRepository>((_) => FakePointShareRepository()),
       RegFactory<CompassRepository>((_) => FakeCompassRepository()),
+      RegFactory<VibrationRepository>((_) => FakeVibrationRepository()),
+      RegFactory<BackgroundNavigationRepository>(
+        (_) => background ?? FakeBackgroundNavigationRepository(),
+      ),
+      RegFactory<AppLogger>((_) => const NoopLogger()),
+      RegFactory<DiagnosticsRepository>((_) => FakeDiagnosticsRepository()),
       RegFactory<OnboardingRepository>(
         (_) => FakeOnboardingRepository(completed: onboardingCompleted),
         isSingleton: true,
@@ -76,8 +97,11 @@ void main() {
     Routes.pointCreate: PointCreateScreen,
     Routes.pointsList: PointsListScreen,
     Routes.pointDetails('42'): PointDetailsScreen,
+    Routes.pointShare('42'): PointShareScreen,
+    Routes.pointImport: PointImportScreen,
     Routes.navigate('42'): NavigateScreen,
     Routes.settings: SettingsScreen,
+    Routes.vibrationType: VibrationTypeScreen,
   };
 
   for (final MapEntry(key: location, value: screen) in routes.entries) {
@@ -107,6 +131,17 @@ void main() {
     expect(bloc.pointId, 'abc');
   });
 
+  testWidgets('Stop on the notice closes navigation', (tester) async {
+    final background = FakeBackgroundNavigationRepository();
+    await pumpApp(tester, Routes.navigate('abc'), background: background);
+
+    background.stopRequests.add(const Result.success(null));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigateScreen), findsNothing);
+    expect(find.byType(HomeScreen), findsOneWidget);
+  });
+
   testWidgets('the saved language applies to the whole app', (tester) async {
     await pumpApp(
       tester,
@@ -130,12 +165,36 @@ void main() {
     expect(find.byType(HomeScreen), findsOneWidget);
   });
 
+  group('a point received on the first launch', () {
+    const link = '/import?lat=56.50353&lon=85.03131&n=Test';
+
+    testWidgets('waits behind onboarding', (tester) async {
+      await pumpApp(tester, link, onboardingCompleted: false);
+
+      expect(find.byType(OnboardingScreen), findsOneWidget);
+      expect(find.byType(PointImportScreen), findsNothing);
+    });
+
+    testWidgets('opens when onboarding is done', (tester) async {
+      await pumpApp(tester, link, onboardingCompleted: false);
+
+      // The test window's system language is English.
+      await tester.tap(find.text('Skip'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PointImportScreen), findsOneWidget);
+      expect(find.text('Test'), findsOneWidget);
+    });
+  });
+
   testWidgets('finishing onboarding leads Home', (tester) async {
     await pumpApp(tester, Routes.home, onboardingCompleted: false);
     // The test window's system language is English.
     await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Not now'));
+    await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.byType(HomeScreen), findsOneWidget);
   });

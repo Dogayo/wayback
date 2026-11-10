@@ -6,84 +6,134 @@ import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
+import 'package:wayback/features/points/view/bloc/quick_save_point_bloc.dart';
 import 'package:wayback/features/points/view/point_type_view.dart';
 import 'package:wayback/features/points/view/widgets/bottom_action_bar.dart';
+import 'package:wayback/features/points/view/widgets/point_actions.dart';
 import 'package:wayback/features/points/view/widgets/points_error_view.dart';
+import 'package:wayback/features/points/view/widgets/quick_save_listener.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
+
+/// Dial content for one point card.
+typedef PointDirectionBuilder = Widget Function(String pointId, IconData icon);
 
 /// Active points with distances and the one-tap Save (SCREENS.md §4.1).
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({this.gpsStatus, super.key});
+  const HomeScreen({
+    this.gpsStatus,
+    this.direction,
+    this.largeDirection,
+    super.key,
+  });
 
   /// Location state, supplied by the app so this feature does not depend on
   /// the location feature's view.
   final Widget? gpsStatus;
 
+  /// Direction to a point, supplied by the app for the same reason: the
+  /// compass belongs to the navigation feature.
+  final PointDirectionBuilder? direction;
+
+  /// The full dial, for when one point has Home to itself.
+  final PointDirectionBuilder? largeDirection;
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    return Scaffold(
-      appBar: WbAppBar(
-        title: l10n.homeTitle,
-        actions: [
-          WbIconButton(
-            icon: Icons.settings_outlined,
-            label: l10n.homeSettingsTooltip,
-            onPressed: () => context.push(Routes.settings),
-          ),
-        ],
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (gpsStatus case final status?)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                WbSpacing.screenPadding,
-                WbSpacing.xs,
-                WbSpacing.screenPadding,
-                0,
+    final saving = context.watch<QuickSavePointBloc>().state.isInProgress;
+    return QuickSaveListener(
+      child: PointActionsListener(
+        child: Scaffold(
+          appBar: WbAppBar(
+            title: l10n.homeTitle,
+            actions: [
+              WbIconButton(
+                icon: Icons.settings_outlined,
+                label: l10n.homeSettingsTooltip,
+                onPressed: () => context.push(Routes.settings),
               ),
-              child: status,
-            ),
-          Expanded(
-            child: BlocBuilder<HomeBloc, DataState<HomePoints>>(
-              builder: (context, state) => state.map(
-                initial: (_) => const _Loading(),
-                loading: (s) => switch (s.previous) {
-                  final points? => _HomeContent(points),
-                  null => const _Loading(),
-                },
-                success: (s) => _HomeContent(s.data),
-                failure: (s) => PointsErrorView(
-                  failure: s.failure,
-                  actionLabel: l10n.actionRetry,
-                  onAction: context.read<HomeBloc>().fetch,
+            ],
+          ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (gpsStatus case final status?)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    WbSpacing.screenPadding,
+                    WbSpacing.xs,
+                    WbSpacing.screenPadding,
+                    0,
+                  ),
+                  child: status,
+                ),
+              Expanded(
+                child: BlocBuilder<HomeBloc, DataState<HomePoints>>(
+                  builder: (context, state) => WbStateSwitcher(
+                    child: state.map(
+                      initial: (_) => const _Loading(),
+                      loading: (s) => switch (s.previous) {
+                        final points? => _HomeContent(
+                          points,
+                          direction,
+                          largeDirection,
+                        ),
+                        null => const _Loading(),
+                      },
+                      success: (s) =>
+                          _HomeContent(s.data, direction, largeDirection),
+                      failure: (s) => PointsErrorView(
+                        failure: s.failure,
+                        actionLabel: l10n.actionRetry,
+                        onAction: context.read<HomeBloc>().fetch,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomActionBar(
-        children: [
-          WbButton(
-            label: l10n.homeSaveLocation,
-            onPressed: () => context.push(Routes.pointCreate),
+          bottomNavigationBar: BottomActionBar(
+            children: [
+              WbButton(
+                label: l10n.homeSaveLocation,
+                loading: saving,
+                onPressed: () => context.read<QuickSavePointBloc>().run(null),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
 class _HomeContent extends StatelessWidget {
-  const _HomeContent(this.points);
+  const _HomeContent(this.points, this.direction, this.largeDirection);
 
   final HomePoints points;
+  final PointDirectionBuilder? direction;
+  final PointDirectionBuilder? largeDirection;
 
   @override
   Widget build(BuildContext context) {
+    return WbStateSwitcher(
+      // One point becoming several swaps the whole layout: the old one goes
+      // first so the two never show through each other.
+      duration: WbMotion.slow,
+      fadeInStart: WbStateSwitcher.fadeThroughStart,
+      scaleFrom: WbStateSwitcher.growFrom,
+      // Empty and no-active are both centred messages: tell them apart.
+      state: (
+        points.hasNoPoints,
+        points.hasNoActive,
+        points.active.length == 1,
+      ),
+      child: _content(context),
+    );
+  }
+
+  Widget _content(BuildContext context) {
     final l10n = context.l10n;
     if (points.hasNoPoints) {
       return Center(
@@ -108,33 +158,68 @@ class _HomeContent extends StatelessWidget {
         ),
       );
     }
-    return _ActivePoints(points.active);
+    return _ActivePoints(points.active, direction, largeDirection);
   }
 }
 
 class _ActivePoints extends StatelessWidget {
-  const _ActivePoints(this.points);
+  const _ActivePoints(this.points, this.direction, this.largeDirection);
 
   final List<PointDistance> points;
+  final PointDirectionBuilder? direction;
+  final PointDirectionBuilder? largeDirection;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final units = context.settings.units;
+    final savedId = context.select<QuickSavePointBloc, String?>(
+      (bloc) => bloc.state.mapOrNull<String?>(success: (s) => s.result?.id),
+    );
     return ListView(
       padding: const EdgeInsets.all(WbSpacing.screenPadding),
       children: [
-        for (final (:point, :distanceMeters) in points) ...[
-          WbPointCard(
-            title: point.name,
-            distance: l10n.distanceOrUnknown(
-              distanceMeters,
-              units: context.settings.units,
+        if (points case [final item] when largeDirection != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: WbSpacing.sm),
+            child: WbPointHeroCard(
+              title: item.point.name,
+              distance: l10n.distanceOrUnknown(
+                item.distanceMeters,
+                units: units,
+              ),
+              typeIcon: item.point.type.design.icon,
+              dial: largeDirection!(item.point.id, item.point.type.design.icon),
+              justSaved: item.point.id == savedId
+                  ? item.point.type.design
+                  : null,
+              onTap: () => context.push(Routes.navigate(item.point.id)),
+              onLongPress: () => PointActions.openSheet(context, item),
             ),
-            typeIcon: point.type.design.icon,
-            onTap: () => context.push(Routes.navigate(point.id)),
+          )
+        else
+          WbAnimatedItems<PointDistance>(
+            items: points,
+            keyOf: (item) => item.point.id,
+            itemBuilder: (context, item, _) {
+              final (:point, :distanceMeters) = item;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: WbSpacing.sm),
+                child: WbPointCard(
+                  title: point.name,
+                  distance: l10n.distanceOrUnknown(
+                    distanceMeters,
+                    units: units,
+                  ),
+                  typeIcon: point.type.design.icon,
+                  direction: direction?.call(point.id, point.type.design.icon),
+                  justSaved: point.id == savedId ? point.type.design : null,
+                  onTap: () => context.push(Routes.navigate(point.id)),
+                  onLongPress: () => PointActions.openSheet(context, item),
+                ),
+              );
+            },
           ),
-          const SizedBox(height: WbSpacing.sm),
-        ],
         Align(
           alignment: Alignment.centerLeft,
           child: WbButton(

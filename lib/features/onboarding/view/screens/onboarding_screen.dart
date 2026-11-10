@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/features/onboarding/view/bloc/finish_onboarding_bloc.dart';
@@ -13,7 +14,10 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 ///
 /// Needs [FinishOnboardingBloc] above it.
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  const OnboardingScreen({this.next, super.key});
+
+  /// Where to go when done instead of Home, e.g. a point someone sent.
+  final String? next;
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -38,18 +42,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  void _goTo(int page) => _pages.animateToPage(
-    page,
-    duration: WbMotion.slow,
-    curve: WbMotion.easeOut,
-  );
+  void _goTo(int page) {
+    final duration = WbMotion.of(context, WbMotion.slow);
+    if (duration == Duration.zero) return _pages.jumpToPage(page);
+    _pages.animateToPage(page, duration: duration, curve: WbMotion.easeOut);
+  }
 
-  /// Home whatever the outcome: a failed save must not trap the user.
-  void _onFinished(BuildContext context, ActionState<void> state) =>
-      state.mapOrNull(
-        success: (_) => context.go(Routes.home),
-        failure: (_) => context.go(Routes.home),
-      );
+  /// Onward whatever the outcome: a failed save must not trap the user.
+  void _moveOn(BuildContext context) => context.go(widget.next ?? Routes.home);
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +57,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final finishing = context.watch<FinishOnboardingBloc>().state.isInProgress;
     final finish = context.read<FinishOnboardingBloc>().run;
     final onLast = _page == _last;
-    return BlocListener<FinishOnboardingBloc, ActionState<void>>(
-      listener: _onFinished,
+    return ActionResultListener<FinishOnboardingBloc, void>(
+      successHaptic: null,
+      reportFailure: false,
+      onSuccess: (context, _) => _moveOn(context),
+      onFailure: () => _moveOn(context),
       // System back steps through the pages; from the first it leaves.
       child: PopScope(
         canPop: _page == 0,
@@ -86,7 +89,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     onPageChanged: (page) => setState(() => _page = page),
                     children: [
                       OnboardingStep(
-                        illustration: WbIllustrationKind.compassRose,
+                        visual: const WbDirectionFinding(),
                         title: l10n.onboardingIntroTitle,
                         body: l10n.onboardingIntroBody,
                       ),
@@ -119,25 +122,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   padding: const EdgeInsets.all(WbSpacing.screenPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: WbSpacing.xs,
                     children: [
-                      if (!onLast)
+                      if (onLast)
+                        WbButton(
+                          label: l10n.onboardingLocationContinue,
+                          loading: finishing,
+                          onPressed: () => finish(null),
+                        )
+                      else
                         WbButton(
                           label: l10n.onboardingNext,
                           onPressed: () => _goTo(_page + 1),
-                        )
-                      else ...[
-                        WbButton(
-                          label: l10n.onboardingLocationAllow,
-                          loading: finishing,
-                          onPressed: () => finish(true),
                         ),
-                        WbButton(
-                          label: l10n.onboardingLocationLater,
-                          variant: WbButtonVariant.tertiary,
-                          onPressed: finishing ? null : () => finish(false),
-                        ),
-                      ],
                     ],
                   ),
                 ),

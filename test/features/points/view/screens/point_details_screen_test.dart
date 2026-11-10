@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/edit_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
 
@@ -22,12 +22,13 @@ Future<FakePointsRepository> _pump(WidgetTester tester, String id) async {
               PointDetailsBloc(points, FakeLocationRepository(), pointId: id)
                 ..fetch(),
         ),
-        BlocProvider(create: (_) => RenamePointBloc(points)),
+        BlocProvider(create: (_) => EditPointBloc(points)),
         BlocProvider(create: (_) => SetPointActiveBloc(points)),
         BlocProvider(create: (_) => DeletePointBloc(points)),
       ],
       child: const PointDetailsScreen(),
     ),
+    points: points,
   );
   await settle(tester);
   return points;
@@ -58,6 +59,32 @@ void main() {
     expect(points.points, isEmpty);
     expect(find.text('route /points'), findsOneWidget);
     expect(find.text('Точка «Машина» удалена'), findsOneWidget);
+    await expireUndo(tester);
+  });
+
+  testWidgets('undo after leaving for the list brings the point back', (
+    tester,
+  ) async {
+    final points = await _pump(tester, 'a');
+    await tester.tap(find.text('Удалить'));
+    await settle(tester);
+    await tester.tap(find.text('Удалить').last);
+    await settle(tester);
+
+    await tester.tap(find.text('Вернуть'));
+    await settle(tester);
+
+    expect(points.points.single.name, 'Машина');
+    expect(find.text('Вернуть'), findsNothing);
+  });
+
+  testWidgets('the app bar leads to sharing', (tester) async {
+    await _pump(tester, 'a');
+
+    await tester.tap(find.byTooltip('Поделиться'));
+    await settle(tester);
+
+    expect(find.text('route /points/a/share'), findsOneWidget);
   });
 
   testWidgets('a missing point offers the way back', (tester) async {

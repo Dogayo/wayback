@@ -1,7 +1,9 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/result/result.dart';
+import 'package:wayback/features/location/domain/entities/location_access.dart';
 import 'package:wayback/features/location/domain/entities/location_fix.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
 import 'package:wayback/features/points/domain/entities/point_type.dart';
@@ -20,6 +22,24 @@ final class _LocationOff extends FakeLocationRepository {
   Future<Result<LocationFix>> currentFix() async => const Result.failure(
     SensorFailure(code: LocationErrorCodes.serviceDisabled),
   );
+}
+
+final class _Approximate extends FakeLocationRepository {
+  bool precise = false;
+
+  @override
+  Future<Result<LocationFix>> currentFix() async {
+    if (precise) return super.currentFix();
+    return const Result.failure(
+      PermissionFailure(code: LocationErrorCodes.preciseRequired),
+    );
+  }
+
+  @override
+  Future<Result<LocationAccess>> requestPreciseAccess() {
+    precise = true;
+    return super.requestPreciseAccess();
+  }
 }
 
 Future<FakePointsRepository> _pump(
@@ -68,6 +88,36 @@ void main() {
     expect(points.points.single.name, 'Машина');
     expect(find.text('Точка «Машина» сохранена'), findsOneWidget);
     expect(find.text('route /'), findsOneWidget);
+  });
+
+  testWidgets('a name stops at 40 characters', (tester) async {
+    await _pump(tester);
+
+    await tester.enterText(find.byType(EditableText), 'x' * 50);
+    await settle(tester);
+
+    expect(find.text('40/40'), findsOneWidget);
+    await tester.tap(find.text('Сохранить'));
+    await settle(tester);
+  });
+
+  testWidgets('approximate access: no Save until precise is on', (
+    tester,
+  ) async {
+    final points = await _pump(tester, location: _Approximate());
+    expect(find.text('Нужна точная геолокация'), findsOneWidget);
+
+    await tester.tap(find.text('Сохранить'));
+    await settle(tester);
+    expect(points.points, isEmpty);
+
+    await tester.tap(find.text('Включить точную геолокацию'));
+    await settle(tester);
+    expect(find.text('Нужна точная геолокация'), findsNothing);
+    await tester.tap(find.text('Сохранить'));
+    await settle(tester);
+
+    expect(points.points, hasLength(1));
   });
 
   testWidgets('location off: no Save, settings offered', (tester) async {

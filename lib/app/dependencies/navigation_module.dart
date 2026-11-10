@@ -1,9 +1,20 @@
+import 'dart:io';
+
 import 'package:app_di/app_di.dart';
 import 'package:wayback/core/result/result_handler.dart';
+import 'package:wayback/features/navigation/data/datasources/background_navigation_datasource.dart';
 import 'package:wayback/features/navigation/data/datasources/compass_datasource.dart';
 import 'package:wayback/features/navigation/data/datasources/flutter_compass_datasource.dart';
+import 'package:wayback/features/navigation/data/datasources/foreground_service_navigation_datasource.dart';
+import 'package:wayback/features/navigation/data/datasources/no_background_navigation_datasource.dart';
+import 'package:wayback/features/navigation/data/datasources/plugin_vibration_datasource.dart';
+import 'package:wayback/features/navigation/data/datasources/vibration_datasource.dart';
+import 'package:wayback/features/navigation/data/repositories/background_navigation_repository_impl.dart';
 import 'package:wayback/features/navigation/data/repositories/compass_repository_impl.dart';
+import 'package:wayback/features/navigation/data/repositories/vibration_repository_impl.dart';
+import 'package:wayback/features/navigation/domain/repositories/background_navigation_repository.dart';
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
+import 'package:wayback/features/navigation/domain/repositories/vibration_repository.dart';
 
 final class NavigationModule extends DependencyCollection {
   const NavigationModule();
@@ -17,6 +28,30 @@ final class NavigationModule extends DependencyCollection {
     RegFactory<CompassRepository>(
       (i) => CompassRepositoryImpl(
         i.get<CompassDatasource>(),
+        resultOptions: i.get<ResultHandlerOptions>(),
+      ),
+      isSingleton: true,
+    ),
+    RegFactory<BackgroundNavigationDatasource>(
+      (_) => Platform.isAndroid
+          ? const ForegroundServiceNavigationDatasource()
+          : const NoBackgroundNavigationDatasource(),
+      isSingleton: true,
+    ),
+    RegFactory<BackgroundNavigationRepository>(
+      (i) => BackgroundNavigationRepositoryImpl(
+        i.get<BackgroundNavigationDatasource>(),
+        resultOptions: i.get<ResultHandlerOptions>(),
+      ),
+      isSingleton: true,
+    ),
+    RegFactory<VibrationDatasource>(
+      (_) => const PluginVibrationDatasource(),
+      isSingleton: true,
+    ),
+    RegFactory<VibrationRepository>(
+      (i) => VibrationRepositoryImpl(
+        i.get<VibrationDatasource>(),
         resultOptions: i.get<ResultHandlerOptions>(),
       ),
       isSingleton: true,

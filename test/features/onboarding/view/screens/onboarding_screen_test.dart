@@ -43,8 +43,9 @@ void main() {
     await tester.tap(find.text('Далее'));
     await tester.pumpAndSettle();
     expect(find.text('Доступ к геолокации'), findsOneWidget);
-    expect(find.text('Разрешить'), findsOneWidget);
-    expect(find.text('Не сейчас'), findsOneWidget);
+    expect(find.text('Продолжить'), findsOneWidget);
+    expect(find.text('Разрешить'), findsNothing);
+    expect(find.text('Не сейчас'), findsNothing);
     expect(find.text('Далее'), findsNothing);
   });
 
@@ -69,28 +70,15 @@ void main() {
     expect(find.text('Вернитесь туда, где были'), findsOneWidget);
   });
 
-  testWidgets('Allow asks for location and leads Home', (tester) async {
+  testWidgets('Continue asks for location and leads Home', (tester) async {
     final (onboarding, location) = await _pump(tester);
     await tester.tap(find.text('Пропустить'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Разрешить'));
+    await tester.tap(find.text('Продолжить'));
     await tester.pumpAndSettle();
 
     expect(location.requests, 1);
-    expect(onboarding.completed, isTrue);
-    expect(find.text('route /'), findsOneWidget);
-  });
-
-  testWidgets('Not now leads Home without asking', (tester) async {
-    final (onboarding, location) = await _pump(tester);
-    await tester.tap(find.text('Пропустить'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Не сейчас'));
-    await tester.pumpAndSettle();
-
-    expect(location.requests, 0);
     expect(onboarding.completed, isTrue);
     expect(find.text('route /'), findsOneWidget);
   });
@@ -104,7 +92,7 @@ void main() {
     await tester.tap(find.text('Пропустить'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Не сейчас'));
+    await tester.tap(find.text('Продолжить'));
     await tester.pumpAndSettle();
 
     expect(find.text('route /'), findsOneWidget);

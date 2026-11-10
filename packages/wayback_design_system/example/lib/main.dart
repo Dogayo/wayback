@@ -65,6 +65,7 @@ class _CatalogState extends State<_Catalog> {
     ('Navigation', Icons.navigation_outlined),
     ('Wayfinding', Icons.explore_outlined),
     ('Feedback', Icons.notifications_none),
+    ('Motion', Icons.animation_outlined),
   ];
 
   final sectionKeys = <String, GlobalKey>{
@@ -75,6 +76,7 @@ class _CatalogState extends State<_Catalog> {
     'Navigation': GlobalKey(),
     'Wayfinding': GlobalKey(),
     'Feedback': GlobalKey(),
+    'Motion': GlobalKey(),
   };
 
   Future<void> _scrollToSection(String section) async {
@@ -215,6 +217,10 @@ class _CatalogState extends State<_Catalog> {
                                     onDialog: _showDelete,
                                     onSheet: _showSheet,
                                   ),
+                                ),
+                                KeyedSubtree(
+                                  key: sectionKeys['Motion'],
+                                  child: const _MotionSection(),
                                 ),
                               ],
                             ),
@@ -489,7 +495,7 @@ class _FoundationsSection extends StatelessWidget {
             children: [
               _TypographySample(
                 name: 'displayLarge',
-                specs: '56 / 64 · 700',
+                specs: '88 / 96 · 700',
                 sample: '640 м',
                 style: context.wbText.displayLarge,
               ),
@@ -837,7 +843,26 @@ class _ContentSection extends StatelessWidget {
               title: 'Машина',
               distance: '640 м',
               typeIcon: Icons.directions_car_outlined,
-              rotation: 35,
+              direction: WbPointDirection(
+                icon: Icons.directions_car_outlined,
+                rotation: 35,
+              ),
+            ),
+            SizedBox(height: 12),
+            WbPointCard(
+              title: 'Лагерь',
+              distance: '1,2 км',
+              typeIcon: Icons.cabin_outlined,
+              direction: WbPointDirection(
+                icon: Icons.cabin_outlined,
+                rotation: 240,
+              ),
+            ),
+            SizedBox(height: 12),
+            WbPointCard(
+              title: 'Лагерь',
+              distance: '1,2 км',
+              typeIcon: Icons.cabin_outlined,
             ),
             SizedBox(height: 12),
             WbPointCardSkeleton(),
@@ -972,7 +997,7 @@ class _WayfindingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Section(
     title: 'Wayfinding',
-    components: 'CompassArrow · Illustration · PageDots',
+    components: 'DirectionDial · Illustration · PageDots',
     children: [
       _Specimen(
         width: 1014,
@@ -984,19 +1009,15 @@ class _WayfindingSection extends StatelessWidget {
           children: const [
             _CompassSample(
               distance: '640 м',
-              detail: 'ok · точность GPS ±8 м',
+              detail: 'ok · луч ±15°, GPS ±8 м',
               rotation: 34,
+              spread: 15,
             ),
             _CompassSample(
               distance: '1.4 км',
-              detail: 'unreliable · точность GPS ±42 м',
+              detail: 'unreliable · луч ±45°, GPS ±42 м',
               rotation: 68,
-              state: WbCompassState.unreliable,
-            ),
-            _CompassSample(
-              distance: '18 м',
-              detail: 'arrived · держите это направление',
-              state: WbCompassState.arrived,
+              spread: 45,
             ),
           ],
         ),
@@ -1028,19 +1049,24 @@ class _CompassSample extends StatelessWidget {
   const _CompassSample({
     required this.distance,
     required this.detail,
-    this.rotation = 0,
-    this.state = WbCompassState.ok,
+    required this.rotation,
+    required this.spread,
   });
   final String distance;
   final String detail;
   final double rotation;
-  final WbCompassState state;
+  final double spread;
   @override
   Widget build(BuildContext context) => SizedBox(
     width: 240,
     child: Column(
       children: [
-        WbCompassArrow(rotation: rotation, state: state),
+        WbDirectionDial(
+          rotation: rotation,
+          spread: spread,
+          size: 200,
+          semanticLabel: detail,
+        ),
         const SizedBox(height: 12),
         Text(distance, style: context.wbText.headlineSmall),
         Text(
@@ -1133,5 +1159,219 @@ class _FeedbackSection extends StatelessWidget {
         ),
       ),
     ],
+  );
+}
+
+class _MotionSection extends StatelessWidget {
+  const _MotionSection();
+
+  @override
+  Widget build(BuildContext context) => const _Section(
+    title: 'Motion',
+    components:
+        'WbPage · WbStateSwitcher · WbSwipeActions · WbActionSheet · WbUndoSnackbar',
+    children: [
+      _Specimen(title: 'Переходы экранов', child: _TransitionsDemo()),
+      _Specimen(title: 'Смена состояний', child: _StatesDemo()),
+      _Specimen(title: 'Действия над точкой', child: _PointActionsDemo()),
+      _Specimen(
+        title: 'QR',
+        width: 340,
+        child: WbQrCode(data: 'wayback://app/import?lat=56.50353&lon=85.03131'),
+      ),
+    ],
+  );
+}
+
+/// A phone-sized navigator to try each [WbTransition] in.
+class _TransitionsDemo extends StatefulWidget {
+  const _TransitionsDemo();
+
+  @override
+  State<_TransitionsDemo> createState() => _TransitionsDemoState();
+}
+
+class _TransitionsDemoState extends State<_TransitionsDemo> {
+  final _stack = <WbTransition?>[null];
+
+  WbPage<void> _page(int depth, WbTransition? transition) => WbPage(
+    key: ValueKey(depth),
+    transition: transition ?? WbTransition.drill,
+    child: Scaffold(
+      appBar: WbAppBar(
+        title: depth == 0 ? 'Главный' : transition!.name,
+        onBack: depth == 0 ? null : () => setState(_stack.removeLast),
+      ),
+      body: Center(child: Text('Экран ${depth + 1}')),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    spacing: 12,
+    children: [
+      ClipRRect(
+        borderRadius: WbRadius.medium,
+        child: SizedBox(
+          width: 280,
+          height: 420,
+          child: Navigator(
+            pages: [for (final (i, t) in _stack.indexed) _page(i, t)],
+            onDidRemovePage: (_) {},
+          ),
+        ),
+      ),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final t in WbTransition.values)
+            WbButton(
+              label: t.name,
+              size: WbButtonSize.small,
+              variant: WbButtonVariant.secondary,
+              onPressed: () => setState(() => _stack.add(t)),
+            ),
+        ],
+      ),
+    ],
+  );
+}
+
+enum _DemoState { loading, content, empty }
+
+class _StatesDemo extends StatefulWidget {
+  const _StatesDemo();
+
+  @override
+  State<_StatesDemo> createState() => _StatesDemoState();
+}
+
+class _StatesDemoState extends State<_StatesDemo> {
+  var _state = _DemoState.loading;
+  var _saving = false;
+
+  Future<void> _save() async {
+    setState(() => _saving = true);
+    await Future<void>.delayed(const Duration(seconds: 2));
+    if (mounted) setState(() => _saving = false);
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    spacing: 12,
+    children: [
+      WbStateSwitcher(
+        state: _state,
+        animateSize: true,
+        child: switch (_state) {
+          _DemoState.loading => const Column(
+            spacing: WbSpacing.sm,
+            children: [WbPointCardSkeleton(), WbPointCardSkeleton()],
+          ),
+          _DemoState.content => const Column(
+            spacing: WbSpacing.sm,
+            children: [
+              WbPointCard(
+                title: 'Машина',
+                distance: '320 м',
+                typeIcon: Icons.directions_car_outlined,
+              ),
+              WbPointCard(
+                title: 'Лагерь',
+                distance: '1,4 км',
+                typeIcon: Icons.cabin_outlined,
+              ),
+              WbPointCard(
+                title: 'Рыбалка',
+                distance: '2,1 км',
+                typeIcon: Icons.phishing_outlined,
+              ),
+            ],
+          ),
+          _DemoState.empty => const WbEmptyState(
+            icon: Icons.add_location_alt_outlined,
+            title: 'Пока нет точек',
+            message: 'Сохраните место, чтобы вернуться к нему',
+          ),
+        },
+      ),
+      WbSegmentedTabs(
+        items: {for (final s in _DemoState.values) s: s.name},
+        value: _state,
+        onChanged: (s) => setState(() => _state = s),
+      ),
+      WbButton(label: 'Сохранить', loading: _saving, onPressed: _save),
+    ],
+  );
+}
+
+class _PointActionsDemo extends StatefulWidget {
+  const _PointActionsDemo();
+
+  @override
+  State<_PointActionsDemo> createState() => _PointActionsDemoState();
+}
+
+class _PointActionsDemoState extends State<_PointActionsDemo> {
+  final _points = ['Машина', 'Лагерь', 'Рыбалка'];
+
+  void _delete(String point) {
+    final index = _points.indexOf(point);
+    setState(() => _points.remove(point));
+    WbUndoSnackbar.show(
+      context,
+      message: 'Точка «$point» удалена',
+      actionLabel: 'Вернуть',
+      onUndo: () => setState(() => _points.insert(index, point)),
+    );
+  }
+
+  void _openSheet(String point) => WbActionSheet.show(
+    context,
+    title: point,
+    subtitle: '640 м',
+    icon: Icons.place_outlined,
+    actions: [
+      WbSheetAction(
+        icon: Icons.edit_outlined,
+        label: 'Переименовать',
+        onSelected: _CatalogState._noop,
+      ),
+      WbSheetAction(
+        icon: Icons.delete_outline,
+        label: 'Удалить',
+        destructive: true,
+        onSelected: () => _delete(point),
+      ),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) => WbAnimatedItems<String>(
+    items: _points,
+    keyOf: (point) => point,
+    itemBuilder: (context, point, isLast) => WbSwipeActions(
+      actions: [
+        WbSwipeAction(
+          icon: Icons.edit_outlined,
+          label: 'Переименовать',
+          onPressed: _CatalogState._noop,
+        ),
+        WbSwipeAction(
+          icon: Icons.delete_outline,
+          label: 'Удалить',
+          destructive: true,
+          onPressed: () => _delete(point),
+        ),
+      ],
+      child: WbListItem(
+        title: point,
+        showDivider: !isLast,
+        onLongPress: () => _openSheet(point),
+      ),
+    ),
   );
 }

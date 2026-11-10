@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:wayback/core/error/exceptions.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/result/result.dart';
 import 'package:wayback/core/result/result_handler.dart';
@@ -31,8 +32,33 @@ final class LocationRepositoryImpl
       handle(_datasource.requestAccess);
 
   @override
-  Future<Result<LocationFix>> currentFix() =>
-      handle(() async => (await _datasource.currentFix()).toEntity());
+  Future<Result<LocationAccess>> requestPreciseAccess() => handle(() async {
+    final access = await _datasource.requestAccess();
+    if (access == LocationAccess.approximate) {
+      await _datasource.openAppSettings();
+    }
+    return access;
+  });
+
+  @override
+  Future<Result<LocationFix>> currentFix() => handle(() async {
+    await _requirePrecise();
+    return (await _datasource.currentFix()).toEntity();
+  });
+
+  /// A point saved or a way shown from an approximate position would be off
+  /// by kilometers, and could even announce arrival: positions snap to a
+  /// coarse grid.
+  Future<void> _requirePrecise() async {
+    if (await _datasource.checkAccess() == LocationAccess.approximate) {
+      throw const PermissionException(code: LocationErrorCodes.preciseRequired);
+    }
+  }
+
+  Stream<LocationFix> _fixes() async* {
+    await _requirePrecise();
+    yield* _datasource.watchFix().map((model) => model.toEntity());
+  }
 
   /// One GPS subscription shared by every screen that watches fixes. It
   /// starts with the first listener, stops after the last one, and starts
@@ -70,9 +96,7 @@ final class LocationRepositoryImpl
       failure.code == LocationErrorCodes.serviceDisabled;
 
   void _startUpstream() {
-    final stream = handleStream(
-      _datasource.watchFix().map((model) => model.toEntity()),
-    );
+    final stream = handleStream(_fixes());
     _upstream = stream.listen(
       (result) {
         if (result.isSuccess) _lastFix = result;

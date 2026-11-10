@@ -19,11 +19,13 @@
   "actionAllow": "Разрешить",
   "actionCancel": "Отмена",
   "actionDelete": "Удалить",
+  "actionEdit": "Изменить",
+  "actionEnablePreciseLocation": "Включить точную геолокацию",
   "actionOpenSettings": "Открыть настройки",
-  "actionRename": "Переименовать",
   "actionRetry": "Повторить",
   "actionSave": "Сохранить",
   "appTitle": "Wayback",
+  "diagnosticsShareSubject": "Журнал Wayback",
   "distanceFeet": "{value} фт",
   "@distanceFeet": {
     "placeholders": {
@@ -57,12 +59,16 @@
     }
   },
   "distanceUnknown": "—",
+  "error_diagnostics_export_failed": "Не удалось подготовить журнал",
+  "error_diagnostics_export_failed_body": "Попробуйте ещё раз.",
   "error_generic": "Что-то пошло не так",
   "error_generic_body": "Попробуйте ещё раз.",
   "error_location_permission_denied": "Нет доступа к геолокации",
   "error_location_permission_denied_body": "Без него Wayback не знает, где вы.",
   "error_location_permission_denied_forever": "Доступ к геолокации запрещён",
   "error_location_permission_denied_forever_body": "Включите его в настройках телефона.",
+  "error_location_precise_required": "Нужна точная геолокация",
+  "error_location_precise_required_body": "С приблизительной дорогу назад не показать.",
   "error_location_service_disabled": "Геолокация выключена",
   "error_location_service_disabled_body": "Включите её, чтобы сохранять и находить точки.",
   "error_location_unavailable": "Не получается определить, где вы",
@@ -82,7 +88,7 @@
   "homeEmptyTitle": "Пока нет точек",
   "homeNoActiveAction": "Выбрать точку",
   "homeNoActiveBody": "Выберите, к каким точкам сейчас идёте.",
-  "homeNoActiveTitle": "Нет активных точек",
+  "homeNoActiveTitle": "На главной пока пусто",
   "homePointSemantics": "{name}, {distance}",
   "@homePointSemantics": {
     "placeholders": {
@@ -97,9 +103,37 @@
   "homeSaveLocation": "Сохранить место",
   "homeSettingsTooltip": "Настройки",
   "homeTitle": "Wayback",
-  "navigateArrived": "Вы на месте",
-  "navigateCompassCalibrationBody": "Поводите телефоном восьмёркой.",
+  "navigateArrived": "{name} где‑то рядом",
+  "@navigateArrived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "navigateNotificationStop": "Завершить навигацию",
+  "navigateArrivedNotice": "Где‑то рядом",
+  "navigateNotificationChannel": "Навигация",
+  "navigateCompassCalibrationBody": "поводите восьмёркой",
   "navigateCompassCalibrationTitle": "Компас неточен",
+  "navigateCompassDistanceOnly": "только расстояние",
+  "navigateDirection": "Направление на точку, {degrees} градусов",
+  "@navigateDirection": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "navigateDirectionApproximate": "Примерное направление на точку, {degrees} градусов",
+  "@navigateDirectionApproximate": {
+    "placeholders": {
+      "degrees": {
+        "type": "int"
+      }
+    }
+  },
+  "pointDirectionApproximate": "Направление примерное",
   "navigateLocating": "Ждём GPS и компас…",
   "navigateSemantics": "До «{name}» {distance}",
   "@navigateSemantics": {
@@ -114,8 +148,8 @@
   },
   "navigateTitle": "Навигация",
   "navigateWeakSignal": "Слабый сигнал GPS — расстояние может быть неточным.",
-  "navigateWeakSignalBody": "Расстояние может быть неточным.",
-  "navigateWeakSignalTitle": "Слабый сигнал GPS",
+  "navigateWeakSignalBody": "расстояние неточно",
+  "navigateWeakSignalTitle": "Слабый GPS",
   "onboardingHowLeave": "Уходите по своим делам.",
   "onboardingHowOffline": "Работает без интернета. Точки хранятся только на телефоне.",
   "onboardingHowReturn": "Возвращайтесь по стрелке — она покажет направление и расстояние.",
@@ -123,9 +157,8 @@
   "onboardingHowTitle": "Три простых шага",
   "onboardingIntroBody": "Запомните место — парковку, лагерь, точку встречи. Wayback покажет дорогу назад без карты.",
   "onboardingIntroTitle": "Вернитесь туда, где были",
-  "onboardingLocationAllow": "Разрешить",
-  "onboardingLocationBody": "Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто, и остаётся на телефоне.",
-  "onboardingLocationLater": "Не сейчас",
+  "onboardingLocationBody": "Без него Wayback не сможет запомнить место и показать дорогу назад. Местоположение нужно, только пока приложение открыто или идёт навигация, и остаётся на телефоне. Выберите точное местоположение — с приблизительным дорога назад не сработает.",
+  "onboardingLocationContinue": "Продолжить",
   "onboardingLocationTitle": "Доступ к геолокации",
   "onboardingNext": "Далее",
   "onboardingProgress": "Шаг {step} из {total}",
@@ -150,7 +183,8 @@
       }
     }
   },
-  "pointActiveLabel": "Активна",
+  "pointActiveLabel": "На главной",
+  "pointHiddenLabel": "Скрыта",
   "pointActiveToggleSemantics": "Показывать на главном экране",
   "pointBackToList": "К списку точек",
   "pointCoordinatesLabel": "Координаты",
@@ -167,7 +201,7 @@
       }
     }
   },
-  "pointDeleteBody": "Точка пропадёт из списка и с главного экрана. Вернуть её не получится.",
+  "pointDeleteBody": "Точка пропадёт из списка и с главного экрана.",
   "pointDeleteTitle": "Удалить «{name}»?",
   "@pointDeleteTitle": {
     "placeholders": {
@@ -177,6 +211,7 @@
     }
   },
   "pointDeletedSnackbar": "Точка «{name}» удалена",
+  "pointEditTitle": "Изменить точку",
   "@pointDeletedSnackbar": {
     "placeholders": {
       "name": {
@@ -196,7 +231,6 @@
   "pointNameHelper": "Можно оставить как есть",
   "pointNameLabel": "Название",
   "pointNavigate": "Вести к точке",
-  "pointRenameTitle": "Название точки",
   "pointSavedAt": "Сохранена {date}",
   "@pointSavedAt": {
     "placeholders": {
@@ -239,14 +273,25 @@
   },
   "pointsListTitle": "Точки",
   "settingsLanguage": "Язык",
+  "settingsGroupVibration": "Вибрация",
+  "settingsGroupDiagnostics": "Диагностика",
   "settingsLanguageEn": "English",
   "settingsLanguageRu": "Русский",
   "settingsLanguageSystem": "Как в системе",
+  "settingsSendLog": "Отправить журнал",
+  "settingsSendLogHint": "Для разбора ошибок, без координат",
   "settingsTitle": "Настройки",
   "settingsUnits": "Единицы измерения",
   "settingsUnitsImperial": "Футы и мили",
   "settingsUnitsMetric": "Метры и километры",
   "settingsVibration": "Вибрация при прибытии",
+  "settingsVibrationLong": "Длинная",
+  "settingsVibrationPattern": "Вид вибрации",
+  "settingsVibrationPatternHint": "Выберите вибрацию, которую хорошо чувствуете на своём телефоне",
+  "settingsVibrationStandard": "Обычная",
+  "settingsVibrationStrong": "Сильная",
+  "settingsVibrationTest": "Проверить",
+  "settingsVibrationTwice": "Двойная",
   "timeHoursAgo": "{n} ч назад",
   "@timeHoursAgo": {
     "placeholders": {
@@ -264,5 +309,77 @@
       }
     }
   },
-  "timeYesterday": "вчера"
+  "timeYesterday": "вчера",
+  "actionUndo": "Вернуть",
+  "pointActionDetails": "Подробнее",
+  "pointActionDeactivate": "Убрать с главной",
+  "pointActionActivate": "Показать на главной",
+  "pointSwipeDeactivate": "Убрать",
+  "pointSwipeActivate": "На главную",
+  "pointDeactivatedSnackbar": "«{name}» убрана с главной",
+  "@pointDeactivatedSnackbar": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pointNameRequired": "Введите название",
+  "pointImportTitle": "По координатам",
+  "pointImportDistance": "До точки",
+  "pointCoordinatesHint": "56.50353, 85.03131",
+  "pointCoordinatesHelper": "Числа, градусы или ссылка на карту",
+  "pointCoordinatesPaste": "Вставить",
+  "pointCoordinatesRead": "Широта {latitude}, долгота {longitude}",
+  "pointCoordinatesInvalid": "Не удалось распознать координаты",
+  "pointImpreciseTitle": "Координаты неточные",
+  "pointImpreciseBody": "Мало знаков после запятой: точка может быть смещена на сотни метров и больше.",
+  "pointNearbyTitle": "Рядом уже есть «{name}»",
+  "pointNearbyBody": "До неё {distance}. Сохранить всё равно можно.",
+  "pointAddTitle": "Новая точка",
+  "pointAddSubtitle": "Как задать место",
+  "pointAddCurrent": "Текущее место",
+  "pointAddByCoordinates": "По координатам",
+  "@pointCoordinatesRead": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "@pointNearbyTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@pointNearbyBody": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "pointActionShare": "Поделиться",
+  "pointShareTitle": "Поделиться",
+  "pointShareSend": "Отправить",
+  "pointShareCopy": "Скопировать координаты",
+  "pointCoordinatesCopied": "Координаты скопированы",
+  "error_point_share_failed": "Не удалось поделиться точкой",
+  "error_point_share_failed_body": "Попробуйте ещё раз.",
+  "pointShareQrHint": "Наведите камеру другого телефона на код",
+  "pointShareQrLabel": "QR-код точки",
+  "settingsTouchFeedback": "Отклик при нажатиях",
+  "pointQuickSavedSnackbar": "{name} сохранена",
+  "@pointQuickSavedSnackbar": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

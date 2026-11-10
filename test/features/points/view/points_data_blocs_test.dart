@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/result/result.dart';
+import 'package:wayback/features/points/domain/entities/point_type.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
@@ -90,7 +91,7 @@ void main() {
       );
       expect(bloc.state.dataOrNull!.point.name, 'Машина');
 
-      await points.rename('a', 'Машина у леса');
+      await points.edit('a', name: 'Машина у леса', type: PointType.generic);
       await pumpEventQueue();
       expect(bloc.state.dataOrNull!.point.name, 'Машина у леса');
     });

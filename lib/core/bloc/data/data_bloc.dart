@@ -12,7 +12,7 @@ part 'data_state.dart';
 /// `watch() => repository.load().asStream()`; a changing one returns the
 /// repository stream, and every new value replaces the shown one.
 ///
-/// A new fetch or refresh cancels the previous one (`restartable`).
+/// A new fetch, refresh or stop cancels the previous one (`restartable`).
 abstract class DataBloc<T> extends Bloc<DataEvent, DataState<T>> {
   DataBloc() : super(DataInitial<T>()) {
     on<DataEvent>(_onEvent, transformer: restartable());
@@ -27,11 +27,12 @@ abstract class DataBloc<T> extends Bloc<DataEvent, DataState<T>> {
   /// Loads again while the current data stays on screen.
   void refresh() => add(const DataRefreshed());
 
+  /// Stops listening to [watch]; the state stays, [refresh] picks it up.
+  void stop() => add(const DataStopped());
+
   Future<void> _onEvent(DataEvent event, Emitter<DataState<T>> emit) async {
-    final previous = switch (event) {
-      DataFetched() => null,
-      DataRefreshed() => state.dataOrNull,
-    };
+    if (event is DataStopped) return;
+    final previous = event is DataRefreshed ? state.dataOrNull : null;
     emit(DataLoading<T>(previous: previous));
     await emit.forEach<Result<T>>(
       watch(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
@@ -16,10 +17,16 @@ class WbRadio<T> extends StatelessWidget {
   final T? groupValue;
   final String label;
   final ValueChanged<T>? onChanged;
+
+  void _select(BuildContext context) {
+    if (value != groupValue) WbHaptics.play(context, WbHaptic.tick);
+    onChanged?.call(value);
+  }
+
   @override
   Widget build(BuildContext context) => InkWell(
     borderRadius: WbRadius.small,
-    onTap: onChanged == null ? null : () => onChanged!(value),
+    onTap: onChanged == null ? null : () => _select(context),
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -29,7 +36,7 @@ class WbRadio<T> extends StatelessWidget {
             child: RadioGroup<T>(
               groupValue: groupValue,
               onChanged: (v) {
-                if (v != null) onChanged?.call(v);
+                if (v != null) _select(context);
               },
               child: Radio<T>(value: value),
             ),

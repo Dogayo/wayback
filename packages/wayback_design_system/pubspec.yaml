@@ -22,3 +22,9 @@ flutter:
   assets:
     - assets/logo.svg
     - assets/logo-lockup.svg
+    - assets/fonts/Barlow-OFL.txt
+  fonts:
+    - family: Barlow
+      fonts:
+        - asset: assets/fonts/Barlow-SemiBold.ttf
+          weight: 600

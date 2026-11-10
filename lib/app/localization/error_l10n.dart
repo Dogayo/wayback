@@ -7,11 +7,14 @@ const localizedErrorCodes = {
   'location_permission_denied_forever',
   'location_service_disabled',
   'location_unavailable',
+  'location_precise_required',
   'navigation_compass_unavailable',
   'points_storage_read_failed',
   'points_storage_write_failed',
   'points_not_found',
   'settings_storage_failed',
+  'diagnostics_export_failed',
+  'point_share_failed',
 };
 
 typedef ErrorText = ({String title, String body});
@@ -22,6 +25,10 @@ extension ErrorL10n on AppLocalizations {
   /// Unknown codes get the generic text; the caller logs the code
   /// (architecture.md §4.2), the user never sees it.
   ErrorText error(String code) => switch (code) {
+    'point_share_failed' => (
+      title: error_point_share_failed,
+      body: error_point_share_failed_body,
+    ),
     'location_permission_denied' => (
       title: error_location_permission_denied,
       body: error_location_permission_denied_body,
@@ -37,6 +44,10 @@ extension ErrorL10n on AppLocalizations {
     'location_unavailable' => (
       title: error_location_unavailable,
       body: error_location_unavailable_body,
+    ),
+    'location_precise_required' => (
+      title: error_location_precise_required,
+      body: error_location_precise_required_body,
     ),
     'navigation_compass_unavailable' => (
       title: error_navigation_compass_unavailable,
@@ -57,6 +68,10 @@ extension ErrorL10n on AppLocalizations {
     'settings_storage_failed' => (
       title: error_settings_storage_failed,
       body: error_settings_storage_failed_body,
+    ),
+    'diagnostics_export_failed' => (
+      title: error_diagnostics_export_failed,
+      body: error_diagnostics_export_failed_body,
     ),
     _ => (title: error_generic, body: error_generic_body),
   };

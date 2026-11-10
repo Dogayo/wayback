@@ -5,7 +5,8 @@ import 'package:wayback/features/location/domain/repositories/location_repositor
 export 'package:wayback/core/bloc/action/action_bloc.dart';
 
 /// Opens the system screen that can give the new point a fix back: the
-/// location switch for `serviceDisabled`, the app permissions otherwise.
+/// location switch for `serviceDisabled`, the precise location request for
+/// `preciseRequired`, the app permissions otherwise.
 ///
 /// Points use the location domain only, so this mirrors the location
 /// feature's settings action instead of importing its view.
@@ -15,8 +16,9 @@ final class OpenFixSettingsBloc extends ActionBloc<String, void> {
   final LocationRepository _location;
 
   @override
-  Future<Result<void>> perform(String failureCode) =>
-      failureCode == LocationErrorCodes.serviceDisabled
-      ? _location.openLocationSettings()
-      : _location.openAppSettings();
+  Future<Result<void>> perform(String failureCode) => switch (failureCode) {
+    LocationErrorCodes.serviceDisabled => _location.openLocationSettings(),
+    LocationErrorCodes.preciseRequired => _location.requestPreciseAccess(),
+    _ => _location.openAppSettings(),
+  };
 }

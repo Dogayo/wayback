@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
+import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_touch_feedback_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/settings_bloc.dart';
@@ -12,29 +15,26 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// Units, language and vibration on arrival (SCREENS.md §4.6).
 ///
-/// Needs [SettingsBloc], [SetUnitsBloc], [SetLanguageBloc] and
-/// [SetVibrationOnArrivalBloc] above it.
+/// Needs [SettingsBloc], [SetUnitsBloc], [SetLanguageBloc],
+/// [SetVibrationOnArrivalBloc] and [SendLogBloc] above it.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
-
-  /// A failed write keeps the old value on screen and says so.
-  static void _onSaved(BuildContext context, ActionState<void> state) =>
-      state.mapOrNull(
-        failure: (s) =>
-            WbSnackbar.show(context, context.l10n.error(s.failure.code).title),
-      );
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final state = context.watch<SettingsBloc>().state;
     return MultiBlocListener(
-      listeners: const [
-        BlocListener<SetUnitsBloc, ActionState<void>>(listener: _onSaved),
-        BlocListener<SetLanguageBloc, ActionState<void>>(listener: _onSaved),
-        BlocListener<SetVibrationOnArrivalBloc, ActionState<void>>(
-          listener: _onSaved,
+      // A failed action keeps the screen as it was and says so. The controls
+      // have already answered the tap.
+      listeners: [
+        ActionResultListener<SetUnitsBloc, void>(successHaptic: null),
+        ActionResultListener<SetLanguageBloc, void>(successHaptic: null),
+        ActionResultListener<SetVibrationOnArrivalBloc, void>(
+          successHaptic: null,
         ),
+        ActionResultListener<SetTouchFeedbackBloc, void>(successHaptic: null),
+        ActionResultListener<SendLogBloc, void>(successHaptic: null),
       ],
       child: Scaffold(
         appBar: WbAppBar(title: l10n.settingsTitle, onBack: context.back),

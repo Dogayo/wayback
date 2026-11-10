@@ -32,7 +32,7 @@ abstract final class WbPalette {
   static const Color brand700 = Color(0xFF9E390D);
 
   // --- status ---
-  static const Color green500 = Color(0xFF1E8E5A);
+  static const Color green500 = Color(0xFF197A4D);
   static const Color green400 = Color(0xFF34A873);
   static const Color green50 = Color(0xFFE6F4EC);
   static const Color green900 = Color(0xFF10261C);
@@ -62,6 +62,8 @@ class WbColors extends ThemeExtension<WbColors> {
     required this.surfaceElevated,
     required this.surfaceContainer,
     required this.surfaceSunken,
+    required this.segmentTrack,
+    required this.segmentSelected,
     required this.contentPrimary,
     required this.contentSecondary,
     required this.contentTertiary,
@@ -92,6 +94,11 @@ class WbColors extends ThemeExtension<WbColors> {
   final Color surfaceElevated;
   final Color surfaceContainer;
   final Color surfaceSunken;
+
+  /// Плашка переключателя сегментов и выбранный сегмент в ней. В тёмной
+  /// теме плашка светлее выбранного, поэтому это отдельные токены.
+  final Color segmentTrack;
+  final Color segmentSelected;
 
   final Color contentPrimary;
   final Color contentSecondary;
@@ -133,6 +140,8 @@ class WbColors extends ThemeExtension<WbColors> {
     surfaceElevated: Color(0xFFFFFFFF),
     surfaceContainer: Color(0xFFF5F7F9),
     surfaceSunken: Color(0xFFEAEDF1),
+    segmentTrack: Color(0xFFEAEDF1),
+    segmentSelected: Color(0xFFFFFFFF),
     contentPrimary: Color(0xFF1B2025),
     contentSecondary: Color(0xFF545F6B),
     contentTertiary: Color(0xFF6B7885),
@@ -146,7 +155,7 @@ class WbColors extends ThemeExtension<WbColors> {
     actionPrimaryPressed: Color(0xFF9E390D),
     actionSecondaryBorder: Color(0xFF6B7885),
     actionSecondaryFg: Color(0xFF1B2025),
-    positive: Color(0xFF1E8E5A),
+    positive: Color(0xFF197A4D),
     positiveBg: Color(0xFFE6F4EC),
     warning: Color(0xFF8F5B08),
     warningBg: Color(0xFFB8790A),
@@ -163,6 +172,8 @@ class WbColors extends ThemeExtension<WbColors> {
     surfaceElevated: Color(0xFF1B2025),
     surfaceContainer: Color(0xFF14181D),
     surfaceSunken: Color(0xFF000000),
+    segmentTrack: Color(0xFF2B3138),
+    segmentSelected: Color(0xFF14181D),
     contentPrimary: Color(0xFFF5F7F9),
     contentSecondary: Color(0xFFAEB8C2),
     contentTertiary: Color(0xFF8A97A3),
@@ -194,6 +205,8 @@ class WbColors extends ThemeExtension<WbColors> {
     Color? surfaceElevated,
     Color? surfaceContainer,
     Color? surfaceSunken,
+    Color? segmentTrack,
+    Color? segmentSelected,
     Color? contentPrimary,
     Color? contentSecondary,
     Color? contentTertiary,
@@ -223,6 +236,8 @@ class WbColors extends ThemeExtension<WbColors> {
       surfaceElevated: surfaceElevated ?? this.surfaceElevated,
       surfaceContainer: surfaceContainer ?? this.surfaceContainer,
       surfaceSunken: surfaceSunken ?? this.surfaceSunken,
+      segmentTrack: segmentTrack ?? this.segmentTrack,
+      segmentSelected: segmentSelected ?? this.segmentSelected,
       contentPrimary: contentPrimary ?? this.contentPrimary,
       contentSecondary: contentSecondary ?? this.contentSecondary,
       contentTertiary: contentTertiary ?? this.contentTertiary,
@@ -259,6 +274,8 @@ class WbColors extends ThemeExtension<WbColors> {
       surfaceElevated: c(surfaceElevated, other.surfaceElevated),
       surfaceContainer: c(surfaceContainer, other.surfaceContainer),
       surfaceSunken: c(surfaceSunken, other.surfaceSunken),
+      segmentTrack: c(segmentTrack, other.segmentTrack),
+      segmentSelected: c(segmentSelected, other.segmentSelected),
       contentPrimary: c(contentPrimary, other.contentPrimary),
       contentSecondary: c(contentSecondary, other.contentSecondary),
       contentTertiary: c(contentTertiary, other.contentTertiary),

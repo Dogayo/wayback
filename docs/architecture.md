@@ -2,7 +2,7 @@
 
 Документ описывает архитектуру приложения Wayback. Он рассчитан в первую очередь на AI-агентов: правила сформулированы так, чтобы по ним можно было однозначно решить, **куда положить новый код** и **что запрещено**.
 
-Продуктовый контекст — [README.md](../README.md), критерии готовности — [mvp-scope.md](mvp-scope.md).
+Продуктовый контекст — [product.md](product.md), критерии готовности — [mvp-scope.md](mvp-scope.md).
 
 ---
 
@@ -101,6 +101,8 @@ features/
 - `settings` — единицы измерения, язык, вибрация (минимально);
 - `onboarding` — первый запуск: шаги онбординга и факт их прохождения.
 
+Журнал диагностики — пакет `packages/app_logger` (чистый Dart, запись JSONL на диск). `AppLogger` создаётся в bootstrap и приходит из DI; приватные поля записи (`private`) остаются только в локальных файлах и вырезаются при экспорте.
+
 ---
 
 ## 3. Правила слоёв внутри feature
@@ -132,13 +134,13 @@ features/
 
 **Только Bloc, Cubit запрещён**: у Bloc есть события, поэтому каждое действие видно и трассируется.
 
-**Один блок — одно действие или один компонент.** Экран деталей точки — это данные (`PointDetailsBloc`) и три действия (`RenamePointBloc`, `SetPointActiveBloc`, `DeletePointBloc`), а не один блок «на экран».
+**Один блок — одно действие или один компонент.** Экран деталей точки — это данные (`PointDetailsBloc`) и три действия (`EditPointBloc`, `SetPointActiveBloc`, `DeletePointBloc`), а не один блок «на экран».
 
 **Базовые блоки** (`lib/core/bloc/`); блок фичи наследует один из них:
 
 | Блок | Для чего | Что реализует фича | События | Конкурентность |
 | --- | --- | --- | --- | --- |
-| `DataBloc<T>` | получить данные и показать: fetch, refresh, retry | `Stream<Result<T>> watch()` (разовая загрузка — `load().asStream()`) | `fetch()`, `refresh()` | `restartable` — новый запрос отменяет старый |
+| `DataBloc<T>` | получить данные и показать: fetch, refresh, retry | `Stream<Result<T>> watch()` (разовая загрузка — `load().asStream()`) | `fetch()`, `refresh()`, `stop()` | `restartable` — новый запрос отменяет старый, `stop()` только отменяет и оставляет состояние |
 | `ActionBloc<P, T>` | одно действие пользователя | `Future<Result<T>> perform(P params)` | `run(params)`, `reset()` | `droppable` — повторный запуск во время выполнения игнорируется |
 | `ListBloc<T>` | постраничный список: fetch, refresh, fetch more | `Future<Result<ListPage<T>>> fetchPage(Object? cursor)` | `fetch()`, `refresh()`, `fetchMore()` | перезагрузка — `restartable`, подгрузка — `droppable` |
 
@@ -298,6 +300,7 @@ final class PointsRepositoryImpl with ResultHandler implements PointsRepository 
 - Имена и пути маршрутов — константы в одном файле (`app/navigation/routes.dart`), без строковых литералов по месту вызова.
 - Навигация вызывается из `view`. Из `domain` и `data` навигация **запрещена**.
 - Deep links должны работать на экран конкретной точки (`/points/:id`).
+- `wayback://app/import?...` открывает экран приёма точки; данные ссылки проверяются, сохранение всегда с подтверждением. Координаты — только в параметрах запроса: журнал пишет путь маршрута без них.
 - Слой изолирован: смена роутера в будущем не должна затрагивать features.
 
 Ориентировочная карта маршрутов MVP:
@@ -348,10 +351,11 @@ arrowRotation = bearing - heading  // нормализуется в 0..360
 | --- | --- | --- |
 | радиус прибытия | `arrivalRadiusMeters` (`core/utils/geo/arrival.dart`) | 20 м |
 | сколько точность GPS может расширить радиус | `arrivalAccuracyAllowanceMeters` | до 10 м: `hasArrived` = расстояние ≤ 20 + min(точность, 10) |
+| запас на выход из радиуса | `arrivalExitMarginMeters` | 15 м: прибывший считается ушедшим только дальше порога входа + 15 м |
 | слабый сигнал GPS | `weakSignalAccuracyMeters` (`location/domain`) | точность хуже 30 м |
 | ненадёжный компас | `unreliableCompassAccuracyDegrees` (`navigation/domain`) | погрешность больше 30° или неизвестна |
 
-Угол стрелки считает `NavigationGuidanceBloc` через `continuousRotationDegrees`: значение не сворачивается в 0..360, поэтому `WbCompassArrow` анимирует поворот по кратчайшей дуге.
+Угол стрелки считает `NavigationGuidanceBloc` через `continuousRotationDegrees`: значение не сворачивается в 0..360, поэтому `WbDirectionDial` анимирует поворот по кратчайшей дуге.
 
 ---
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
+import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
@@ -11,6 +12,7 @@ import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/utils/geo/geo_format.dart';
 import 'package:wayback/features/location/domain/entities/location_fix.dart';
 import 'package:wayback/features/location/domain/repositories/location_repository.dart';
+import 'package:wayback/features/points/domain/entities/point_naming.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/open_fix_settings_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_fix_bloc.dart';
@@ -62,18 +64,10 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
     super.dispose();
   }
 
-  void _onSaved(BuildContext context, ActionState<SavedPoint> state) =>
-      state.mapOrNull(
-        success: (s) {
-          WbSnackbar.show(
-            context,
-            context.l10n.pointSavedSnackbar(s.result.name),
-          );
-          context.pop();
-        },
-        failure: (s) =>
-            WbSnackbar.show(context, context.l10n.error(s.failure.code).title),
-      );
+  void _onSaved(BuildContext context, SavedPoint point) {
+    WbSnackbar.show(context, context.l10n.pointSavedSnackbar(point.name));
+    context.pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,12 +85,18 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
             }
           },
         ),
-        BlocListener<SavePointBloc, ActionState<SavedPoint>>(
-          listener: _onSaved,
+        ActionResultListener<SavePointBloc, SavedPoint>(
+          successHaptic: WbHaptic.success,
+          onSuccess: _onSaved,
         ),
-        BlocListener<OpenFixSettingsBloc, ActionState<void>>(
-          listener: (_, state) =>
-              state.mapOrNull(success: (_) => _inSettings = true),
+        ActionResultListener<OpenFixSettingsBloc, void>(
+          successHaptic: null,
+          reportFailure: false,
+          onSuccess: (context, _) {
+            _inSettings = true;
+            // The precise location dialog may have changed access already.
+            context.read<PointFixBloc>().fetch();
+          },
         ),
       ],
       child: Scaffold(
@@ -108,6 +108,7 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
               controller: _name,
               label: l10n.pointNameLabel,
               helper: l10n.pointNameHelper,
+              maxLength: pointNameMaxLength,
               onChanged: (name) =>
                   context.read<PointFormBloc>().add(PointFormNameEdited(name)),
             ),
@@ -127,11 +128,14 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
               ),
             ),
             const SizedBox(height: WbSpacing.lg),
-            fix.map(
-              initial: (_) => WbProgress(label: l10n.pointCreateLocating),
-              loading: (_) => WbProgress(label: l10n.pointCreateLocating),
-              success: (s) => _Position(fix: s.data),
-              failure: (s) => _FixFailure(s.failure),
+            WbStateSwitcher(
+              animateSize: true,
+              child: fix.map(
+                initial: (_) => WbProgress(label: l10n.pointCreateLocating),
+                loading: (_) => WbProgress(label: l10n.pointCreateLocating),
+                success: (s) => _Position(fix: s.data),
+                failure: (s) => _FixFailure(s.failure),
+              ),
             ),
           ],
         ),
@@ -145,7 +149,8 @@ class _PointCreateScreenState extends State<PointCreateScreen> {
                     () => context.read<SavePointBloc>().run((
                       name: form.resolvedName,
                       type: form.type,
-                      fix: s.data,
+                      position: s.data.point,
+                      altitudeMeters: s.data.altitudeMeters,
                     )),
               ),
             ),
@@ -170,7 +175,9 @@ class _FixFailure extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final text = l10n.error(failure.code);
+    final precise = failure.code == LocationErrorCodes.preciseRequired;
     final opensSettings =
+        precise ||
         failure.code == LocationErrorCodes.serviceDisabled ||
         failure.code == LocationErrorCodes.permissionDeniedForever;
     return Column(
@@ -179,7 +186,11 @@ class _FixFailure extends StatelessWidget {
         WbAlert(title: text.title, message: text.body, tone: WbTone.negative),
         const SizedBox(height: WbSpacing.sm),
         WbButton(
-          label: opensSettings ? l10n.actionOpenSettings : l10n.actionRetry,
+          label: precise
+              ? l10n.actionEnablePreciseLocation
+              : opensSettings
+              ? l10n.actionOpenSettings
+              : l10n.actionRetry,
           variant: WbButtonVariant.secondary,
           onPressed: opensSettings
               ? () => context.read<OpenFixSettingsBloc>().run(failure.code)

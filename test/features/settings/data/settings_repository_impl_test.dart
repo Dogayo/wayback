@@ -52,9 +52,10 @@ void main() {
     await repository.setUnits(UnitSystem.imperial);
     await repository.setLanguage(AppLanguage.en);
     await repository.setVibrationOnArrival(enabled: false);
+    await repository.setVibrationPattern(VibrationPattern.strong);
     await pumpEventQueue();
 
-    expect(seen, hasLength(4));
+    expect(seen, hasLength(5));
     expect(seen.last.language, AppLanguage.en);
     final stored = (await SharedPreferences.getInstance()).getString(_key)!;
     final restarted = await _current(await _build({_key: stored}));
@@ -64,13 +65,16 @@ void main() {
         units: UnitSystem.imperial,
         language: AppLanguage.en,
         vibrationOnArrival: false,
+        vibrationPattern: VibrationPattern.strong,
       ),
     );
   });
 
   test('unknown values from a newer version fall back to defaults', () async {
     final settings = await _current(
-      await _build({_key: '{"units":"parsecs","language":"de"}'}),
+      await _build({
+        _key: '{"units":"parsecs","language":"de","vibrationPattern":"purr"}',
+      }),
     );
     expect(settings, AppSettings.defaults);
   });

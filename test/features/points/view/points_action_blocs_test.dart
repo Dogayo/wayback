@@ -2,8 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/core/utils/geo/geo_point.dart';
 import 'package:wayback/features/points/domain/entities/point_type.dart';
+import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/edit_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/save_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 
@@ -20,7 +21,13 @@ void main() {
   test('SavePointBloc saves an active point at the fix', () async {
     final bloc = SavePointBloc(points);
     addTearDown(bloc.close);
-    bloc.run((name: 'Лагерь', type: PointType.tent, fix: fixWithAccuracy(8)));
+    final fix = fixWithAccuracy(8);
+    bloc.run((
+      name: 'Лагерь',
+      type: PointType.tent,
+      position: fix.point,
+      altitudeMeters: fix.altitudeMeters,
+    ));
     await _settle();
 
     final saved = bloc.state.mapOrNull(success: (s) => s.result)!;
@@ -36,7 +43,13 @@ void main() {
     points.failNext = const StorageFailure(code: 'points_storage_write_failed');
     final bloc = SavePointBloc(points);
     addTearDown(bloc.close);
-    bloc.run((name: 'x', type: PointType.car, fix: fixWithAccuracy(8)));
+    final fix = fixWithAccuracy(8);
+    bloc.run((
+      name: 'x',
+      type: PointType.car,
+      position: fix.point,
+      altitudeMeters: fix.altitudeMeters,
+    ));
     await _settle();
 
     expect(
@@ -45,25 +58,26 @@ void main() {
     );
   });
 
-  test('rename, activity and delete each change the point', () async {
-    final rename = RenamePointBloc(points);
+  test('edit, activity and delete each change the point', () async {
+    final edit = EditPointBloc(points);
     final active = SetPointActiveBloc(points);
     final delete = DeletePointBloc(points);
-    addTearDown(rename.close);
+    addTearDown(edit.close);
     addTearDown(active.close);
     addTearDown(delete.close);
 
-    rename.run((id: 'a', name: 'Машина у леса'));
+    edit.run((id: 'a', name: 'Машина у леса', type: PointType.fishing));
     await _settle();
     expect(points.points.single.name, 'Машина у леса');
+    expect(points.points.single.type, PointType.fishing);
 
     active.run((id: 'a', active: false));
     await _settle();
     expect(points.points.single.isActive, isFalse);
 
-    delete.run('a');
+    delete.run(savedPoint('a'));
     await _settle();
     expect(points.points, isEmpty);
-    expect(delete.state, isA<ActionSuccess<void>>());
+    expect(delete.state, isA<ActionSuccess<SavedPoint>>());
   });
 }

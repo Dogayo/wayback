@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:app_logger/app_logger.dart';
 import 'package:wayback/core/bloc/data/data_bloc.dart';
 import 'package:wayback/core/result/result.dart';
 import 'package:wayback/core/utils/geo/arrival.dart';
@@ -9,6 +10,7 @@ import 'package:wayback/features/location/domain/repositories/location_repositor
 import 'package:wayback/features/navigation/domain/entities/compass_reading.dart';
 import 'package:wayback/features/navigation/domain/entities/navigation_guidance.dart';
 import 'package:wayback/features/navigation/domain/repositories/compass_repository.dart';
+import 'package:wayback/features/navigation/view/bloc/navigation_telemetry.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/domain/repositories/points_repository.dart';
 
@@ -27,12 +29,14 @@ final class NavigationGuidanceBloc extends DataBloc<NavigationGuidance> {
     this._location,
     this._compass, {
     required this.pointId,
-  });
+    AppLogger logger = const NoopLogger(),
+  }) : _telemetry = NavigationTelemetry(logger, pointId: pointId);
 
   final PointsRepository _points;
   final LocationRepository _location;
   final CompassRepository _compass;
   final String pointId;
+  final NavigationTelemetry _telemetry;
 
   @override
   Stream<Result<NavigationGuidance>> watch() async* {
@@ -50,6 +54,7 @@ final class NavigationGuidanceBloc extends DataBloc<NavigationGuidance> {
     LocationFix? fix;
     Result<CompassReading>? compass;
     double? arrow;
+    var arrived = false;
 
     void publish() {
       final here = fix;
@@ -62,9 +67,10 @@ final class NavigationGuidanceBloc extends DataBloc<NavigationGuidance> {
         Failed() => CompassStatus.unavailable,
         null => CompassStatus.ok,
       };
+      final bearing = bearingDegrees(here.point, point.position);
       if (compass case Success(value: final reading)) {
         final target = arrowRotationDegrees(
-          bearingDegrees: bearingDegrees(here.point, point.position),
+          bearingDegrees: bearing,
           headingDegrees: reading.headingDegrees,
         );
         arrow = switch (arrow) {
@@ -72,46 +78,59 @@ final class NavigationGuidanceBloc extends DataBloc<NavigationGuidance> {
           null => target,
         };
       }
-      controller.add(
-        Result.success(
-          NavigationGuidance(
-            point: point,
-            distanceMeters: distance,
-            accuracyMeters: here.accuracyMeters,
-            weakSignal: here.isWeakSignal,
-            arrived: hasArrived(
-              distanceMeters: distance,
-              accuracyMeters: here.accuracyMeters,
-            ),
-            compass: status,
-            arrowDegrees: status == CompassStatus.unavailable ? null : arrow,
-          ),
-        ),
+      arrived = hasArrived(
+        distanceMeters: distance,
+        accuracyMeters: here.accuracyMeters,
+        wasArrived: arrived,
       );
+      final guidance = NavigationGuidance(
+        point: point,
+        distanceMeters: distance,
+        accuracyMeters: here.accuracyMeters,
+        weakSignal: here.isWeakSignal,
+        arrived: arrived,
+        compass: status,
+        arrowDegrees: status == CompassStatus.unavailable ? null : arrow,
+        compassAccuracyDegrees: compass?.valueOrNull?.accuracyDegrees,
+      );
+      _telemetry.guided(
+        fix: here,
+        guidance: guidance,
+        bearingDegrees: bearing,
+        reading: compass?.valueOrNull,
+      );
+      controller.add(Result.success(guidance));
     }
 
     controller = StreamController(
-      onListen: () => subscriptions
-        ..add(
-          _location.watchFix().listen((result) {
-            switch (result) {
-              case Success(:final value):
-                fix = value;
-                publish();
-              case Failed(:final failure):
-                controller.add(Result.failure(failure));
-            }
-          }),
-        )
-        ..add(
-          _compass.watchHeading().listen((result) {
-            compass = result;
-            publish();
-          }),
-        ),
-      onCancel: () => Future.wait([
-        for (final subscription in subscriptions) subscription.cancel(),
-      ]),
+      onListen: () {
+        _telemetry.started();
+        subscriptions
+          ..add(
+            _location.watchFix().listen((result) {
+              switch (result) {
+                case Success(:final value):
+                  fix = value;
+                  publish();
+                case Failed(:final failure):
+                  _telemetry.failed(failure.code);
+                  controller.add(Result.failure(failure));
+              }
+            }),
+          )
+          ..add(
+            _compass.watchHeading().listen((result) {
+              compass = result;
+              publish();
+            }),
+          );
+      },
+      onCancel: () async {
+        _telemetry.stopped();
+        await Future.wait([
+          for (final subscription in subscriptions) subscription.cancel(),
+        ]);
+      },
     );
     return controller.stream;
   }

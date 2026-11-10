@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
@@ -80,16 +81,14 @@ class WbButton extends StatelessWidget {
               ),
               textStyle: WidgetStatePropertyAll(context.wbText.labelLarge),
             ),
-            child: loading
-                ? SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: foreground,
-                      semanticsLabel: label,
-                    ),
-                  )
-                : Row(
+            // The label stays laid out under the spinner, so the button
+            // keeps its width while loading.
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                _Fade(
+                  visible: !loading,
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (icon != null) ...[
@@ -105,9 +104,44 @@ class WbButton extends StatelessWidget {
                       ),
                     ],
                   ),
+                ),
+                _Fade(
+                  visible: loading,
+                  child: SizedBox.square(
+                    dimension: 18,
+                    // A hidden spinner stands still instead of ticking.
+                    child: CircularProgressIndicator(
+                      value: loading ? null : 0,
+                      strokeWidth: 2,
+                      color: foreground,
+                      semanticsLabel: loading ? label : null,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+/// Fades the label and the spinner past each other (05 · Motion,
+/// «WbButton · загрузка»): out over the first 40%, in from 27%.
+class _Fade extends StatelessWidget {
+  const _Fade({required this.visible, required this.child});
+
+  final bool visible;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => AnimatedOpacity(
+    opacity: visible ? 1 : 0,
+    duration: WbMotion.of(context, WbMotion.fast),
+    curve: visible
+        ? const Interval(60 / 220, 1, curve: WbMotion.easeOut)
+        : const Interval(0, .4, curve: WbMotion.accelerate),
+    child: ExcludeSemantics(excluding: !visible, child: child),
+  );
 }

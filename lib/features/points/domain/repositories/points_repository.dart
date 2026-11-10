@@ -25,9 +25,18 @@ abstract interface class PointsRepository {
     double? altitudeMeters,
   });
 
-  Future<Result<SavedPoint>> rename(String id, String name);
+  /// Changes what the user chose for a point: its name and type.
+  Future<Result<SavedPoint>> edit(
+    String id, {
+    required String name,
+    required PointType type,
+  });
 
   Future<Result<SavedPoint>> setActive(String id, {required bool active});
 
   Future<Result<void>> delete(String id);
+
+  /// Puts [point] back exactly as it was, with its id and date: after a
+  /// delete, or over a later change to the same point.
+  Future<Result<SavedPoint>> restore(SavedPoint point);
 }
