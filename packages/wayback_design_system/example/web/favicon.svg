@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <style>
+    .lit { fill: #E2591A; }
+    .shade { fill: #9E390D; }
+    @media (prefers-color-scheme: dark) {
+      .lit { fill: #F97A2E; }
+      .shade { fill: #C24812; }
+    }
+  </style>
+  <path class="lit" d="M12 2L9.5 9.5L12 12ZM22 12L14.5 9.5L12 12ZM12 22L14.5 14.5L12 12ZM2 12L9.5 14.5L12 12Z"/>
+  <path class="shade" d="M12 2L14.5 9.5L12 12ZM22 12L14.5 14.5L12 12ZM12 22L9.5 14.5L12 12ZM2 12L9.5 9.5L12 12Z"/>
+</svg>
