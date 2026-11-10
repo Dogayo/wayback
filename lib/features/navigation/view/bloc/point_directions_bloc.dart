@@ -17,12 +17,19 @@ export 'package:wayback/features/navigation/domain/entities/navigation_guidance.
 
 /// Arrows to the active points for one moment.
 final class PointDirections {
-  const PointDirections({required this.arrows, required this.compass});
+  const PointDirections({
+    required this.arrows,
+    required this.compass,
+    this.compassAccuracyDegrees,
+  });
 
   /// Arrow rotation by point id, degrees, not wrapped; empty while there is
   /// no direction.
   final Map<String, double> arrows;
   final CompassStatus compass;
+
+  /// How far the heading can be off; `null` when the sensor does not say.
+  final double? compassAccuracyDegrees;
 }
 
 /// Direction to every active point, for the preview on Home (SCREENS.md §4.1).
@@ -74,7 +81,16 @@ final class PointDirectionsBloc extends DataBloc<PointDirections> {
           ..addAll(arrows);
       }
       controller.add(
-        Result.success(PointDirections(arrows: arrows, compass: status)),
+        Result.success(
+          PointDirections(
+            arrows: arrows,
+            compass: status,
+            compassAccuracyDegrees: switch (compass) {
+              Success(value: final reading) => reading.accuracyDegrees,
+              _ => null,
+            },
+          ),
+        ),
       );
     }
 

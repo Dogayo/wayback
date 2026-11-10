@@ -96,8 +96,11 @@ final class FakePointsRepository implements PointsRepository {
   }
 
   @override
-  Future<Result<SavedPoint>> rename(String id, String name) =>
-      _change(id, (point) => point.copyWith(name: name));
+  Future<Result<SavedPoint>> edit(
+    String id, {
+    required String name,
+    required PointType type,
+  }) => _change(id, (point) => point.copyWith(name: name, type: type));
 
   @override
   Future<Result<SavedPoint>> setActive(String id, {required bool active}) =>

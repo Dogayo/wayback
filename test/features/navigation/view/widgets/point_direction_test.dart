@@ -10,8 +10,9 @@ import 'package:wayback/features/navigation/view/bloc/point_directions_bloc.dart
 import 'package:wayback/features/navigation/view/widgets/point_direction.dart';
 import 'package:wayback/features/navigation/view/widgets/point_directions_gate.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/edit_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/home_bloc.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/quick_save_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/screens/home_screen.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
@@ -27,7 +28,7 @@ typedef _Home = ({
   FakeCompassRepository compass,
 });
 
-Future<_Home> _pump(WidgetTester tester) async {
+Future<_Home> _pump(WidgetTester tester, {bool large = false}) async {
   final points = FakePointsRepository([savedPoint('a', name: 'Машина')]);
   final location = FakeLocationRepository();
   final compass = FakeCompassRepository();
@@ -36,9 +37,17 @@ Future<_Home> _pump(WidgetTester tester) async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => HomeBloc(points, location)..fetch()),
-        BlocProvider(create: (_) => RenamePointBloc(points)),
         BlocProvider(create: (_) => SetPointActiveBloc(points)),
         BlocProvider(create: (_) => DeletePointBloc(points)),
+        BlocProvider(create: (_) => EditPointBloc(points)),
+        BlocProvider(
+          create: (_) => QuickSavePointBloc(
+            points,
+            location,
+            label: 'Точка',
+            numbered: (label, number) => '$label $number',
+          ),
+        ),
         BlocProvider(
           create: (_) => PointDirectionsBloc(points, location, compass),
         ),
@@ -46,6 +55,10 @@ Future<_Home> _pump(WidgetTester tester) async {
       child: PointDirectionsGate(
         child: HomeScreen(
           direction: (pointId, icon) => PointDirection(pointId, icon: icon),
+          largeDirection: large
+              ? (pointId, icon) =>
+                    PointDirection(pointId, icon: icon, large: true)
+              : null,
         ),
       ),
     ),
@@ -83,6 +96,19 @@ void main() {
 
     await _turn(tester, home, 10);
     expect(find.byType(WbDirectionArrow), findsNothing);
+  });
+
+  testWidgets('alone on Home the point gets the full dial', (tester) async {
+    final home = await _pump(tester, large: true);
+    expect(find.byType(WbDirectionIcon), findsOneWidget);
+
+    await _locate(tester, home);
+    home.compass.readings.add(Result.success(heading(10, accuracy: 20)));
+    await settle(tester);
+
+    final dial = tester.widget<WbDirectionDial>(find.byType(WbDirectionDial));
+    expect(dial.size, WbPointHeroCard.dialSize);
+    expect(dial.spread, 20);
   });
 
   testWidgets('the arrow turns against the heading', (tester) async {

@@ -19,9 +19,9 @@
   "actionAllow": "Разрешить",
   "actionCancel": "Отмена",
   "actionDelete": "Удалить",
+  "actionEdit": "Изменить",
   "actionEnablePreciseLocation": "Включить точную геолокацию",
   "actionOpenSettings": "Открыть настройки",
-  "actionRename": "Переименовать",
   "actionRetry": "Повторить",
   "actionSave": "Сохранить",
   "appTitle": "Wayback",
@@ -202,6 +202,7 @@
     }
   },
   "pointDeletedSnackbar": "Точка «{name}» удалена",
+  "pointEditTitle": "Изменить точку",
   "@pointDeletedSnackbar": {
     "placeholders": {
       "name": {
@@ -221,7 +222,6 @@
   "pointNameHelper": "Можно оставить как есть",
   "pointNameLabel": "Название",
   "pointNavigate": "Вести к точке",
-  "pointRenameTitle": "Название точки",
   "pointSavedAt": "Сохранена {date}",
   "@pointSavedAt": {
     "placeholders": {
@@ -362,5 +362,13 @@
   "error_point_share_failed_body": "Попробуйте ещё раз.",
   "pointShareQrHint": "Наведите камеру другого телефона на код",
   "pointShareQrLabel": "QR-код точки",
-  "settingsTouchFeedback": "Отклик при нажатиях"
+  "settingsTouchFeedback": "Отклик при нажатиях",
+  "pointQuickSavedSnackbar": "{name} сохранена",
+  "@pointQuickSavedSnackbar": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

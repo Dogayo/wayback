@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:wayback_design_system/src/components/inputs/wb_animated_point_icon.dart';
 import 'package:wayback_design_system/src/components/inputs/wb_point_type.dart';
 import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_motion.dart';
@@ -82,9 +83,10 @@ class _TypeTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              type.icon,
+            WbAnimatedPointIcon(
+              type,
               size: WbIconSize.lg,
+              active: selected,
               color: selected
                   ? context.wbColors.actionPrimaryFg
                   : context.wbColors.contentSecondary,

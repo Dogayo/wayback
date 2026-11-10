@@ -7,8 +7,8 @@ import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/navigation/routes.dart';
 import 'package:wayback/features/points/domain/entities/saved_point.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/edit_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/widgets/point_actions.dart';
 import 'package:wayback/features/points/view/widgets/point_details_view.dart';
@@ -18,7 +18,7 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 /// One point: where and when, activity, navigation, rename, delete
 /// (SCREENS.md §4.4).
 ///
-/// Needs [PointDetailsBloc], [RenamePointBloc], [SetPointActiveBloc] and
+/// Needs [PointDetailsBloc], [EditPointBloc], [SetPointActiveBloc] and
 /// [DeletePointBloc] above it.
 class PointDetailsScreen extends StatelessWidget {
   const PointDetailsScreen({super.key});
@@ -42,7 +42,7 @@ class PointDetailsScreen extends StatelessWidget {
             context.go(Routes.pointsList);
           },
         ),
-        ActionResultListener<RenamePointBloc, SavedPoint>(
+        ActionResultListener<EditPointBloc, SavedPoint>(
           successHaptic: WbHaptic.tick,
         ),
         // The switch has already answered the tap.

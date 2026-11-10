@@ -63,8 +63,13 @@ final class PointsRepositoryImpl
   });
 
   @override
-  Future<Result<SavedPoint>> rename(String id, String name) =>
-      handle(() => _update(id, (point) => point.copyWith(name: name)));
+  Future<Result<SavedPoint>> edit(
+    String id, {
+    required String name,
+    required PointType type,
+  }) => handle(
+    () => _update(id, (point) => point.copyWith(name: name, type: type.name)),
+  );
 
   @override
   Future<Result<SavedPoint>> setActive(String id, {required bool active}) =>

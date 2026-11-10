@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
@@ -36,6 +39,46 @@ void main() {
     final spans = (text.textSpan! as TextSpan).children!.cast<TextSpan>();
     expect(spans.map((span) => span.text), ['645', ' м']);
     expect(find.text('645 м'), findsOneWidget);
+  });
+
+  testWidgets('distance draws only the number in Barlow', (tester) async {
+    await tester.pumpWidget(_host(const WbDistanceValue('645 м')));
+
+    final text = tester.widget<Text>(find.byType(Text));
+    final spans = (text.textSpan! as TextSpan).children!.cast<TextSpan>();
+    expect(spans.first.style, WbTypography.distanceNumber);
+    expect(spans.last.style?.fontFamily, isNot(contains('Barlow')));
+    expect(
+      (text.textSpan! as TextSpan).style?.fontFamily,
+      isNot(contains('Barlow')),
+    );
+  });
+
+  testWidgets('Barlow digits keep one width', (tester) async {
+    final bytes = File('assets/fonts/Barlow-SemiBold.ttf').readAsBytesSync();
+    await tester.runAsync(() async {
+      final loader = FontLoader(WbTypography.distanceNumber.fontFamily!)
+        ..addFont(Future.value(ByteData.sublistView(bytes)));
+      await loader.load();
+    });
+
+    double width(String digits) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: digits,
+          style: WbTypography.distanceNumber.copyWith(
+            fontSize: 88,
+            fontFeatures: WbTypography.tabularFigures,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      addTearDown(painter.dispose);
+      return painter.width;
+    }
+
+    expect(width('111'), width('000'));
+    expect(width('111'), greaterThan(100));
   });
 
   testWidgets('distance without a unit stays whole', (tester) async {

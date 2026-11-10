@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:wayback_design_system/wayback_design_system.dart';
 
-/// One onboarding page: illustration, title and either a [body] text or
+/// One onboarding page: illustration or [visual], title and either a [body] text or
 /// custom [content] (SCREENS.md §4.0).
 class OnboardingStep extends StatelessWidget {
   const OnboardingStep({
-    required this.illustration,
     required this.title,
+    this.illustration,
+    this.visual,
     this.body,
     this.content,
     super.key,
   });
 
-  final WbIllustrationKind illustration;
+  final WbIllustrationKind? illustration;
+
+  /// Takes the place of [illustration].
+  final Widget? visual;
   final String title;
   final String? body;
   final Widget? content;
@@ -25,7 +29,8 @@ class OnboardingStep extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: WbSpacing.md,
         children: [
-          WbIllustration(illustration),
+          ?visual,
+          if (illustration case final kind?) WbIllustration(kind),
           Text(
             title,
             textAlign: TextAlign.center,

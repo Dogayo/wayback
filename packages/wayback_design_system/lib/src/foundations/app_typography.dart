@@ -5,6 +5,14 @@ abstract final class WbTypography {
     FontFeature.tabularFigures(),
   ];
 
+  /// The number of a hero distance, on top of its text style. Only digits
+  /// are drawn from it: Barlow has no Cyrillic, so units stay native.
+  static const TextStyle distanceNumber = TextStyle(
+    fontFamily: 'Barlow',
+    package: 'wayback_design_system',
+    fontWeight: FontWeight.w600,
+  );
+
   static TextTheme textTheme(Color color) => TextTheme(
     displayLarge: _style(
       88,

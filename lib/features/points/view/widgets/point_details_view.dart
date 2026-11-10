@@ -90,9 +90,9 @@ class PointDetailsView extends StatelessWidget {
           children: [
             Expanded(
               child: WbButton(
-                label: l10n.actionRename,
+                label: l10n.actionEdit,
                 variant: WbButtonVariant.secondary,
-                onPressed: () => PointActions.rename(context, point),
+                onPressed: () => PointActions.edit(context, point),
               ),
             ),
             Expanded(

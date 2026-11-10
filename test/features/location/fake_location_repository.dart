@@ -25,6 +25,9 @@ class FakeLocationRepository implements LocationRepository {
   int preciseRequests = 0;
   int checks = 0;
   int fixRequests = 0;
+
+  /// What [currentFix] answers; a good fix when not set.
+  Result<LocationFix>? nextFix;
   final opened = <String>[];
 
   @override
@@ -48,7 +51,7 @@ class FakeLocationRepository implements LocationRepository {
   @override
   Future<Result<LocationFix>> currentFix() async {
     fixRequests++;
-    return Result.success(fixWithAccuracy(8));
+    return nextFix ?? Result.success(fixWithAccuracy(8));
   }
 
   @override

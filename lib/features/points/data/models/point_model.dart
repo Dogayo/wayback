@@ -45,14 +45,15 @@ final class PointModel {
     'active': isActive,
   };
 
-  PointModel copyWith({String? name, bool? isActive}) => PointModel(
-    id: id,
-    name: name ?? this.name,
-    type: type,
-    latitude: latitude,
-    longitude: longitude,
-    altitudeMeters: altitudeMeters,
-    createdAt: createdAt,
-    isActive: isActive ?? this.isActive,
-  );
+  PointModel copyWith({String? name, String? type, bool? isActive}) =>
+      PointModel(
+        id: id,
+        name: name ?? this.name,
+        type: type ?? this.type,
+        latitude: latitude,
+        longitude: longitude,
+        altitudeMeters: altitudeMeters,
+        createdAt: createdAt,
+        isActive: isActive ?? this.isActive,
+      );
 }

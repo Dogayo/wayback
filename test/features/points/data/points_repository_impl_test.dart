@@ -66,7 +66,7 @@ void main() {
     await pumpEventQueue();
 
     final point = await create('Машина');
-    await repository.rename(point.id, 'Машина у леса');
+    await repository.edit(point.id, name: 'Машина у леса', type: point.type);
     await repository.delete(point.id);
     await pumpEventQueue();
     await sub.cancel();
@@ -117,7 +117,7 @@ void main() {
   test('a missing point is a not-found failure', () async {
     for (final result in [
       await repository.getById('nope'),
-      await repository.rename('nope', 'x'),
+      await repository.edit('nope', name: 'x', type: PointType.generic),
       await repository.delete('nope'),
     ]) {
       expect(

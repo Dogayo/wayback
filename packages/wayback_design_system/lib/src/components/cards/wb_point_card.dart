@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:wayback_design_system/src/components/feedback/wb_skeleton.dart';
+import 'package:wayback_design_system/src/components/inputs/wb_animated_point_icon.dart';
+import 'package:wayback_design_system/src/components/inputs/wb_point_type.dart';
 import 'package:wayback_design_system/src/components/wayfinding/wb_direction_dial.dart';
 import 'package:wayback_design_system/src/foundations/app_haptics.dart';
 import 'package:wayback_design_system/src/foundations/app_radius.dart';
@@ -58,6 +60,7 @@ class WbPointCard extends StatelessWidget {
     required this.distance,
     required this.typeIcon,
     this.direction,
+    this.justSaved,
     this.onTap,
     this.onLongPress,
     super.key,
@@ -66,6 +69,9 @@ class WbPointCard extends StatelessWidget {
   final String distance;
   final IconData typeIcon;
   final Widget? direction;
+
+  /// The type of a point saved a moment ago: its icon plays its motion.
+  final WbPointType? justSaved;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
@@ -89,11 +95,19 @@ class WbPointCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
-                    typeIcon,
-                    size: WbIconSize.sm,
-                    color: context.wbColors.contentSecondary,
-                  ),
+                  switch (justSaved) {
+                    final type? => WbAnimatedPointIcon(
+                      type,
+                      size: WbIconSize.sm,
+                      playOnAppear: true,
+                      color: context.wbColors.contentSecondary,
+                    ),
+                    null => Icon(
+                      typeIcon,
+                      size: WbIconSize.sm,
+                      color: context.wbColors.contentSecondary,
+                    ),
+                  },
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text(
@@ -116,6 +130,106 @@ class WbPointCard extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// The only active point on Home: the full dial instead of a small arrow.
+///
+/// [dial] is usually a large direction dial; the caller gives it its size.
+class WbPointHeroCard extends StatelessWidget {
+  /// Size of the dial that fits the card.
+  static const double dialSize = 240;
+
+  const WbPointHeroCard({
+    required this.title,
+    required this.distance,
+    required this.typeIcon,
+    required this.dial,
+    this.justSaved,
+    this.onTap,
+    this.onLongPress,
+    super.key,
+  });
+  final String title;
+  final String distance;
+  final IconData typeIcon;
+  final Widget dial;
+
+  /// The type of a point saved a moment ago: its icon plays its motion.
+  final WbPointType? justSaved;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final secondary = context.wbColors.contentSecondary;
+    return MergeSemantics(
+      child: Semantics(
+        button: onTap != null,
+        label: '$title, $distance',
+        child: Material(
+          color: context.wbColors.surfaceElevated,
+          shape: RoundedRectangleBorder(
+            borderRadius: WbRadius.large,
+            side: BorderSide(color: context.wbColors.borderSubtle),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            // The system's own long press answer would come on top of ours.
+            enableFeedback: onLongPress == null,
+            onLongPress: onLongPress == null
+                ? null
+                : () {
+                    WbHaptics.play(context, WbHaptic.press);
+                    onLongPress!();
+                  },
+            child: Padding(
+              padding: const EdgeInsets.all(WbSpacing.md),
+              child: Column(
+                spacing: WbSpacing.sm,
+                children: [
+                  dial,
+                  ExcludeSemantics(
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: WbSpacing.xs,
+                          children: [
+                            switch (justSaved) {
+                              final type? => WbAnimatedPointIcon(
+                                type,
+                                size: WbIconSize.md,
+                                playOnAppear: true,
+                                color: secondary,
+                              ),
+                              null => Icon(
+                                typeIcon,
+                                size: WbIconSize.md,
+                                color: secondary,
+                              ),
+                            },
+                            Flexible(
+                              child: Text(
+                                title,
+                                style: context.wbText.titleLarge,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        WbDistanceValue(distance, compact: true),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// Loading placeholder with the same frame as [WbPointCard].

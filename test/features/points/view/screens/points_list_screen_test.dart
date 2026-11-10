@@ -2,8 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/edit_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/points_list_bloc.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/screens/points_list_screen.dart';
 
@@ -20,7 +20,7 @@ Future<void> _pump(WidgetTester tester, FakePointsRepository points) async {
           create: (_) =>
               PointsListBloc(points, FakeLocationRepository())..fetch(),
         ),
-        BlocProvider(create: (_) => RenamePointBloc(points)),
+        BlocProvider(create: (_) => EditPointBloc(points)),
         BlocProvider(create: (_) => SetPointActiveBloc(points)),
         BlocProvider(create: (_) => DeletePointBloc(points)),
       ],
@@ -86,7 +86,7 @@ void main() {
       await swipe(tester, 'Машина');
 
       expect(find.text('Отключить'), findsOneWidget);
-      expect(find.text('Переименовать'), findsOneWidget);
+      expect(find.text('Изменить'), findsOneWidget);
       expect(find.text('Удалить'), findsOneWidget);
       expect(points.points.single.isActive, isTrue);
     });

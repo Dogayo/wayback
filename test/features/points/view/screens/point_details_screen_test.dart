@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/features/points/view/bloc/delete_point_bloc.dart';
+import 'package:wayback/features/points/view/bloc/edit_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/point_details_bloc.dart';
-import 'package:wayback/features/points/view/bloc/rename_point_bloc.dart';
 import 'package:wayback/features/points/view/bloc/set_point_active_bloc.dart';
 import 'package:wayback/features/points/view/screens/point_details_screen.dart';
 
@@ -22,7 +22,7 @@ Future<FakePointsRepository> _pump(WidgetTester tester, String id) async {
               PointDetailsBloc(points, FakeLocationRepository(), pointId: id)
                 ..fetch(),
         ),
-        BlocProvider(create: (_) => RenamePointBloc(points)),
+        BlocProvider(create: (_) => EditPointBloc(points)),
         BlocProvider(create: (_) => SetPointActiveBloc(points)),
         BlocProvider(create: (_) => DeletePointBloc(points)),
       ],
