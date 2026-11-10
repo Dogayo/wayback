@@ -2,305 +2,115 @@
 
 > Save a place. Find your way back.
 
-Wayback — мобильное приложение для сохранения текущего местоположения и последующего возвращения к нему с помощью GPS и компаса.
-
-Вместо построения маршрута приложение показывает пользователю **направление на сохранённую точку и расстояние до неё**.
-
-Основная идея — максимально простой и надёжный инструмент, который продолжает работать там, где обычная навигация неудобна или отсутствует интернет.
-
----
-
-## Problem
-
-Во многих ситуациях пользователю не нужен полноценный маршрут по дорогам или тропам. Ему необходимо просто понимать:
-
-- где находится сохранённое место;
-- в какой стороне оно находится;
-- какое расстояние осталось до него.
-
-Например, человек оставляет автомобиль около леса, сохраняет его местоположение и отправляется гулять.
-
-Позже ему не обязательно знать маршрут обратно. Достаточно открыть приложение и увидеть:
-
-**← 640 м до машины**
-
-Стрелка постоянно указывает направление на сохранённую точку независимо от того, куда движется пользователь.
-
----
-
-## Main Scenario
-
-Основной пользовательский сценарий:
-
-1. Пользователь находится около автомобиля.
-2. Открывает Wayback.
-3. Нажимает **Save current location**.
-4. Приложение получает текущие GPS-координаты.
-5. Пользователь может назвать точку, например **Car**.
-6. Пользователь уходит от автомобиля.
-7. Когда необходимо вернуться, он открывает сохранённую точку.
-8. Приложение показывает:
-   - направление на точку;
-   - расстояние до неё;
-   - текущую точность GPS.
-9. По мере движения направление и расстояние обновляются.
-10. При приближении приложение сообщает, что пользователь находится рядом с целью.
-
----
-
-## Use Cases
-
-Приложение не ограничивается поиском автомобиля.
-
-Сохранять можно:
-
-- 🚗 автомобиль;
-- ⛺ палатку или лагерь;
-- 🎣 место рыбалки;
-- 🎒 оставленные вещи;
-- 🏠 домик или базу отдыха;
-- 📍 место встречи;
-- 🌲 интересное место в лесу;
-- 🅿️ парковочное место;
-- любую произвольную точку.
-
-Главный принцип:
-
-**Save → Walk away → Navigate back**
-
----
-
-## Core Experience
-
-Главный экран навигации должен быть максимально простым.
-
-Пользователь должен сразу видеть:
-
-### Direction
-
-Большая стрелка или компас постоянно указывает в сторону выбранной точки.
-
-Направление рассчитывается на основе:
-
-- текущего GPS-положения;
-- координат сохранённой точки;
-- направления устройства.
-
-### Distance
-
-Под стрелкой отображается оставшееся расстояние:
-
-**1.4 km**
-
-или
-
-**320 m**
-
-При движении пользователя значение обновляется.
-
-### GPS Accuracy
-
-Пользователь должен понимать примерную погрешность определения положения:
-
-**GPS accuracy ±8 m**
-
-Это особенно важно при поиске небольших объектов и использовании приложения в лесу.
-
----
-
-## MVP
-
-Первая версия Wayback должна оставаться небольшой.
-
-### Location
-
-- получение текущего GPS-положения;
-- отображение точности GPS;
-- отслеживание изменения положения пользователя.
-
-### Saved Points
-
-- сохранение текущего положения;
-- название точки;
-- выбор простого типа/иконки;
-- просмотр сохранённых точек;
-- удаление точки;
-- выбор активной точки.
-
-### Navigation
-
-- направление на активную точку;
-- расстояние до неё;
-- компас;
-- плавное изменение направления стрелки;
-- обновление расстояния при движении.
-
-### Offline
-
-Основная функциональность должна работать **без подключения к интернету**.
-
-Для определения направления на сохранённую точку достаточно GPS, датчиков устройства и локально сохранённых координат.
-
-### Arrival
-
-При приближении к сохранённой точке приложение может уведомлять пользователя с помощью:
-
-- визуального состояния;
-- вибрации;
-- звукового сигнала.
-
-Например:
-
-**You are near your destination — 18 m**
-
----
-
-## Non-Goals for MVP
-
-Первая версия не должна превращаться в полноценный навигатор.
-
-На начальном этапе не нужны:
-
-- регистрация;
-- аккаунты;
-- социальные функции;
-- синхронизация между устройствами;
-- построение автомобильных маршрутов;
-- маршрутизация по дорогам;
-- маршрутизация по тропам;
-- серверная часть;
-- обязательное подключение к интернету.
-
-Основная ценность MVP:
-
-> Пользователь сохраняет точку и всегда может определить направление и расстояние до неё.
-
----
-
-## Technical Concept
-
-Для каждой сохранённой точки достаточно хранить координаты:
+Wayback is an offline-first Flutter app for returning to a saved spot — a parked
+car, a tent, a fishing place — with nothing but GPS and the compass. It does not
+build a route: it shows an arrow pointing at the saved spot and the distance
+left, and it keeps working in the woods without a mobile network.
+
+[Download the latest APK](https://github.com/Dogayo/wayback/releases/latest) ·
+[Product spec (RU)](docs/product.md) ·
+[Architecture (RU)](docs/architecture.md) ·
+[Design system (RU)](DESIGN_SYSTEM.md)
+
+<!-- Media: a short GIF of the arrow in use goes above the screenshots. -->
+
+<p align="center">
+  <img src="docs/media/home.png" width="180" alt="Home screen with saved points">
+  <img src="docs/media/navigate.png" width="180" alt="Arrow and distance to the point">
+  <img src="docs/media/arrived.png" width="180" alt="Arrival at the point">
+  <img src="docs/media/navigate-dark.png" width="180" alt="Navigation in the dark theme">
+  <img src="docs/media/lock-screen.png" width="180" alt="Navigation keeps going on the lock screen">
+</p>
+
+<p align="center"><sub>Home · Navigation · Arrival · Dark theme · Lock screen. Screens are shown in Russian; the app also speaks English.</sub></p>
+
+## Features
+
+- Save the current location in one tap, then name it and pick a type.
+- An arrow and live distance to the point, with no internet and no maps.
+- An honest signal: GPS accuracy is always shown, with warnings for a weak fix
+  and an uncalibrated compass; without a compass, distance only.
+- Arrival message and vibration when the point is near.
+- Several active points on the home screen; share a point with someone else.
+- Navigation keeps going with the screen off (Android foreground service).
+- Russian and English, metric and imperial units, light and dark themes.
+
+## Engineering highlights
+
+- **Feature-first clean architecture.** `app → features → core`, each feature
+  split into `data / domain / view`. The domain layer is plain Dart; repositories
+  return `Result<T>` with typed failures instead of throwing.
+- **Bloc with base blocs.** Only Bloc, one bloc per action or component.
+  `DataBloc`, `ActionBloc` and `ListBloc` fix concurrency (restartable, droppable)
+  and model state as sealed classes, so a screen cannot miss the loading or
+  error case.
+- **Own packages** in [`packages/`](packages):
+  - [`wayback_design_system`](packages/wayback_design_system) — semantic tokens,
+    light and dark themes through `ThemeExtension`, platform-adaptive components,
+    an interactive catalog app and tests;
+  - [`app_di`](packages/app_di) — a small service locator without codegen,
+    with named containers and a Flutter bridge;
+  - [`app_logger`](packages/app_logger) — an on-device JSONL diagnostic log with
+    rotation, which strips private fields such as coordinates on export.
+- **A compass arrow that does not lie.** Rotation follows the shortest arc, so
+  the arrow never spins round at north; compass and GPS reliability are part of
+  the domain model, not an afterthought in the UI.
+- **Privacy by design.** No backend, no analytics, no account. Coordinates never
+  leave the phone unless the user shares a point.
+- **Tested and checked in the field.** 500+ unit, bloc and widget tests across
+  the app and packages; every feature is checked on a real device
+  before it is merged.
+- **Tag-driven releases.** A `v<version>` tag builds a signed Android APK and
+  publishes a GitHub Release, with notes taken from
+  [`CHANGELOG.md`](CHANGELOG.md). CI refuses a tag that disagrees with
+  `pubspec.yaml` or the changelog.
+
+## Tech stack
+
+Flutter · Dart 3 · flutter_bloc · go_router · geolocator · flutter_compass ·
+flutter_foreground_task · shared_preferences · gen-l10n · GitHub Actions
+
+## Project layout
 
 ```text
-latitude
-longitude
+lib/
+├── app/         # composition: DI, routing, theme, localization, bootstrap
+├── core/        # base blocs, Result, errors, geo utils, shared widgets
+└── features/    # location, points, navigation, settings, onboarding
+packages/
+├── wayback_design_system/
+├── app_di/
+└── app_logger/
 ```
 
-Дополнительно могут храниться:
+## Running
 
-```text
-id
-name
-type
-latitude
-longitude
-createdAt
-altitude
+```bash
+flutter pub get
+flutter run
 ```
 
-Во время навигации приложение получает:
+The design system catalog:
 
-```text
-Current location:
-latitude
-longitude
-
-Target:
-latitude
-longitude
-
-Device:
-heading
+```bash
+cd packages/wayback_design_system/example
+flutter run
 ```
 
-На основе этих данных рассчитываются:
+Checks, run in the app and in each package:
 
-```text
-distance(currentLocation, targetLocation)
-
-bearing(currentLocation, targetLocation)
-
-arrowRotation = bearing - deviceHeading
+```bash
+flutter analyze
+flutter test
 ```
 
-Таким образом, интернет или внешний routing API для основной навигации не требуется.
+## How it is built
 
----
+Every change goes through the same steps: a written plan, mockups in Penpot,
+code, a check on a real device, then a pull request. The project is developed
+together with AI coding agents; the rules they follow live in
+[`AGENTS.md`](AGENTS.md) and [`docs/architecture.md`](docs/architecture.md).
 
-## UX Principles
+## License
 
-### Immediate
-
-Пользователь должен иметь возможность сохранить положение практически одним действием.
-
-### Simple
-
-Во время возвращения основная информация — это:
-
-**направление + расстояние**
-
-Всё остальное вторично.
-
-### Offline First
-
-Основной сценарий должен работать без мобильной сети.
-
-### Outdoor Friendly
-
-Интерфейс должен быть удобен на улице:
-
-- крупные элементы;
-- высокая читаемость;
-- минимум мелкого текста;
-- минимум действий;
-- понятное состояние GPS;
-- хорошая работа при ярком освещении.
-
-### Honest About Accuracy
-
-GPS и магнитный компас имеют погрешность.
-
-Приложение не должно создавать ложное ощущение абсолютной точности и должно сообщать пользователю о плохом GPS-сигнале или ненадёжных данных компаса.
-
----
-
-## Future Ideas
-
-После MVP проект можно развивать.
-
-Возможные функции:
-
-- карта с пользователем и сохранённой точкой;
-- несколько активных точек;
-- история посещённых мест;
-- отображение пройденного пути;
-- breadcrumb trail;
-- высота над уровнем моря;
-- статистика прогулки;
-- импорт и экспорт координат;
-- передача точки другому человеку;
-- Apple Watch / Wear OS;
-- виджеты;
-- Live Activities;
-- автоматическое сохранение места парковки;
-- фотография сохранённого места;
-- заметка к точке;
-- офлайн-карты.
-
----
-
-## Product Vision
-
-Wayback не должен конкурировать с полноценными картографическими сервисами.
-
-Его задача значительно проще:
-
-> **Помочь человеку вернуться к известной точке максимально быстро и просто.**
-
-Пользователю не нужно искать место на карте, скачивать карты региона или строить маршрут.
-
-Он сохраняет положение, уходит и в любой момент получает простой ответ на два вопроса:
-
-**Куда идти?**
-
-**Сколько осталось?**
+[MIT](LICENSE)

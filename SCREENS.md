@@ -2,7 +2,7 @@
 
 > Перечень экранов MVP: задача, доминирующий элемент, состояния, переходы.
 >
-> Источники: [README.md](README.md), [docs/mvp-scope.md](docs/mvp-scope.md), [docs/architecture.md](docs/architecture.md) §6, [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
+> Источники: [docs/product.md](docs/product.md), [docs/mvp-scope.md](docs/mvp-scope.md), [docs/architecture.md](docs/architecture.md) §6, [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
 > На момент создания в `lib/` нет реализованных экранов — этот документ фиксирует контракт для `feature: points`, `feature: location`, `feature: navigation`, `feature: settings`, а не описывает существующий код.
 >
 > Компоненты и токены — только из `DESIGN_SYSTEM.md`. Маршруты — константы в `app/navigation/routes.dart`, без строковых литералов (см. architecture.md §6).
