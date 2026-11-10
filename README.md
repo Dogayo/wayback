@@ -8,6 +8,7 @@ build a route: it shows an arrow pointing at the saved spot and the distance
 left, and it keeps working in the woods without a mobile network.
 
 [Download the latest APK](https://github.com/Dogayo/wayback/releases/latest) ·
+[Design system catalog (live)](https://dogayo.github.io/wayback/) ·
 [Product spec (RU)](docs/product.md) ·
 [Architecture (RU)](docs/architecture.md) ·
 [Design system (RU)](DESIGN_SYSTEM.md)
@@ -96,6 +97,8 @@ The design system catalog:
 cd packages/wayback_design_system/example
 flutter run
 ```
+
+Or open it in the browser: [dogayo.github.io/wayback](https://dogayo.github.io/wayback/).
 
 Checks, run in the app and in each package:
 
