@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:wayback_design_system/src/foundations/app_haptics.dart';
-import 'package:wayback_design_system/src/foundations/app_motion.dart';
-import 'package:wayback_design_system/src/foundations/app_radius.dart';
 import 'package:wayback_design_system/src/foundations/app_spacing.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
 
+/// A full-width row: 16 dp from the screen edge, 56 dp tall, 72 dp with a
+/// subtitle. Without [leading] the title reads as a plain setting.
+///
+/// [selected] marks a chosen option with a brand check instead of [trailing].
 class WbListItem extends StatelessWidget {
   const WbListItem({
     required this.title,
@@ -27,6 +29,9 @@ class WbListItem extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
 
+  /// Where the divider starts beside a 40 dp leading tile.
+  static const double _leadingInset = WbSpacing.md * 2 + 40;
+
   @override
   Widget build(BuildContext context) => Column(
     children: [
@@ -43,33 +48,29 @@ class WbListItem extends StatelessWidget {
                   WbHaptics.play(context, WbHaptic.press);
                   onLongPress!();
                 },
-          borderRadius: WbRadius.medium,
-          child: AnimatedContainer(
-            duration: WbMotion.of(context, WbMotion.fast),
-            curve: WbMotion.standard,
-            constraints: const BoxConstraints(minHeight: 64),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: selected
-                  ? context.wbColors.positiveBg
-                  : Colors.transparent,
-              borderRadius: WbRadius.medium,
-              border: selected
-                  ? Border.all(color: context.wbColors.positive)
-                  : null,
+          child: Container(
+            constraints: BoxConstraints(minHeight: subtitle == null ? 56 : 72),
+            padding: const EdgeInsets.symmetric(
+              horizontal: WbSpacing.md,
+              vertical: WbSpacing.sm,
             ),
             child: Row(
               children: [
                 if (leading != null) ...[
                   leading!,
-                  const SizedBox(width: WbSpacing.sm),
+                  const SizedBox(width: WbSpacing.md),
                 ],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(title, style: context.wbText.titleMedium),
+                      Text(
+                        title,
+                        style: leading == null
+                            ? context.wbText.bodyLarge
+                            : context.wbText.titleMedium,
+                      ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 2),
                         Text(
@@ -82,16 +83,23 @@ class WbListItem extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (trailing != null) ...[
+                if (selected || trailing != null) ...[
                   const SizedBox(width: WbSpacing.sm),
-                  trailing!,
+                  if (selected)
+                    Icon(Icons.check, color: context.wbColors.brand600)
+                  else
+                    trailing!,
                 ],
               ],
             ),
           ),
         ),
       ),
-      if (showDivider) const Divider(indent: 12, endIndent: 12),
+      if (showDivider)
+        Divider(
+          indent: leading == null ? WbSpacing.md : _leadingInset,
+          endIndent: WbSpacing.md,
+        ),
     ],
   );
 }

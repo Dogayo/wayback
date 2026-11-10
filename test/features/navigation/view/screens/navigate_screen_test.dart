@@ -231,7 +231,7 @@ void main() {
     expect(background.notices, hasLength(1));
     expect(background.notices.single.title, 'Машина');
     expect(background.notices.single.text, '111\u00A0м');
-    expect(background.notices.single.stopLabel, 'Стоп');
+    expect(background.notices.single.stopLabel, 'Завершить навигацию');
   });
 
   testWidgets('a new distance waits, arrival reaches the notice at once', (
@@ -249,7 +249,7 @@ void main() {
 
     location.fixes.add(Result.success(_fix(0.00005)));
     await settle(tester);
-    expect(background.notices.last.text, 'Машина где‑то рядом');
+    expect(background.notices.last.text, 'Где‑то рядом');
   });
 
   testWidgets('leaving the screen stops the notice', (tester) async {
