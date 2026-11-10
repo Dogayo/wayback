@@ -22,6 +22,9 @@ class _WaybackDesignSystemDemoState extends State<WaybackDesignSystemDemo> {
     theme: WbTheme.light.copyWith(platform: _platform),
     darkTheme: WbTheme.dark.copyWith(platform: _platform),
     themeMode: _themeMode,
+    // Tweening the theme rebuilds the whole catalog on every frame and drops
+    // frames on the web; the switch is instant instead.
+    themeAnimationDuration: Duration.zero,
     home: _Catalog(
       themeMode: _themeMode,
       platform: _platform,
@@ -79,11 +82,41 @@ class _CatalogState extends State<_Catalog> {
     'Motion': GlobalKey(),
   };
 
+  final _scroll = ScrollController();
+  int _scrollRun = 0;
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  /// Sections are built lazily, so one far off screen has no context yet:
+  /// step toward it a screen at a time until it is built, then settle on it.
   Future<void> _scrollToSection(String section) async {
-    final targetContext = sectionKeys[section]?.currentContext;
-    if (targetContext == null) return;
+    final run = ++_scrollRun;
+    final names = sectionKeys.keys.toList();
+    final target = names.indexOf(section);
+    while (sectionKeys[section]!.currentContext == null) {
+      final built = [
+        for (final (i, name) in names.indexed)
+          if (sectionKeys[name]!.currentContext != null) i,
+      ];
+      final position = _scroll.position;
+      final down = built.isEmpty || target > built.last;
+      final next =
+          (position.pixels + (down ? 1 : -1) * position.viewportDimension)
+              .clamp(position.minScrollExtent, position.maxScrollExtent);
+      if (next == position.pixels) return;
+      await _scroll.animateTo(
+        next,
+        duration: WbMotion.fast,
+        curve: Curves.linear,
+      );
+      if (run != _scrollRun || !mounted) return;
+    }
     await Scrollable.ensureVisible(
-      targetContext,
+      sectionKeys[section]!.currentContext!,
       duration: WbMotion.slow,
       curve: WbMotion.standard,
       alignment: .02,
@@ -113,6 +146,7 @@ class _CatalogState extends State<_Catalog> {
                 ),
               Expanded(
                 child: CustomScrollView(
+                  controller: _scroll,
                   slivers: [
                     if (!desktop)
                       SliverAppBar(
@@ -156,12 +190,13 @@ class _CatalogState extends State<_Catalog> {
                         desktop ? 44 : 16,
                         96,
                       ),
-                      sliver: SliverToBoxAdapter(
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 1180),
-                            child: Column(
+                      // A lazy list: off-screen sections are not built,
+                      // so a theme or platform switch rebuilds only what is
+                      // in view.
+                      sliver: SliverList.list(
+                        children: [
+                          for (final child in [
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
@@ -184,48 +219,57 @@ class _CatalogState extends State<_Catalog> {
                                   ),
                                 ),
                                 const SizedBox(height: 24),
-                                KeyedSubtree(
-                                  key: sectionKeys['Foundations'],
-                                  child: _FoundationsSection(),
-                                ),
-                                KeyedSubtree(
-                                  key: sectionKeys['Actions'],
-                                  child: _ActionsSection(
-                                    onSave: _showSaved,
-                                    onDelete: _showDelete,
-                                  ),
-                                ),
-                                KeyedSubtree(
-                                  key: sectionKeys['Forms'],
-                                  child: _FormsSection(state: this),
-                                ),
-                                KeyedSubtree(
-                                  key: sectionKeys['Content'],
-                                  child: _ContentSection(state: this),
-                                ),
-                                KeyedSubtree(
-                                  key: sectionKeys['Navigation'],
-                                  child: _NavigationSection(state: this),
-                                ),
-                                KeyedSubtree(
-                                  key: sectionKeys['Wayfinding'],
-                                  child: const _WayfindingSection(),
-                                ),
-                                KeyedSubtree(
-                                  key: sectionKeys['Feedback'],
-                                  child: _FeedbackSection(
-                                    onDialog: _showDelete,
-                                    onSheet: _showSheet,
-                                  ),
-                                ),
-                                KeyedSubtree(
-                                  key: sectionKeys['Motion'],
-                                  child: const _MotionSection(),
-                                ),
                               ],
                             ),
-                          ),
-                        ),
+                            KeyedSubtree(
+                              key: sectionKeys['Foundations'],
+                              child: _FoundationsSection(),
+                            ),
+                            KeyedSubtree(
+                              key: sectionKeys['Actions'],
+                              child: _ActionsSection(
+                                onSave: _showSaved,
+                                onDelete: _showDelete,
+                              ),
+                            ),
+                            KeyedSubtree(
+                              key: sectionKeys['Forms'],
+                              child: _FormsSection(state: this),
+                            ),
+                            KeyedSubtree(
+                              key: sectionKeys['Content'],
+                              child: _ContentSection(state: this),
+                            ),
+                            KeyedSubtree(
+                              key: sectionKeys['Navigation'],
+                              child: _NavigationSection(state: this),
+                            ),
+                            KeyedSubtree(
+                              key: sectionKeys['Wayfinding'],
+                              child: const _WayfindingSection(),
+                            ),
+                            KeyedSubtree(
+                              key: sectionKeys['Feedback'],
+                              child: _FeedbackSection(
+                                onDialog: _showDelete,
+                                onSheet: _showSheet,
+                              ),
+                            ),
+                            KeyedSubtree(
+                              key: sectionKeys['Motion'],
+                              child: const _MotionSection(),
+                            ),
+                          ])
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 1180,
+                                ),
+                                child: child,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ],
