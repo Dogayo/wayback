@@ -20,14 +20,12 @@ class WbPointDirection extends StatelessWidget {
   const WbPointDirection({
     required this.icon,
     this.rotation,
-    this.tone = WbDirectionTone.ok,
     this.semanticLabel,
     super.key,
   });
 
   final IconData icon;
   final double? rotation;
-  final WbDirectionTone tone;
   final String? semanticLabel;
 
   @override
@@ -38,10 +36,7 @@ class WbPointDirection extends StatelessWidget {
       child: switch (rotation) {
         final angle? => WbDirectionArrow(
           rotation: angle,
-          color: switch (tone) {
-            WbDirectionTone.ok => colors.brand600,
-            WbDirectionTone.unreliable => colors.warning,
-          },
+          color: colors.brand600,
           size: WbIconSize.xl,
         ),
         null => Icon(icon, size: WbIconSize.lg, color: colors.contentSecondary),

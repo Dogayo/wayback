@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'package:wayback_design_system/src/components/inputs/wb_animated_point_icon.dart';
+import 'package:wayback_design_system/src/components/inputs/wb_point_type.dart';
 import 'package:wayback_design_system/src/foundations/app_motion.dart';
 import 'package:wayback_design_system/src/foundations/app_typography.dart';
 import 'package:wayback_design_system/src/theme/app_theme_extensions.dart';
@@ -21,10 +24,10 @@ const double _tickBottom = 22;
 const double _tickWidth = 4;
 const double _searchingHalfArc = 40;
 
-enum WbDirectionTone { ok, unreliable }
-
 /// Direction to the target: a faceted arrow inside a beam whose width shows
-/// how far the direction can be trusted (DESIGN_SYSTEM.md "Навигация").
+/// how far the direction can be trusted (DESIGN_SYSTEM.md "Навигация"). The
+/// arrow keeps its colours when the compass is off: the beam and the warning
+/// above the dial say so.
 ///
 /// [rotation] is the arrow angle in degrees, not wrapped, so it animates
 /// along the shortest arc. [spread] is the half-width of the beam in degrees,
@@ -34,7 +37,6 @@ class WbDirectionDial extends StatelessWidget {
     required this.rotation,
     required this.semanticLabel,
     this.spread = maxSpread,
-    this.tone = WbDirectionTone.ok,
     this.size = _dialSize,
     super.key,
   });
@@ -45,21 +47,11 @@ class WbDirectionDial extends StatelessWidget {
   final double rotation;
   final String semanticLabel;
   final double spread;
-  final WbDirectionTone tone;
   final double size;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.wbColors;
-    final dark = context.wbTheme.brightness == Brightness.dark;
-    final (lit, shade) = switch (tone) {
-      WbDirectionTone.ok => (colors.brand500, colors.actionPrimaryBg),
-      WbDirectionTone.unreliable when dark => (
-        colors.warning,
-        colors.warningBg,
-      ),
-      WbDirectionTone.unreliable => (colors.warningBg, colors.warning),
-    };
     return Semantics(
       liveRegion: true,
       label: semanticLabel,
@@ -77,8 +69,8 @@ class WbDirectionDial extends StatelessWidget {
               disc: colors.surfaceContainer,
               ring: colors.borderDefault,
               tick: colors.contentPrimary,
-              lit: lit,
-              shade: shade,
+              lit: colors.brand500,
+              shade: colors.actionPrimaryBg,
               rotation: angle,
               spread: beam,
             ),
@@ -270,12 +262,20 @@ class WbDirectionArrow extends StatelessWidget {
 /// Distance as a hero value: the number large, the unit after the last
 /// space smaller. The caller gives it a semantic label.
 class WbDistanceValue extends StatelessWidget {
-  const WbDistanceValue(this.value, {this.compact = false, super.key});
+  const WbDistanceValue(
+    this.value, {
+    this.compact = false,
+    this.color,
+    super.key,
+  });
 
   final String value;
 
   /// The smaller size, for a card rather than a whole screen.
   final bool compact;
+
+  /// Text colour on a coloured field, such as arrival.
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -284,8 +284,12 @@ class WbDistanceValue extends StatelessWidget {
     return Text.rich(
       TextSpan(
         style: compact
-            ? text.displayLarge?.copyWith(fontSize: _compactNumber, height: 1.1)
-            : text.displayLarge,
+            ? text.displayLarge?.copyWith(
+                fontSize: _compactNumber,
+                height: 1.1,
+                color: color,
+              )
+            : text.displayLarge?.copyWith(color: color),
         children: [
           TextSpan(
             text: split < 0 ? value : value.substring(0, split),
@@ -295,8 +299,11 @@ class WbDistanceValue extends StatelessWidget {
             TextSpan(
               text: value.substring(split),
               style: compact
-                  ? text.displaySmall?.copyWith(fontSize: _compactUnit)
-                  : text.displaySmall,
+                  ? text.displaySmall?.copyWith(
+                      fontSize: _compactUnit,
+                      color: color,
+                    )
+                  : text.displaySmall?.copyWith(color: color),
             ),
         ],
       ),
@@ -328,27 +335,137 @@ extension WbArrivalContext on BuildContext {
   }
 }
 
-/// Check mark of the arrival state; the title beside it carries the meaning.
-class WbArrivalMark extends StatelessWidget {
-  const WbArrivalMark({this.size = 240, super.key});
+/// Arrival: the icon of the point in a disc and, while the direction is
+/// known, a pointer on the rim, because the last metres are the hardest.
+///
+/// It comes in once: the disc springs open, the icon plays its own motion and
+/// the pointer slides out to the rim. With animations off it is in place.
+class WbArrivalDial extends StatefulWidget {
+  const WbArrivalDial(
+    this.type, {
+    this.rotation,
+    this.delay = Duration.zero,
+    this.size = _arrivalSize,
+    super.key,
+  });
 
+  final WbPointType type;
+
+  /// Wait before coming in, while the screen around it is still changing.
+  final Duration delay;
+
+  /// Pointer angle in degrees, not wrapped; no pointer without it.
+  final double? rotation;
   final double size;
+
+  @override
+  State<WbArrivalDial> createState() => _WbArrivalDialState();
+}
+
+class _WbArrivalDialState extends State<WbArrivalDial>
+    with SingleTickerProviderStateMixin {
+  static final _disc = Tween<double>(
+    begin: _arrivalDiscFrom,
+    end: 1,
+  ).chain(CurveTween(curve: const Interval(0, .6, curve: Curves.easeOutBack)));
+  static final _pointer = CurveTween(
+    curve: const Interval(.55, 1, curve: WbMotion.easeOut),
+  );
+
+  late final AnimationController _entry = AnimationController(vsync: this);
+  Timer? _wait;
+  var _scheduled = false;
+  var _playing = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_scheduled) return;
+    _scheduled = true;
+    _entry.duration = WbMotion.of(context, _arrivalDuration);
+    final delay = WbMotion.of(context, widget.delay);
+    if (delay == Duration.zero) {
+      _play();
+    } else {
+      _wait = Timer(delay, () => setState(_play));
+    }
+  }
+
+  void _play() {
+    _playing = true;
+    _entry.forward();
+  }
+
+  @override
+  void dispose() {
+    _wait?.cancel();
+    _entry.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.wbColors;
     final dark = context.wbTheme.brightness == Brightness.dark;
+    final scale = widget.size / _arrivalSize;
+    final disc = _arrivalDiscRadius * 2 * scale;
     return ExcludeSemantics(
-      child: CustomPaint(
-        size: Size.square(size),
-        painter: _CheckPainter(
-          disc: dark ? colors.positive : colors.contentOnBrand,
-          check: dark ? colors.surfaceDefault : colors.positive,
+      child: SizedBox.square(
+        dimension: widget.size,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ScaleTransition(
+              scale: _disc.animate(_entry),
+              child: Container(
+                width: disc,
+                height: disc,
+                alignment: Alignment.center,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: dark ? colors.positive : colors.contentOnBrand,
+                  shape: BoxShape.circle,
+                ),
+                child: WbAnimatedPointIcon(
+                  widget.type,
+                  size: disc / 2,
+                  active: _playing,
+                  playOnAppear: _playing,
+                  color: dark ? colors.surfaceDefault : colors.positive,
+                ),
+              ),
+            ),
+            if (widget.rotation case final rotation?)
+              TweenAnimationBuilder<double>(
+                tween: Tween(end: rotation),
+                duration: WbMotion.compassSmoothing,
+                curve: WbMotion.easeOut,
+                builder: (context, angle, _) => AnimatedBuilder(
+                  animation: _entry,
+                  builder: (context, _) => CustomPaint(
+                    size: Size.square(widget.size),
+                    painter: _RimPointerPainter(
+                      color: context.wbArrivalColors.accent,
+                      rotation: angle,
+                      out: _pointer.evaluate(_entry),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
 }
+
+/// Base arrival geometry, for a dial of [_arrivalSize].
+const double _arrivalSize = 304;
+const double _arrivalDiscRadius = 104;
+const double _arrivalPointerRadius = 136;
+const double _arrivalPointerSize = 22;
+const double _arrivalDiscFrom = .6;
+const Duration _arrivalDuration = Duration(milliseconds: 480);
 
 double _radians(double degrees) => degrees * math.pi / 180;
 
@@ -545,34 +662,40 @@ class _ArrowPainter extends CustomPainter {
       old.color != color || old.rotation != rotation;
 }
 
-class _CheckPainter extends CustomPainter {
-  const _CheckPainter({required this.disc, required this.check});
+class _RimPointerPainter extends CustomPainter {
+  const _RimPointerPainter({
+    required this.color,
+    required this.rotation,
+    required this.out,
+  });
 
-  final Color disc;
-  final Color check;
+  final Color color;
+  final double rotation;
+
+  /// 0 hidden at the disc edge, 1 in place on the rim.
+  final double out;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final radius = size.width / 2;
-    final center = size.center(Offset.zero);
-    final arm = radius * .45;
+    if (out == 0) return;
+    final scale = size.width / _arrivalSize;
+    final radius =
+        _arrivalDiscRadius + (_arrivalPointerRadius - _arrivalDiscRadius) * out;
     canvas
-      ..drawCircle(center, radius, Paint()..color = disc)
-      ..drawPath(
-        Path()
-          ..moveTo(center.dx - arm, center.dy + arm * .05)
-          ..relativeLineTo(arm * .68, arm * .68)
-          ..lineTo(center.dx + arm, center.dy - arm * .62),
-        Paint()
-          ..color = check
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
-          ..strokeWidth = radius / 6,
-      );
+      ..save()
+      ..translate(size.width / 2, size.height / 2)
+      ..rotate(_radians(rotation))
+      ..translate(0, -radius * scale);
+    _paintArrow(
+      canvas,
+      _arrivalPointerSize * scale,
+      color.withValues(alpha: color.a * out),
+      color.withValues(alpha: color.a * out),
+    );
+    canvas.restore();
   }
 
   @override
-  bool shouldRepaint(covariant _CheckPainter old) =>
-      old.disc != disc || old.check != check;
+  bool shouldRepaint(covariant _RimPointerPainter old) =>
+      old.color != color || old.rotation != rotation || old.out != out;
 }
