@@ -1,0 +1,81 @@
+# ==============================================================================
+# DESIGN SYSTEM CATALOG → GITHUB PAGES
+#
+# Builds the interactive catalog (packages/wayback_design_system/example) for
+# Flutter Web and deploys it to https://dogayo.github.io/wayback/.
+#
+# Runs on a push to main that touches the design system or this file, and by
+# hand (workflow_dispatch). The `github-pages` environment only accepts
+# deployments from the default branch, so a manual run must target main.
+#
+# One-time setup in the repository: Settings → Pages → Source: GitHub Actions.
+# Until then the run fails at configure-pages with "Get Pages site failed".
+#
+# Release logic lives in ci.yml and PR checks in pr.yml; nothing here touches
+# tags, releases or the app build.
+# ==============================================================================
+
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/wayback_design_system/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+# Only one deployment at a time; a newer push replaces a queued one, but an
+# in-progress deployment is allowed to finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.44.4'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build catalog
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/wayback_design_system/example
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # The site is served from /<repo>/, not from the domain root.
+      - name: Build for web
+        run: flutter build web --release --base-href /${{ github.event.repository.name }}/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: packages/wayback_design_system/example/build/web
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
