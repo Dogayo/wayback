@@ -115,7 +115,6 @@ void main() {
 
     final dial = tester.widget<WbDirectionDial>(find.byType(WbDirectionDial));
     expect(dial.spread, 12);
-    expect(dial.tone, WbDirectionTone.ok);
   });
 
   testWidgets('warnings do not move the dial', (tester) async {
@@ -132,14 +131,15 @@ void main() {
     expect(tester.getTopLeft(find.byType(WbDirectionDial)), before);
   });
 
-  testWidgets('arrival replaces the dial and keeps a small arrow', (
+  testWidgets('arrival replaces the dial with the point and keeps a pointer', (
     tester,
   ) async {
     final (location, compass) = await _pump(tester);
     await arrive(location, compass, tester);
 
-    expect(find.byType(WbArrivalMark), findsOneWidget);
-    expect(find.byType(WbDirectionArrow), findsOneWidget);
+    final dial = tester.widget<WbArrivalDial>(find.byType(WbArrivalDial));
+    expect(dial.type, WbPointType.car);
+    expect(dial.rotation, isNotNull);
     expect(find.byType(WbDirectionDial), findsNothing);
   });
 
@@ -148,7 +148,7 @@ void main() {
     final (location, compass) = await _pump(tester, vibration: vibration);
     await arrive(location, compass, tester);
 
-    expect(find.text('Вы на месте'), findsOneWidget);
+    expect(find.text('Машина где‑то рядом'), findsOneWidget);
     expect(vibration.calls, 1);
   });
 
@@ -173,7 +173,7 @@ void main() {
     );
     await arrive(location, compass, tester);
 
-    expect(find.text('Вы на месте'), findsOneWidget);
+    expect(find.text('Машина где‑то рядом'), findsOneWidget);
     expect(vibration.calls, 0);
   });
 
@@ -184,7 +184,7 @@ void main() {
     location.fixes.add(Result.success(_fix(0.00005)));
     await settle(tester);
 
-    expect(find.text('Вы на месте'), findsOneWidget);
+    expect(find.text('Машина где‑то рядом'), findsOneWidget);
     expect(vibration.calls, 0);
   });
 
@@ -199,7 +199,7 @@ void main() {
     location.fixes.add(Result.success(_fix(0.00005)));
     await settle(tester);
 
-    expect(find.text('Вы на месте'), findsOneWidget);
+    expect(find.text('Машина где‑то рядом'), findsOneWidget);
     expect(vibration.calls, 1);
   });
 
@@ -210,7 +210,7 @@ void main() {
 
     location.fixes.add(Result.success(_fix(0.001)));
     await settle(tester);
-    expect(find.text('Вы на месте'), findsNothing);
+    expect(find.text('Машина где‑то рядом'), findsNothing);
     location.fixes.add(Result.success(_fix(0.00005)));
     await settle(tester);
 
@@ -249,7 +249,7 @@ void main() {
 
     location.fixes.add(Result.success(_fix(0.00005)));
     await settle(tester);
-    expect(background.notices.last.text, 'Вы на месте');
+    expect(background.notices.last.text, 'Машина где‑то рядом');
   });
 
   testWidgets('leaving the screen stops the notice', (tester) async {
@@ -292,7 +292,7 @@ void main() {
 
     expect(find.text('Нужна точная геолокация'), findsOneWidget);
     expect(find.byType(WbDirectionDial), findsNothing);
-    expect(find.text('Вы на месте'), findsNothing);
+    expect(find.text('Машина где‑то рядом'), findsNothing);
 
     await tester.tap(find.text('Включить точную геолокацию'));
     await settle(tester);

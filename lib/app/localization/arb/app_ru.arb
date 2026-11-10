@@ -88,7 +88,7 @@
   "homeEmptyTitle": "Пока нет точек",
   "homeNoActiveAction": "Выбрать точку",
   "homeNoActiveBody": "Выберите, к каким точкам сейчас идёте.",
-  "homeNoActiveTitle": "Нет активных точек",
+  "homeNoActiveTitle": "На главной пока пусто",
   "homePointSemantics": "{name}, {distance}",
   "@homePointSemantics": {
     "placeholders": {
@@ -103,7 +103,14 @@
   "homeSaveLocation": "Сохранить место",
   "homeSettingsTooltip": "Настройки",
   "homeTitle": "Wayback",
-  "navigateArrived": "Вы на месте",
+  "navigateArrived": "{name} где‑то рядом",
+  "@navigateArrived": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "navigateNotificationStop": "Стоп",
   "navigateNotificationChannel": "Навигация",
   "navigateCompassCalibrationBody": "поводите восьмёркой",
@@ -175,7 +182,8 @@
       }
     }
   },
-  "pointActiveLabel": "Активна",
+  "pointActiveLabel": "На главной",
+  "pointHiddenLabel": "Скрыта",
   "pointActiveToggleSemantics": "Показывать на главном экране",
   "pointBackToList": "К списку точек",
   "pointCoordinatesLabel": "Координаты",
@@ -301,11 +309,11 @@
   "timeYesterday": "вчера",
   "actionUndo": "Вернуть",
   "pointActionDetails": "Подробнее",
-  "pointActionDeactivate": "Сделать неактивной",
-  "pointActionActivate": "Сделать активной",
-  "pointSwipeDeactivate": "Отключить",
-  "pointSwipeActivate": "Включить",
-  "pointDeactivatedSnackbar": "«{name}» убрана с главного",
+  "pointActionDeactivate": "Убрать с главной",
+  "pointActionActivate": "Показать на главной",
+  "pointSwipeDeactivate": "Убрать",
+  "pointSwipeActivate": "На главную",
+  "pointDeactivatedSnackbar": "«{name}» убрана с главной",
   "@pointDeactivatedSnackbar": {
     "placeholders": {
       "name": {

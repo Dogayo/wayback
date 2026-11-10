@@ -51,7 +51,7 @@
 | `homeSettingsTooltip` | Настройки | Settings | иконка в шапке |
 | `homeEmptyTitle` | Пока нет точек | No places yet | пустое (а): точек нет вовсе |
 | `homeEmptyBody` | Сохраните место, куда хотите вернуться, — например, где оставили машину. | Save a spot you want to return to, like where you parked. | |
-| `homeNoActiveTitle` | Нет активных точек | No active places | пустое (б): точки есть, активных нет |
+| `homeNoActiveTitle` | На главной пока пусто | Nothing on Home yet | пустое (б): точки есть, активных нет |
 | `homeNoActiveBody` | Выберите, к каким точкам сейчас идёте. | Choose the places you're heading to. | |
 | `homeNoActiveAction` | Выбрать точку | Choose a place | → `/points` |
 | `homePointSemantics` | {name}, {distance} | {name}, {distance} | метка карточки для скринридера |
@@ -103,7 +103,8 @@
 | `pointsAddTooltip` | Новая точка | New place | иконка «+» в шапке |
 | `pointsEmptyTitle` | Нет сохранённых точек | No saved places | |
 | `pointsEmptyBody` | Сохраните первое место — стрелка приведёт вас обратно. | Save your first place and the arrow will lead you back. | |
-| `pointActiveLabel` | Активна | Active | бейдж / подпись переключателя |
+| `pointActiveLabel` | На главной | On Home | подпись переключателя на экране точки |
+| `pointHiddenLabel` | Скрыта | Hidden | бейдж в списке, только у точек не на главной |
 | `pointActiveToggleSemantics` | Показывать на главном экране | Show on home screen | метка Switch для скринридера |
 | `pointsListSubtitle` | {distance} · сохранено {when} | {distance} · saved {when} | подзаголовок строки списка: `640 м · сохранено 12 мин назад` |
 
@@ -129,12 +130,12 @@
 | `pointDeleteTitle` | Удалить «{name}»? | Delete “{name}”? | диалог подтверждения |
 | `pointDeleteBody` | Точка пропадёт из списка и с главного экрана. | It will disappear from your list and home screen. | названное последствие; вернуть можно из снекбара |
 | `pointDeletedSnackbar` | Точка «{name}» удалена | “{name}” deleted | |
-| `pointDeactivatedSnackbar` | «{name}» убрана с главного | “{name}” removed from Home | снекбар с отсчётом и `actionUndo` |
+| `pointDeactivatedSnackbar` | «{name}» убрана с главной | “{name}” removed from Home | снекбар с отсчётом и `actionUndo` |
 | `pointActionDetails` | Подробнее | Details | шторка действий |
-| `pointActionDeactivate` | Сделать неактивной | Make inactive | шторка действий |
-| `pointActionActivate` | Сделать активной | Make active | шторка действий |
-| `pointSwipeDeactivate` | Отключить | Turn off | кнопка панели свайпа, 88 dp |
-| `pointSwipeActivate` | Включить | Turn on | кнопка панели свайпа, 88 dp |
+| `pointActionDeactivate` | Убрать с главной | Remove from Home | шторка действий |
+| `pointActionActivate` | Показать на главной | Show on Home | шторка действий |
+| `pointSwipeDeactivate` | Убрать | Remove | кнопка панели свайпа, 88 dp |
+| `pointSwipeActivate` | На главную | To Home | кнопка панели свайпа, 88 dp |
 | `pointBackToList` | К списку точек | Back to places | под ошибкой `points_not_found` |
 
 ## 7. Типы точек и имя по умолчанию
@@ -161,7 +162,7 @@
 | --- | --- | --- | --- |
 | `navigateTitle` | Навигация | Navigate | запасной заголовок, обычно — имя точки |
 | `navigateLocating` | Ждём GPS и компас… | Waiting for GPS and compass… | loading до первого фикса и показания компаса |
-| `navigateArrived` | Вы на месте | You're here | заголовок полноэкранного прибытия |
+| `navigateArrived` | {name} где‑то рядом | {name} is close by | заголовок прибытия и текст плашки; неразрывный дефис U+2011, чтобы «где‑то» не разрывалось |
 | `navigateCompassCalibrationTitle` | Компас неточен | Compass is off | `WbAlertRow` warning, стрелка остаётся |
 | `navigateCompassCalibrationBody` | поводите восьмёркой | move in a figure eight | продолжение строки после двоеточия |
 | `navigateWeakSignalTitle` | Слабый GPS | Weak GPS | `WbAlertRow` warning на экране навигации |

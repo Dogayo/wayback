@@ -8,7 +8,8 @@ import 'package:wayback/features/navigation/domain/repositories/compass_reposito
 import 'package:wayback_design_system/wayback_design_system.dart';
 
 /// Direction and distance dominate; accuracy and warnings stay secondary
-/// (SCREENS.md §4.5).
+/// (SCREENS.md §4.5). Only the warning row takes the warning colour, so the
+/// screen stays calm while the compass settles.
 class NavigationView extends StatelessWidget {
   const NavigationView(this.guidance, {super.key});
 
@@ -123,7 +124,6 @@ class _Direction extends StatelessWidget {
     return WbDirectionDial(
       rotation: degrees,
       spread: g.compassAccuracyDegrees ?? WbDirectionDial.maxSpread,
-      tone: unreliable ? WbDirectionTone.unreliable : WbDirectionTone.ok,
       semanticLabel: unreliable
           ? l10n.navigateDirectionApproximate(g.arrowBearing)
           : l10n.navigateDirection(g.arrowBearing),
@@ -139,9 +139,7 @@ class _Accuracy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final color = guidance.weakSignal
-        ? context.wbColors.warning
-        : context.wbColors.contentSecondary;
+    final color = context.wbColors.contentSecondary;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: WbSpacing.md,

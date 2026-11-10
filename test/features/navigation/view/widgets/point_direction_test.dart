@@ -121,9 +121,7 @@ void main() {
     expect(_arrow(tester).rotation, closeTo(first - 30, 1e-6));
   });
 
-  testWidgets('an unreliable compass paints the arrow in warning', (
-    tester,
-  ) async {
+  testWidgets('an unreliable compass keeps the brand arrow', (tester) async {
     final home = await _pump(tester);
     await _locate(tester, home);
     await _turn(tester, home, 10);
@@ -131,7 +129,7 @@ void main() {
 
     home.compass.readings.add(Result.success(heading(10, accuracy: 45)));
     await settle(tester);
-    expect(_arrow(tester).color, WbColors.light.warning);
+    expect(_arrow(tester).color, WbColors.light.brand600);
   });
 
   testWidgets('a failed compass falls back to the type icon', (tester) async {

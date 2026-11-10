@@ -155,12 +155,11 @@ class _PointsList extends StatelessWidget {
                               state: point.isActive,
                               duration: WbMotion.fast,
                               animateSize: true,
+                              // Most points sit on Home, so only the rest
+                              // carry a mark.
                               child: point.isActive
-                                  ? WbBadge(
-                                      label: l10n.pointActiveLabel,
-                                      tone: WbTone.positive,
-                                    )
-                                  : const SizedBox.shrink(),
+                                  ? const SizedBox.shrink()
+                                  : WbBadge(label: l10n.pointHiddenLabel),
                             ),
                             const Icon(
                               Icons.chevron_right,
