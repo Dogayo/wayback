@@ -1,6 +1,6 @@
 # Wayback
 
-Wayback is a Flutter application for saving a location and returning to it with GPS and a compass. Product behavior and MVP boundaries live in `README.md`; visual decisions, tokens, and component conventions live in `DESIGN_SYSTEM.md`.
+Wayback is a Flutter application for saving a location and returning to it with GPS and a compass. Product behavior and MVP boundaries live in `docs/product.md`; visual decisions, tokens, and component conventions live in `DESIGN_SYSTEM.md`.
 
 ## Repository layout
 
@@ -19,7 +19,7 @@ Wayback is a Flutter application for saving a location and returning to it with 
 - Follow `analysis_options.yaml` and format changed Dart files with `dart format`.
 - Reuse `wayback_design_system` tokens and components instead of introducing app-local visual constants or parallel components.
 - When changing the design system, keep its public exports in `packages/wayback_design_system/lib/wayback_design_system.dart` current and add or update focused tests.
-- Preserve offline-first behavior and the product boundaries documented in `README.md`.
+- Preserve offline-first behavior and the product boundaries documented in `docs/product.md`.
 - Do not edit generated Flutter, Gradle, CocoaPods, or Xcode output.
 
 ## Feature flow
