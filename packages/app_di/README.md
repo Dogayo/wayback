@@ -1,23 +1,25 @@
+<p align="right"><b>English</b> · <a href="README.ru.md">Русский</a></p>
+
 # app_di
 
-Собственный DI-пакет Wayback: service locator без codegen, именованные
-контейнеры и регистрации, декларативные коллекции и Flutter-мост.
+Wayback's own DI package: a service locator without codegen, named
+containers and registrations, declarative collections and a Flutter bridge.
 
-## Правила использования в Wayback
+## Rules of use in Wayback
 
-- Граф собирается только в `lib/app/dependencies/`; feature и `core` сами
-  ничего не регистрируют.
-- `domain` не обращается к контейнеру: зависимости передаются в конструкторы.
-- Bloc/Cubit в контейнере не регистрируются: их создаёт `BlocProvider`, а из
-  контейнера берутся только их зависимости.
-  Вложенные виджеты используют `context.read` / `context.watch`.
-- Async-зависимости инициализируются в `bootstrap.dart` до регистрации и
-  передаются фабрике через замыкание. `getAsync` контейнеру не нужен.
+- The graph is built only in `lib/app/dependencies/`; features and `core`
+  register nothing themselves.
+- `domain` does not touch the container: dependencies are passed to constructors.
+- Bloc/Cubit are not registered in the container: `BlocProvider` creates them,
+  and only their dependencies come from the container.
+  Nested widgets use `context.read` / `context.watch`.
+- Async dependencies are initialized in `bootstrap.dart` before registration and
+  passed to the factory through a closure. The container needs no `getAsync`.
 
-## Регистрация
+## Registration
 
-Обычная фабрика ленивая и создаёт новый объект при каждом `get`. Singleton
-также ленивый, но кэшируется после первого разрешения.
+A regular factory is lazy and creates a new object on every `get`. A singleton
+is lazy too, but is cached after the first resolution.
 
 ```dart
 final injector = Injector();
@@ -28,11 +30,11 @@ injector.reg<Repository>((i) => Repository(i.get<ApiClient>()));
 final repository = injector.get<Repository>();
 ```
 
-Один тип можно зарегистрировать несколько раз с разными строковыми ключами.
-`getAll<T>()` возвращает все регистрации этого типа в порядке регистрации.
+One type can be registered several times under different string keys.
+`getAll<T>()` returns every registration of that type in registration order.
 
-Runtime-данные экрана не передаются в DI через нетипизированную map. Например,
-Bloc создаётся явно, а обязательный параметр остаётся частью его конструктора:
+Runtime screen data is not passed into DI through an untyped map. For example,
+a Bloc is created explicitly, and a required parameter stays part of its constructor:
 
 ```dart
 BlocProvider(
@@ -44,13 +46,13 @@ BlocProvider(
 );
 ```
 
-Если создание требует отдельной абстракции, используется типизированный
-factory-класс с методом вроде `create({required String pointId})`.
+If creation needs an abstraction of its own, use a typed factory class with a
+method like `create({required String pointId})`.
 
-## Модули приложения
+## App modules
 
-Каждая feature объявляет модуль в `app/dependencies/`. Несколько модулей можно
-объединить в общую коллекцию приложения.
+Each feature declares a module in `app/dependencies/`. Several modules can be
+combined into a shared app collection.
 
 ```dart
 final class PointsDependencies extends DependencyCollection {
@@ -70,13 +72,13 @@ final class PointsDependencies extends DependencyCollection {
 }
 ```
 
-Регистрация коллекции атомарна: если один binding не удалось добавить, уже
-добавленные bindings этой коллекции откатываются.
+Registering a collection is atomic: if one binding fails to be added, the
+bindings of this collection already added are rolled back.
 
-## Bootstrap и Flutter
+## Bootstrap and Flutter
 
-Контейнер создаётся до `runApp`, после завершения async-инициализации. Scope
-только публикует готовый контейнер в дереве и освобождает его вместе с собой.
+The container is created before `runApp`, once async initialization is done. The scope
+only publishes the ready container in the tree and disposes of it together with itself.
 
 ```dart
 Future<void> bootstrap() async {
@@ -101,7 +103,7 @@ Future<void> bootstrap() async {
 }
 ```
 
-Flutter-extension сокращает обращения к scope:
+A Flutter extension shortens access to the scope:
 
 ```dart
 final injector = context.injector;
@@ -110,15 +112,15 @@ final handlers = context.diAll<ActionHandler>();
 final hasLogger = context.hasDi<Logger>(key: 'diagnostics');
 ```
 
-Эти методы предназначены для composition boundary уровня экрана, а не для
-доступа к зависимостям из `domain` или глубины widget tree.
+These methods are meant for a screen-level composition boundary, not for
+reaching dependencies from `domain` or deep in the widget tree.
 
-Опциональная user-коллекция живёт только в рамках активной сессии:
+An optional user collection lives only within an active session:
 
 ```dart
 context.initUserDependency(userDependencies);
 context.disposeUserDependency();
 ```
 
-После `dispose()` фабрики и singleton-кэш удаляются, а именованный контейнер
-исключается из глобального реестра.
+After `dispose()` the factories and the singleton cache are removed, and the named container
+is taken out of the global registry.

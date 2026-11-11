@@ -13,7 +13,7 @@ Wayback — офлайн-приложение на Flutter, которое по�
 [Каталог дизайн-системы (онлайн)](https://dogayo.github.io/wayback/) ·
 [Продуктовое ТЗ](docs/product.ru.md) ·
 [Архитектура](docs/architecture.ru.md) ·
-[Дизайн-система](DESIGN_SYSTEM.md)
+[Дизайн-система](DESIGN_SYSTEM.ru.md)
 
 <!-- Медиа: короткая GIF со стрелкой в работе ставится над скриншотами. -->
 
