@@ -1,209 +1,211 @@
-# Wayback — экраны (v0.3)
+<p align="right"><b>English</b> · <a href="SCREENS.ru.md">Русский</a></p>
 
-> Перечень экранов MVP: задача, доминирующий элемент, состояния, переходы.
->
-> Источники: [docs/product.md](docs/product.md), [docs/mvp-scope.md](docs/mvp-scope.md), [docs/architecture.md](docs/architecture.md) §6, [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
-> На момент создания в `lib/` нет реализованных экранов — этот документ фиксирует контракт для `feature: points`, `feature: location`, `feature: navigation`, `feature: settings`, а не описывает существующий код.
->
-> Компоненты и токены — только из `DESIGN_SYSTEM.md`. Маршруты — константы в `app/navigation/routes.dart`, без строковых литералов (см. architecture.md §6).
->
-> v0.2: добавлен `/points/new`, снята сборка "одна активная точка", упрощено состояние прибытия. См. §6.
->
-> v0.3: добавлен онбординг первого запуска `/onboarding` (§1, §2, §3, §4.0).
+# Wayback — screens (v0.3)
 
-## 1. Список экранов
+> The list of MVP screens: the job, the dominant element, states, transitions.
+>
+> Sources: [docs/product.md](docs/product.md), [docs/mvp-scope.md](docs/mvp-scope.md), [docs/architecture.md](docs/architecture.md) §6, [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
+> When this was written, `lib/` had no implemented screens — this document fixes the contract for `feature: points`, `feature: location`, `feature: navigation`, `feature: settings`, rather than describing existing code.
+>
+> Components and tokens come only from `DESIGN_SYSTEM.md`. Routes are constants in `app/navigation/routes.dart`, with no string literals (see architecture.md §6).
+>
+> v0.2: added `/points/new`, removed the "one active point" assumption, simplified the arrival state. See §6.
+>
+> v0.3: added first-launch onboarding `/onboarding` (§1, §2, §3, §4.0).
 
-| # | Маршрут | Экран | Задача | Доминирует |
+## 1. Screen list
+
+| # | Route | Screen | Job | Dominant |
 | --- | --- | --- | --- | --- |
-| 1 | `/` | Home | Список активных точек, сохранение новой точки одним действием | Кнопка Save + список активных точек |
-| 2 | `/points/new` | Point Create | Назвать и оформить точку по текущей позиции | Форма: название + пикер иконки |
-| 3 | `/points` | Points List | Все сохранённые точки, включение/выключение активности | Список |
-| 4a | `/points/:id/share` | Point Share | Передать точку другому человеку: QR, текстом, копированием координат | Название + координаты + QR |
-| 2a | `/import` | Point Import | Точка по координатам или присланная другим человеком: всегда с подтверждением | Координаты + название + иконка |
-| 4 | `/points/:id` | Point Details | Детали точки, переход к навигации, удаление | Название + тип точки |
-| 5 | `/navigate/:id` | Navigate | Направление и расстояние до точки в реальном времени | Стрелка + расстояние |
-| 6 | `/settings` | Settings | Единицы измерения, язык, вибрация | Список настроек |
-| 0 | `/onboarding` | Onboarding | Первый запуск: зачем приложение, как работает, доступ к геолокации | Иллюстрация шага + Primary-кнопка |
+| 1 | `/` | Home | The list of active points, saving a new point in one action | Save button + list of active points |
+| 2 | `/points/new` | Point Create | Name and style a point at the current position | Form: name + icon picker |
+| 3 | `/points` | Points List | All saved points, turning activity on and off | List |
+| 4a | `/points/:id/share` | Point Share | Pass a point to another person: QR, text, copying coordinates | Name + coordinates + QR |
+| 2a | `/import` | Point Import | A point from coordinates or one sent by someone else: always with confirmation | Coordinates + name + icon |
+| 4 | `/points/:id` | Point Details | Point details, going to navigation, deleting | Name + point type |
+| 5 | `/navigate/:id` | Navigate | Direction and distance to the point in real time | Arrow + distance |
+| 6 | `/settings` | Settings | Units, language, vibration | List of settings |
+| 0 | `/onboarding` | Onboarding | First launch: why the app exists, how it works, location access | Step illustration + Primary button |
 
-6 маршрутов. Карта в architecture.md §6 фиксирует только 5 — `/points/new` туда пока не добавлен, нужно синхронизировать этот файл с architecture.md при реализации `feature: points`. Нижняя навигация не используется (см. DESIGN_SYSTEM.md «Навигация»).
+6 routes. The map in architecture.md §6 fixes only 5 — `/points/new` has not been added there yet; sync this file with architecture.md when implementing `feature: points`. Bottom navigation is not used (see DESIGN_SYSTEM.md "Navigation").
 
-**Активная точка** — точка, отображаемая на Home и доступная для навигации. Активных точек может быть несколько одновременно (см. §6). "Сохранённая" ≠ "активная": все сохранённые точки видны в Points List, но на Home попадают только активные.
+**Active point** — a point shown on Home and available for navigation. Several points can be active at once (see §6). "Saved" ≠ "active": every saved point is visible in Points List, but only active ones get onto Home.
 
 ---
 
-## 2. Основной поток: Save → Walk away → Navigate back
+## 2. Main flow: Save → Walk away → Navigate back
 
 ```text
 1. Home (/)
-   пользователь у машины, нажимает Save current location
-   → /points/new, координаты уже получены (текущая позиция)
+   the user is by the car and taps Save current location
+   → /points/new, the coordinates are already obtained (current position)
 
 2. Point Create (/points/new)
-   вводит название (необязательно, есть дефолт) и выбирает иконку (car)
-   нажимает Save → отклик success, точка создаётся и становится активной
-   → назад на Home
+   enters a name (optional, there is a default) and picks an icon (car)
+   taps Save → success feedback, the point is created and becomes active
+   → back to Home
 
 3. Home (/)
-   новая точка появляется в списке активных точек
+   the new point appears in the list of active points
 
-4. пользователь уходит от точки (Walk away — вне приложения)
+4. the user walks away from the point (Walk away — outside the app)
 
 5. Home (/) → Navigate (/navigate/:id)
-   тап на нужную активную точку в списке открывает навигацию именно на неё
+   tapping the active point in the list opens navigation to exactly that point
 
 6. Navigate (/navigate/:id)
-   направление + расстояние обновляются по мере движения
-   при входе в радиус прибытия — vibration (один раз) + текст "{имя} где‑то рядом" (positive/success-green)
+   direction + distance update while moving
+   on entering the arrival radius — vibration (once) + the text "{name} is close by" (positive/success green)
 
 7. Navigate → Home (/)
-   назад после прибытия; точка остаётся активной, пока пользователь не уберёт её вручную в Points List
+   back after arrival; the point stays active until the user removes it by hand in Points List
 ```
 
-Перед этим потоком при первом запуске — Onboarding (`/onboarding`): три шага, на последнем запрос доступа к геолокации; затем Home. Показывается один раз.
+Before this flow, on the first launch, there is Onboarding (`/onboarding`): three steps, the last one asks for location access; then Home. It is shown once.
 
-Альтернативный вход в поток — через список: `Home → Points List (/points) → Point Details (/points/:id) → Navigate (/navigate/:id)`.
+An alternative entry into the flow is through the list: `Home → Points List (/points) → Point Details (/points/:id) → Navigate (/navigate/:id)`.
 
 ---
 
-## 3. Граф переходов
+## 3. Transition graph
 
 ```text
-Onboarding (/onboarding)                     только первый запуск, вне стека `/`
-├── шаг 1 → шаг 2 → шаг 3                   "Далее" или свайп; "назад" — на предыдущий шаг, с шага 1 — выход
-├── "Пропустить" (шаги 1–2)                 → шаг 3
-└── "Продолжить" (шаг 3) [system dialog]    → / (при любом ответе), онбординг пройден; без доступа на Home плашка
+Onboarding (/onboarding)                     first launch only, outside the `/` stack
+├── step 1 → step 2 → step 3                 "Next" or a swipe; "back" — to the previous step, from step 1 — exit
+├── "Skip" (steps 1–2)                       → step 3
+└── "Continue" (step 3) [system dialog]      → / (whatever the answer), onboarding done; without access Home shows a banner
 
 Home (/)
-├── Save current location [action]         → /points/new
-├── тап на активную точку (в списке)        → /navigate/:id
-├── "Все точки" / список                    → /points
-└── настройки                               → /settings
+├── Save current location [action]          → /points/new
+├── tap an active point (in the list)       → /navigate/:id
+├── "All places" / list                     → /points
+└── settings                                → /settings
 
 Point Create (/points/new)
-├── Save [action]                           → точка создана и активна, назад на /
-└── Cancel / назад                          → /, точка не сохраняется
+├── Save [action]                           → the point is created and active, back to /
+└── Cancel / back                           → /, the point is not saved
 
 Points List (/points)
-├── назад                                   → /
-├── тап на точку                            → /points/:id
-├── + [шторка]                               → /points/new (текущее место) или /import (по координатам)
-├── свайп влево [панель действий]           → активность, переименование, удаление
-├── долгое нажатие [шторка действий]        → детали, переименование, активность, удаление
-├── переключить активность точки [action]   → остаётся на /points, точка появляется/пропадает в списке Home
-│                                              (0..N точек могут быть активны одновременно); при выключении снекбар «Вернуть»
-└── удаление точки [confirm dialog]         → остаётся на /points, список обновлён, снекбар «Вернуть»
+├── back                                    → /
+├── tap a point                             → /points/:id
+├── + [sheet]                               → /points/new (current location) or /import (by coordinates)
+├── swipe left [actions panel]              → activity, rename, delete
+├── long press [actions sheet]              → details, rename, activity, delete
+├── toggle point activity [action]          → stays on /points, the point appears/disappears in the Home list
+│                                              (0..N points can be active at once); turning it off shows an "Undo" snackbar
+└── delete a point [confirm dialog]         → stays on /points, the list updates, an "Undo" snackbar
 
 Point Details (/points/:id)
-├── назад                                   → /points (или / — если открыт как deep link)
-├── поделиться [action]                     → /points/:id/share
+├── back                                    → /points (or / — if opened as a deep link)
+├── share [action]                          → /points/:id/share
 ├── "Navigate"                              → /navigate/:id
-├── переименование / смена иконки [action]  → остаётся на /points/:id
-├── переключить активность [action]         → остаётся на /points/:id
-└── удаление [confirm dialog]               → /points
+├── rename / change icon [action]           → stays on /points/:id
+├── toggle activity [action]                → stays on /points/:id
+└── delete [confirm dialog]                 → /points
 
 Navigate (/navigate/:id)
-├── назад                                   → предыдущий экран в стеке (/ или /points/:id)
-└── (нет дальнейших переходов — терминальный экран сценария)
+├── back                                    → the previous screen in the stack (/ or /points/:id)
+└── (no further transitions — the terminal screen of the scenario)
 
 Settings (/settings)
-└── назад                                   → /
+└── back                                    → /
 ```
 
-Deep link на `/points/:id` должен открываться напрямую (architecture.md §6) — стек навигации в этом случае: `/points/:id` с "назад" на `/`.
+A deep link to `/points/:id` must open directly (architecture.md §6) — the navigation stack is then `/points/:id` with "back" to `/`.
 
 ---
 
-## 4. Состояния экранов
+## 4. Screen states
 
-Критерий из mvp-scope.md §4: у каждого экрана — loading / empty / error / content. Ниже — конкретное содержание каждого состояния для этого экрана.
+The criterion from mvp-scope.md §4: every screen has loading / empty / error / content. Below is what each state holds for each screen.
 
 ### 4.0 Onboarding (`/onboarding`)
 
-| Состояние | Содержание |
+| State | Content |
 | --- | --- |
-| loading | Нет отдельного: флаг прохождения читается до первого кадра роутера |
-| empty | Не применимо (шаги статичны) |
-| error | Сбой записи флага не блокирует: переход на Home всё равно выполняется, онбординг может показаться снова при следующем запуске |
-| content | Шаг: иллюстрация · заголовок · текст (шаг 2 — три пункта и строка про офлайн и приватность) · индикатор шагов · кнопки. Шаг 1 — диск, который сам находит направление. Шаги 1–2: «Далее» (primary), «Пропустить» в шапке. Шаг 3: «Продолжить» (primary), сразу за ней системный диалог; выбор делается в нём. Тексты — docs/copy.md §14 |
+| loading | None of its own: the completion flag is read before the router's first frame |
+| empty | Not applicable (the steps are static) |
+| error | A failure to write the flag does not block: the transition to Home still happens, and onboarding may show again on the next launch |
+| content | A step: illustration · title · text (step 2 — three items and a line about offline and privacy) · step indicator · buttons. Step 1 — a dial that finds the direction by itself. Steps 1–2: "Next" (primary), "Skip" in the header. Step 3: "Continue" (primary), followed right away by the system dialog; the choice is made there. Texts — docs/copy.md §14 |
 
 ### 4.1 Home (`/`)
 
-| Состояние | Содержание |
+| State | Content |
 | --- | --- |
-| loading | Skeleton-список на месте карточек активных точек (хранилище ещё не прочитано или позиция ещё не получена) |
-| empty | Два случая одним экраном: (а) нет сохранённых точек вовсе — иконка + текст + Primary-кнопка Save current location; (б) есть сохранённые точки, но ни одна не активна — текст + кнопка "Выбрать точку" → `/points` |
-| error | Alert negative — отказ в разрешении на геолокацию, приблизительный доступ (`location_precise_required`, кнопка включения точного доступа) или недоступен GPS; кнопка Save недоступна до разрешения |
-| content | Список карточек активных точек (иконка типа, название, направление/расстояние-превью на каждой), каждая ведёт на `/navigate/:id`; если активная точка одна, вместо карточки крупная с полным диском. Постоянная Primary-кнопка Save current location: при хорошем сигнале сохраняет сразу и показывает снекбар с «Изменить» (шторка с именем и типом), при слабом сигнале или без доступа открывает `/points/new`. В круге карточки стрелка к точке; при неточном компасе она янтарная; пока направления нет или компаса нет, в круге иконка типа. Компас слушается, только пока Home сверху и приложение на экране |
+| loading | A skeleton list in place of the active point cards (storage not read yet or position not obtained yet) |
+| empty | Two cases on one screen: (a) no saved points at all — icon + text + Primary button Save current location; (b) there are saved points but none is active — text + a "Choose a place" button → `/points` |
+| error | A negative Alert — location permission denied, approximate access (`location_precise_required`, a button to turn on precise access) or GPS unavailable; the Save button is unavailable until permission is given |
+| content | A list of active point cards (type icon, name, a direction/distance preview on each), each leading to `/navigate/:id`; if there is one active point, a large card with the full dial replaces it. A constant Primary button Save current location: with a good signal it saves right away and shows a snackbar with "Edit" (a sheet with name and type), with a weak signal or no access it opens `/points/new`. The card circle holds an arrow to the point; with an inaccurate compass it is amber; while there is no direction or no compass, the circle holds the type icon. The compass is listened to only while Home is on top and the app is on screen |
 
 ### 4.2 Point Create (`/points/new`)
 
-| Состояние | Содержание |
+| State | Content |
 | --- | --- |
-| loading | ProgressIndicator + подпись, пока не получен фикс GPS для новой точки (координаты ещё не готовы, Save недоступен) |
-| empty | Не применимо (это форма создания, не список) |
-| error | Alert negative — GPS недоступен / разрешение отозвано между Home и этим экраном / приблизительный доступ (кнопка включения точного доступа); Save недоступен, есть Cancel |
-| content | Форма: название (`AppTextField`, дефолт есть, необязательно), пикер иконки (сетка 4×2 из DESIGN_SYSTEM.md), превью координат и точности, кнопки Save (primary) / Cancel (tertiary) |
+| loading | ProgressIndicator + label until a GPS fix for the new point arrives (coordinates not ready yet, Save unavailable) |
+| empty | Not applicable (this is a creation form, not a list) |
+| error | A negative Alert — GPS unavailable / permission revoked between Home and this screen / approximate access (a button to turn on precise access); Save unavailable, Cancel available |
+| content | Form: name (`AppTextField`, has a default, optional), icon picker (a 4×2 grid from DESIGN_SYSTEM.md), coordinates and accuracy preview, Save (primary) / Cancel (tertiary) buttons |
 
 ### 4.3 Points List (`/points`)
 
-| Состояние | Содержание |
+| State | Content |
 | --- | --- |
-| loading | Skeleton-список (3–5 плейсхолдеров `AppListItem`) |
-| empty | Иконка + "Нет сохранённых точек" + текст + Primary-кнопка Save current location (→ `/points/new`) |
-| error | Alert negative по `failure.code` (например `points_storage_read_failed`) + повтор |
-| content | `AppListItem` на точку (иконка типа · название · дистанция-подсказка · переключатель/индикатор активности), поддержка 0…100+ записей без деградации; активных одновременно может быть 0..N |
+| loading | A skeleton list (3–5 `AppListItem` placeholders) |
+| empty | Icon + "No saved places" + text + Primary button Save current location (→ `/points/new`) |
+| error | A negative Alert by `failure.code` (for example `points_storage_read_failed`) + retry |
+| content | An `AppListItem` per point (type icon · name · distance hint · activity switch/indicator), handling 0…100+ entries without degrading; 0..N can be active at once |
 
 ### 4.4 Point Details (`/points/:id`)
 
-| Состояние | Содержание |
+| State | Content |
 | --- | --- |
-| loading | Skeleton на месте заголовка и координат |
-| empty | Не применимо к этому экрану (точка либо есть, либо это error) |
-| error | Точка не найдена (`points_not_found`, например после deep link на удалённую точку) — Alert negative + кнопка "К списку точек" |
-| content | Иконка типа · название · координаты · дата сохранения · признак активности · кнопки Navigate / Edit (шторка с именем и типом) / Delete |
+| loading | A skeleton in place of the title and coordinates |
+| empty | Not applicable to this screen (the point either exists or it is an error) |
+| error | Point not found (`points_not_found`, for example after a deep link to a deleted point) — a negative Alert + a "Back to places" button |
+| content | Type icon · name · coordinates · save date · activity flag · Navigate / Edit (a sheet with name and type) / Delete buttons |
 
 ### 4.5 Navigate (`/navigate/:id`)
 
-| Состояние | Содержание |
+| State | Content |
 | --- | --- |
-| loading | `WbDirectionSearching` + подпись, пока не получен первый фикс GPS и первое показание компаса |
-| empty | Не применимо (экран всегда привязан к конкретной точке) |
-| error | Диск с иконкой, заголовок и текст по `failure.code`, кнопка внизу: `location_permission_denied` / `location_precise_required` (кнопка включения точного доступа) / GPS недоступен — направление и расстояние не показываются как валидные, честная ошибка вместо нулей. Нет компаса — не ошибка экрана: остаются расстояние и строка `WbAlertRow` negative, вместо стрелки иконка |
-| content | `WbDirectionDial`: стрелка (интерполированный `arrowRotation`) и луч погрешности шириной по точности компаса + расстояние (`WbDistanceValue`) + GPS accuracy (`±N m`). Предупреждения — `WbAlertRow` в зоне, зарезервированной под две строки, чтобы стрелка не сдвигалась. При входе в радиус прибытия — отдельное состояние на весь экран: `WbArrivalDial` с иконкой типа точки и указателем на кольце, «{имя} где‑то рядом», крупное расстояние и точность (точка может быть ещё не видна, поэтому текст не обещает точного попадания), плюс одна вибрация в момент входа снаружи; открытие экрана внутри радиуса прибытием не считается. Точка не деактивируется автоматически. На Android вместе с экраном работает плашка фоновой навигации (mvp-scope.md §2.8). |
-| экран | Пока открыт Navigate, дисплей не гаснет: стрелка должна быть видна без касаний |
+| loading | `WbDirectionSearching` + label until the first GPS fix and the first compass reading arrive |
+| empty | Not applicable (the screen is always tied to a specific point) |
+| error | A dial with an icon, a title and text by `failure.code`, a button at the bottom: `location_permission_denied` / `location_precise_required` (a button to turn on precise access) / GPS unavailable — direction and distance are not shown as valid, an honest error instead of zeros. No compass is not a screen error: the distance stays together with a negative `WbAlertRow`, and an icon replaces the arrow |
+| content | `WbDirectionDial`: the arrow (interpolated `arrowRotation`) and an error beam as wide as the compass accuracy + distance (`WbDistanceValue`) + GPS accuracy (`±N m`). Warnings are a `WbAlertRow` in an area reserved for two lines, so the arrow does not shift. On entering the arrival radius — a separate full-screen state: `WbArrivalDial` with the point type icon and a pointer on the ring, "{name} is close by", a large distance and accuracy (the point may not be visible yet, so the text does not promise an exact hit), plus one vibration at the moment of entering from outside; opening the screen inside the radius does not count as arrival. The point is not deactivated automatically. On Android the background navigation notification works together with the screen (mvp-scope.md §2.8). |
+| screen | While Navigate is open, the display does not go off: the arrow has to be visible without touching |
 
 ### 4.6 Settings (`/settings`)
 
-| Состояние | Содержание |
+| State | Content |
 | --- | --- |
-| loading | Skeleton-список секций (значения читаются из локального хранилища) |
-| empty | Не применимо (список настроек статичен, не зависит от данных пользователя) |
-| error | Alert negative при сбое чтения/записи настроек (`settings_storage_failed`, тексты — docs/copy.md §11.2) |
-| content | Группы с подписями «Единицы измерения», «Язык», «Вибрация», «Диагностика»; строки `WbListItem` и переключатели одной высоты, все с отступом 16dp, выбранный язык отмечен галочкой. Внутри: единицы измерения, язык, вибрация при прибытии, «Вид вибрации» (только при включённой вибрации; ведёт на `/settings/vibration` со списком вариантов и кнопкой «Проверить»), «Отправить журнал» (системное меню «Поделиться», файл без координат) |
+| loading | A skeleton list of sections (values are read from local storage) |
+| empty | Not applicable (the list of settings is static and does not depend on user data) |
+| error | A negative Alert on a settings read/write failure (`settings_storage_failed`, texts — docs/copy.md §11.2) |
+| content | Groups labelled "Units", "Language", "Vibration", "Diagnostics"; `WbListItem` rows and switches of the same height, all with a 16dp inset, the chosen language marked with a check. Inside: units, language, vibrate on arrival, "Vibration type" (only with vibration on; leads to `/settings/vibration` with a list of options and a "Test" button), "Send log" (the system share sheet, a file without coordinates) |
 
 ---
 
-## 5. Модель точки
+## 5. Point model
 
-`SavedPoint` (mvp-scope.md §2.2) получает дополнительное поле активности:
+`SavedPoint` (mvp-scope.md §2.2) gets an extra activity field:
 
 ```text
 id, name, type, latitude, longitude, altitude?, createdAt, isActive
 ```
 
-`isActive` — независимый флаг на точку, не индекс/ссылка на "единственную активную". Переключается из Points List и Point Details; по умолчанию `true` сразу после создания в Point Create.
+`isActive` is an independent flag per point, not an index/reference to "the only active one". It is toggled from Points List and Point Details; `true` by default right after creation in Point Create.
 
 ---
 
-## 6. Решения по открытым вопросам v0.1
+## 6. Decisions on the open questions of v0.1
 
-Ответы получены, обновляют §1–§4 этого документа:
+Answers received; they update §1–§4 of this document:
 
-1. **Создание точки — отдельный экран.** Добавлен `/points/new`: Save current location с Home открывает форму (название + иконка) поверх уже полученных координат, а не создаёт точку мгновенно.
-2. **Активных точек может быть несколько.** Home показывает список активных точек, а не одну карточку; активность — независимый флаг на каждой точке, переключается в Points List / Point Details.
-3. **Состояние прибытия — отдельный экранный режим** (пересмотрено при редизайне навигации, раньше было «только текст»): полноэкранное поле, иконка точки с указателем на кольце, «{имя} где‑то рядом», крупное расстояние (волна 2 заменила галочку и «Вы на месте»: галочка обещала точность, которой при радиусе ~20 м нет). Текст нужно было читать с расстояния вытянутой руки, а в радиусе ~20 м точка может быть ещё не видна. Вибрация (`mediumImpact`, один раз) остаётся как есть по mvp-scope.md §2.4.
+1. **Creating a point is a separate screen.** `/points/new` is added: Save current location on Home opens a form (name + icon) over the already obtained coordinates instead of creating the point instantly.
+2. **Several points can be active.** Home shows a list of active points, not a single card; activity is an independent flag on each point, toggled in Points List / Point Details.
+3. **The arrival state is a separate screen mode** (revised in the navigation redesign; it used to be "text only"): a full-screen field, the point icon with a pointer on the ring, "{name} is close by", a large distance (wave 2 replaced the check mark and "You're here": the check mark promised a precision that a ~20 m radius does not have). The text had to be readable at arm's length, and within a ~20 m radius the point may not be visible yet. The vibration (`mediumImpact`, once) stays as it is per mvp-scope.md §2.4.
 
-### Оставшиеся открытые вопросы
+### Remaining open questions
 
-- нужно ли ограничение сверху на число одновременно активных точек (UX list на Home может разрастись) — не задано;
-- `architecture.md` §6 ещё не обновлён с `/points/new` — сделать при реализации `feature: points`.
+- whether there should be an upper limit on the number of simultaneously active points (the list on Home may grow) — not set;
+- `architecture.md` §6 is not yet updated with `/points/new` — do it when implementing `feature: points`.

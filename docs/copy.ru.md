@@ -4,7 +4,7 @@
 
 Единый источник пользовательских строк для ru и en. Ключи — будущие ключи ARB: задача l10n (#11) переносит таблицы ниже в `lib/app/localization/arb/` без переформулирования.
 
-Состояния экранов — [SCREENS.md](../SCREENS.md) §4, контракт кодов ошибок — [architecture.md](architecture.ru.md) §4.2.
+Состояния экранов — [SCREENS.ru.md](../SCREENS.ru.md) §4, контракт кодов ошибок — [architecture.md](architecture.ru.md) §4.2.
 
 ---
 

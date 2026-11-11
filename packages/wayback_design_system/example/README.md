@@ -1,9 +1,11 @@
+<p align="right"><b>English</b> · <a href="README.ru.md">Русский</a></p>
+
 # Wayback design system — demo
 
-Интерактивный адаптивный каталог токенов и компонентов.
+An interactive adaptive catalog of tokens and components.
 
 ```shell
 flutter run -d chrome
 ```
 
-Production web-сборка создаётся командой `flutter build web`.
+The production web build is made with `flutter build web`.
