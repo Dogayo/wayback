@@ -4,16 +4,22 @@
 
 > Save a place. Find your way back.
 
+<p align="center">
+  <a href="https://github.com/Dogayo/wayback/releases/latest"><img alt="Download APK" src="https://img.shields.io/badge/Download-APK-C24812?style=for-the-badge&logo=android&logoColor=white"></a>
+  <a href="https://dogayo.github.io/wayback/"><img alt="Live design system" src="https://img.shields.io/badge/Live-Design_system-1B2025?style=for-the-badge&logo=flutter&logoColor=white"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Dogayo/wayback/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/Dogayo/wayback?style=flat-square&color=197A4D"></a>
+  <img alt="Flutter 3.44" src="https://img.shields.io/badge/Flutter-3.44-02569B?style=flat-square&logo=flutter&logoColor=white">
+  <img alt="Platform: Android" src="https://img.shields.io/badge/platform-Android-2E7D32?style=flat-square&logo=android&logoColor=white">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/github/license/Dogayo/wayback?style=flat-square&color=C24812"></a>
+</p>
+
 Wayback is an offline-first Flutter app for returning to a saved spot — a parked
 car, a tent, a fishing place — with nothing but GPS and the compass. It does not
 build a route: it shows an arrow pointing at the saved spot and the distance
 left, and it keeps working in the woods without a mobile network.
-
-[Download the latest APK](https://github.com/Dogayo/wayback/releases/latest) ·
-[Design system catalog (live)](https://dogayo.github.io/wayback/) ·
-[Product spec](docs/product.md) ·
-[Architecture](docs/architecture.md) ·
-[Design system](DESIGN_SYSTEM.md)
 
 <!-- Media: a short GIF of the arrow in use goes above the screenshots. -->
 
@@ -67,6 +73,17 @@ left, and it keeps working in the woods without a mobile network.
   publishes a GitHub Release, with notes taken from
   [`CHANGELOG.md`](CHANGELOG.md). CI refuses a tag that disagrees with
   `pubspec.yaml` or the changelog.
+
+## Documentation
+
+| Document | What's inside |
+| --- | --- |
+| [Product spec](docs/product.md) | the problem, scenarios, MVP, UX principles |
+| [MVP scope](docs/mvp-scope.md) | done criteria for the MVP release |
+| [Architecture](docs/architecture.md) | layers, blocs, errors, DI, rules for AI agents |
+| [Screens](SCREENS.md) | every screen, its transitions and states |
+| [Design system](DESIGN_SYSTEM.md) | tokens, motion, haptics, components |
+| [Interface copy](docs/copy.md) | voice, terms and every UI string in ru and en |
 
 ## Tech stack
 

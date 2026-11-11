@@ -4,16 +4,22 @@
 
 > Сохрани место. Найди дорогу обратно.
 
+<p align="center">
+  <a href="https://github.com/Dogayo/wayback/releases/latest"><img alt="Скачать APK" src="https://img.shields.io/badge/%D0%A1%D0%BA%D0%B0%D1%87%D0%B0%D1%82%D1%8C-APK-C24812?style=for-the-badge&logo=android&logoColor=white"></a>
+  <a href="https://dogayo.github.io/wayback/"><img alt="Дизайн-система онлайн" src="https://img.shields.io/badge/%D0%94%D0%B8%D0%B7%D0%B0%D0%B9%D0%BD--%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0-%D0%BE%D0%BD%D0%BB%D0%B0%D0%B9%D0%BD-1B2025?style=for-the-badge&logo=flutter&logoColor=white"></a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Dogayo/wayback/releases"><img alt="Последний релиз" src="https://img.shields.io/github/v/release/Dogayo/wayback?style=flat-square&color=197A4D&label=%D1%80%D0%B5%D0%BB%D0%B8%D0%B7"></a>
+  <img alt="Flutter 3.44" src="https://img.shields.io/badge/Flutter-3.44-02569B?style=flat-square&logo=flutter&logoColor=white">
+  <img alt="Платформа: Android" src="https://img.shields.io/badge/%D0%BF%D0%BB%D0%B0%D1%82%D1%84%D0%BE%D1%80%D0%BC%D0%B0-Android-2E7D32?style=flat-square&logo=android&logoColor=white">
+  <a href="LICENSE"><img alt="Лицензия: MIT" src="https://img.shields.io/github/license/Dogayo/wayback?style=flat-square&color=C24812&label=%D0%BB%D0%B8%D1%86%D0%B5%D0%BD%D0%B7%D0%B8%D1%8F"></a>
+</p>
+
 Wayback — офлайн-приложение на Flutter, которое помогает вернуться к сохранённому
 месту: к машине у леса, палатке, месту рыбалки. Оно не строит маршрут, а
 показывает стрелку на точку и оставшееся расстояние — только по GPS и компасу,
 без мобильной сети.
-
-[Скачать последний APK](https://github.com/Dogayo/wayback/releases/latest) ·
-[Каталог дизайн-системы (онлайн)](https://dogayo.github.io/wayback/) ·
-[Продуктовое ТЗ](docs/product.ru.md) ·
-[Архитектура](docs/architecture.ru.md) ·
-[Дизайн-система](DESIGN_SYSTEM.ru.md)
 
 <!-- Медиа: короткая GIF со стрелкой в работе ставится над скриншотами. -->
 
@@ -67,6 +73,17 @@ Wayback — офлайн-приложение на Flutter, которое по�
 - **Релизы по тегам.** Тег `v<version>` собирает подписанный Android APK и
   публикует GitHub Release с описанием из [`CHANGELOG.md`](CHANGELOG.md).
   CI отклоняет тег, если он расходится с `pubspec.yaml` или чейнджлогом.
+
+## Документация
+
+| Документ | Что внутри |
+| --- | --- |
+| [Продуктовое ТЗ](docs/product.ru.md) | проблема, сценарии, MVP, принципы UX |
+| [Объём MVP](docs/mvp-scope.ru.md) | критерии готовности MVP-релиза |
+| [Архитектура](docs/architecture.ru.md) | слои, блоки, ошибки, DI, правила для AI-агентов |
+| [Экраны](SCREENS.ru.md) | все экраны, переходы и состояния |
+| [Дизайн-система](DESIGN_SYSTEM.ru.md) | токены, движение, отклик, компоненты |
+| [Тексты интерфейса](docs/copy.ru.md) | голос, термины и все строки на ru и en |
 
 ## Стек
 
