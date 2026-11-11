@@ -21,6 +21,7 @@ Wayback is a Flutter application for saving a location and returning to it with 
 - When changing the design system, keep its public exports in `packages/wayback_design_system/lib/wayback_design_system.dart` current and add or update focused tests.
 - Preserve offline-first behavior and the product boundaries documented in `docs/product.md`.
 - Do not edit generated Flutter, Gradle, CocoaPods, or Xcode output.
+- Documentation is bilingual: `<name>.md` in English is the main version, `<name>.ru.md` next to it is the Russian one. A change to a document updates both; `CHANGELOG.md` and `.claude/skills/` stay in Russian only.
 
 ## Feature flow
 

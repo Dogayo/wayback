@@ -1,178 +1,180 @@
+<p align="right"><b>English</b> · <a href="mvp-scope.ru.md">Русский</a></p>
+
 # MVP Scope
 
-Документ описывает, в каком состоянии должно быть приложение Wayback, чтобы считаться готовым к MVP-релизу.
+This document describes the state Wayback has to be in to count as ready for the MVP release.
 
-Источник продуктовых требований — [product.md](product.md). Здесь они переведены в проверяемые критерии.
-
----
-
-## 1. Продуктовая цель MVP
-
-> Пользователь сохраняет точку, уходит и в любой момент получает направление и расстояние до неё — без интернета.
-
-Всё, что не работает на этот сценарий, в MVP не входит.
+The product requirements come from [product.md](product.md). Here they are turned into criteria that can be checked.
 
 ---
 
-## 2. Функциональный объём
+## 1. Product goal of the MVP
+
+> The user saves a point, walks away and at any moment gets the direction and distance to it — without the internet.
+
+Anything that does not serve this scenario is not part of the MVP.
+
+---
+
+## 2. Functional scope
 
 ### 2.1 Location (`features/location`)
 
-Обязательно:
+Required:
 
-- запрос разрешения на геолокацию (`whenInUse`), обработка отказа и "отказ навсегда";
-- приблизительный доступ (Android 12+, iOS 14+) считается недостаточным: погрешность в километры, поэтому сохранение и навигация недоступны, пока пользователь не включит точный доступ;
-- получение текущей позиции (latitude, longitude, accuracy, altitude опционально);
-- подписка на поток обновлений позиции во время активной навигации;
-- отображение текущей точности GPS (`±N m`);
-- явное состояние "GPS недоступен / сигнал плохой" вместо тишины или нулей.
+- request location permission (`whenInUse`), handle denial and "denied forever";
+- approximate access (Android 12+, iOS 14+) counts as not enough: the error is in kilometres, so saving and navigation stay unavailable until the user turns on precise access;
+- get the current position (latitude, longitude, accuracy, altitude optional);
+- subscribe to the stream of position updates during active navigation;
+- show the current GPS accuracy (`±N m`);
+- an explicit "GPS unavailable / weak signal" state instead of silence or zeros.
 
-Готово, когда: приложение корректно отрабатывает все состояния разрешений и показывает точность без фальшивой уверенности.
+Done when: the app handles every permission state correctly and shows accuracy without false confidence.
 
 ### 2.2 Saved Points (`features/points`)
 
-Обязательно:
+Required:
 
-- сохранение текущей позиции одним действием с главного экрана;
-- название точки (необязательное, есть дефолт);
-- выбор типа/иконки из фиксированного набора (car, tent, fishing, bag, house, meeting, parking, generic);
-- список сохранённых точек;
-- удаление точки с подтверждением;
-- выбор активной точки;
-- точка по координатам: ввод, вставка, разбор ссылок на карты;
-- передача точки: QR на экране и текстом через системное меню; на Android приём через «Поделиться → Wayback», в первый запуск ссылка переживает онбординг;
-- локальное персистентное хранение, переживающее перезапуск приложения.
+- save the current position in one action from the home screen;
+- a point name (optional, with a default);
+- a type/icon from a fixed set (car, tent, fishing, bag, house, meeting, parking, generic);
+- a list of saved points;
+- deleting a point with confirmation;
+- choosing the active point;
+- a point from coordinates: typing, pasting, parsing map links;
+- passing a point on: a QR code on screen and text through the system share sheet; on Android, receiving through "Share → Wayback", and on the first launch the link survives onboarding;
+- local persistent storage that survives an app restart.
 
-Модель точки:
+Point model:
 
 ```text
 id, name, type, latitude, longitude, altitude?, createdAt
 ```
 
-Готово, когда: точки переживают полный рестарт приложения и смену локали, список не ломается на 0 и на 100+ записях.
+Done when: points survive a full app restart and a locale change, and the list does not break at 0 or at 100+ entries.
 
 ### 2.3 Navigation (`features/navigation`)
 
-Обязательно:
+Required:
 
-- расчёт расстояния до активной точки (haversine);
-- расчёт азимута (bearing) на точку;
-- чтение heading устройства (компас);
-- `arrowRotation = bearing - deviceHeading`, стрелка вращается плавно (интерполяция, без рывков и без прыжка через 0/360);
-- форматирование расстояния: `< 1000 m` → метры, дальше — километры с одним знаком;
-- обновление направления и расстояния при движении;
-- предупреждение о ненадёжных данных компаса (нужна калибровка / помехи).
+- distance to the active point (haversine);
+- bearing to the point;
+- reading the device heading (compass);
+- `arrowRotation = bearing - deviceHeading`, the arrow turns smoothly (interpolated, no jerks and no jump across 0/360);
+- distance formatting: `< 1000 m` → metres, further on — kilometres with one decimal;
+- direction and distance update while moving;
+- a warning about unreliable compass data (needs calibration / interference).
 
-Готово, когда: на реальном устройстве стрелка стабильно указывает на точку при развороте корпуса, а значения обновляются без залипаний.
+Done when: on a real device the arrow keeps pointing at the point while the phone turns, and the values update without freezing.
 
 ### 2.4 Arrival
 
-Обязательно:
+Required:
 
-- порог прибытия (по умолчанию ~20 м, с учётом текущей точности GPS);
-- визуальное состояние "вы на месте";
-- вибрация при входе в радиус: открытие навигации уже внутри радиуса прибытием не считается, повторная вибрация — только после настоящего выхода из радиуса.
+- an arrival threshold (about 20 m by default, taking the current GPS accuracy into account);
+- a visual "you are there" state;
+- vibration on entering the radius: opening navigation already inside the radius does not count as arrival, and it vibrates again only after really leaving the radius.
 
-Опционально для MVP: звуковой сигнал.
+Optional for the MVP: a sound.
 
 ### 2.5 Offline
 
-Обязательно:
+Required:
 
-- основной сценарий (сохранение точки, список, навигация) полностью работает в авиарежиме;
-- нет сетевых зависимостей в критическом пути;
-- нет backend, нет аккаунтов.
+- the main scenario (saving a point, the list, navigation) works fully in airplane mode;
+- no network dependencies on the critical path;
+- no backend, no accounts.
 
-Готово, когда: полный сценарий Save → Walk away → Navigate back пройден в авиарежиме.
+Done when: the full Save → Walk away → Navigate back scenario passes in airplane mode.
 
 ### 2.6 Onboarding (`features/onboarding`)
 
-Обязательно:
+Required:
 
-- при первом запуске, до главного экрана — три шага: зачем приложение, как оно работает, доступ к геолокации;
-- шаг геолокации объясняет, зачем нужен доступ, и только по кнопке «Разрешить» вызывает системный диалог;
-- доступ можно отложить («Не сейчас»): приложение не блокируется, на главном остаётся плашка с запросом доступа;
-- онбординг показывается один раз; факт прохождения хранится локально.
+- on the first launch, before the home screen — three steps: why the app exists, how it works, location access;
+- the location step explains why access is needed and calls the system dialog only on the "Allow" button;
+- access can be postponed ("Not now"): the app is not blocked, and the home screen keeps a banner asking for access;
+- onboarding is shown once; the fact that it was completed is stored locally.
 
-Готово, когда: новая установка открывает онбординг, после любого ответа на шаге геолокации — главный экран, а повторный запуск сразу ведёт на главный.
+Done when: a fresh install opens onboarding, any answer on the location step leads to the home screen, and the next launch goes straight to the home screen.
 
-### 2.7 Диагностика (`packages/app_logger`)
+### 2.7 Diagnostics (`packages/app_logger`)
 
-Обязательно:
+Required:
 
-- журнал пишется всегда и только на устройство: запуск, переходы, состояния блоков, ошибки и падения Dart;
-- на экране навигации раз в секунду — точность GPS, курс, азимут, расстояние, прибытие;
-- размер ограничен ротацией: около 5 МБ и 7 дней;
-- файлы лежат во внешнем каталоге приложения, их можно забрать через `adb` и в релизной сборке;
-- «Отправить журнал» в настройках открывает системное меню «Поделиться», только по действию пользователя;
-- координаты пишутся локально, в отправляемый файл не попадают. Названия точек в журнал не пишутся.
+- the log is always written, and only on the device: launch, transitions, bloc states, errors and Dart crashes;
+- on the navigation screen, once a second — GPS accuracy, heading, bearing, distance, arrival;
+- size is bounded by rotation: about 5 MB and 7 days;
+- the files live in the app's external directory and can be pulled with `adb`, in the release build too;
+- "Send log" in settings opens the system share sheet, only on a user action;
+- coordinates are written locally and do not get into the file that is sent. Point names are not written to the log.
 
-Не ловит нативные падения Android и iOS; пишет только пока приложение открыто.
+It does not catch native Android and iOS crashes; it writes only while the app is open.
 
-Готово, когда: после прогулки журнал читается через `adb`, а отправленный файл не содержит координат.
+Done when: after a walk the log can be read through `adb`, and the sent file contains no coordinates.
 
-### 2.8 Фоновая навигация (Android)
+### 2.8 Background navigation (Android)
 
-Навигация не обрывается, когда экран гаснет или приложение свёрнуто.
+Navigation does not stop when the screen goes off or the app is in the background.
 
-Обязательно:
+Required:
 
-- запускается вместе с экраном навигации, отдельно включать не нужно;
-- постоянная плашка на экране блокировки и в шторке: название точки и расстояние, при прибытии — «Где‑то рядом» под названием; кнопка «Завершить навигацию»;
-- прибытие в фоне: вибрация по той же настройке и то же правило входа в радиус (§2.4);
-- кнопка «Стоп» на плашке закрывает навигацию; выход с экрана навигации убирает плашку;
-- после прибытия плашка остаётся, пока пользователь её не остановит;
-- используется только разрешение «при использовании приложения»: доступ «всегда» не запрашивается;
-- отказ в показе уведомлений (Android 13+) не мешает навигации на экране.
+- starts together with the navigation screen, no separate switch;
+- a persistent notification on the lock screen and in the shade: the point name and the distance, on arrival — "Somewhere nearby" under the name; a "Stop navigation" button;
+- arrival in the background: vibration by the same setting and the same radius-entry rule (§2.4);
+- the "Stop" button on the notification closes navigation; leaving the navigation screen removes the notification;
+- after arrival the notification stays until the user stops it;
+- only the "while using the app" permission is used: "always" access is not requested;
+- a denied notification permission (Android 13+) does not get in the way of on-screen navigation.
 
-Готово, когда: на реальном устройстве с заблокированным экраном расстояние обновляется, а при входе в радиус срабатывает вибрация.
+Done when: on a real device with the screen locked the distance updates, and entering the radius vibrates.
 
-Live Activity на iOS — отдельная задача, на iOS навигация пока работает только при открытом приложении.
-
----
-
-## 3. Вне объёма MVP (Non-Goals)
-
-Не делаем: регистрацию, аккаунты, синхронизацию, социальные функции, карты, маршрутизацию по дорогам/тропам, серверную часть, breadcrumb trail, часы и виджеты. Журнал диагностики (§2.7) — не экспорт данных пользователя.
-
-Смотри «Future Ideas» в [product.md](product.md) — это post-MVP бэклог.
+A Live Activity on iOS is a separate task; on iOS navigation works only while the app is open for now.
 
 ---
 
-## 4. Технические критерии готовности
+## 3. Out of MVP scope (Non-Goals)
 
-| Область | Критерий |
+Not in scope: sign-up, accounts, sync, social features, maps, routing along roads or trails, a server side, a breadcrumb trail, watches and widgets. The diagnostic log (§2.7) is not an export of user data.
+
+See "Future Ideas" in [product.md](product.md) — that is the post-MVP backlog.
+
+---
+
+## 4. Technical done criteria
+
+| Area | Criterion |
 | --- | --- |
-| Архитектура | Соблюдена структура `app / core / features/{area}/{data,domain,view}` — см. [architecture.md](architecture.md) |
-| DI | Весь граф зависимостей собирается через `app_di`, ручных синглтонов нет |
-| Навигация | Все переходы через `go_router`, deep-link на экран точки работает |
-| Локализация | Ноль хардкод-строк в UI; ru + en через `l10n`; коды ошибок локализуются |
-| Ошибки | Слой data бросает `Exception`, домен/представление работает с `Failure` с кодом; необработанных исключений в UI нет |
-| Состояния экранов | У каждого экрана есть loading / empty / error / content |
-| Тесты | Покрыты юнит-тестами: расчёт distance/bearing/rotation, форматирование расстояния, маппинг exception → failure, репозиторий точек |
-| Анализ | `flutter analyze` — 0 issues; `dart format` применён |
-| CI | Сборка проходит на CI, версия и CHANGELOG обновлены |
+| Architecture | The `app / core / features/{area}/{data,domain,view}` structure is followed — see [architecture.md](architecture.md) |
+| DI | The whole dependency graph is built through `app_di`, no hand-made singletons |
+| Navigation | All transitions go through `go_router`, the deep link to a point screen works |
+| Localization | Zero hard-coded strings in the UI; ru + en through `l10n`; error codes are localized |
+| Errors | The data layer throws `Exception`, domain and view work with a `Failure` that has a code; no unhandled exceptions in the UI |
+| Screen states | Every screen has loading / empty / error / content |
+| Tests | Unit tests cover distance/bearing/rotation, distance formatting, exception → failure mapping, the points repository |
+| Analysis | `flutter analyze` — 0 issues; `dart format` applied |
+| CI | The build passes on CI, version and CHANGELOG updated |
 
 ---
 
-## 5. Качество и UX-критерии
+## 5. Quality and UX criteria
 
-- Сохранение точки — не более одного тапа с главного экрана.
-- На экране навигации доминируют направление и расстояние; остальное вторично.
-- Крупные элементы, высокий контраст, читаемость на солнце.
-- Приложение честно сообщает о плохом GPS и неоткалиброванном компасе.
-- Холодный старт до интерактивного главного экрана — менее 2 секунд на среднем устройстве.
-- Экран навигации не разряжает батарею аномально: подписки на позицию и компас останавливаются при уходе с экрана.
+- Saving a point takes no more than one tap from the home screen.
+- Direction and distance dominate the navigation screen; everything else is secondary.
+- Large elements, high contrast, readable in the sun.
+- The app is honest about weak GPS and an uncalibrated compass.
+- Cold start to an interactive home screen is under 2 seconds on an average device.
+- The navigation screen does not drain the battery abnormally: position and compass subscriptions stop when the screen is left.
 
 ---
 
-## 6. Релизные критерии
+## 6. Release criteria
 
-- [ ] Android release-сборка подписана (см. [android-signing.md](android-signing.md)).
-- [ ] iOS сборка собирается и запускается на устройстве.
-- [ ] Заполнены строки разрешений (`NSLocationWhenInUseUsageDescription`, Android permissions).
-- [ ] Иконка приложения и splash на месте.
-- [ ] Приложение проверено вручную на реальном устройстве на улице, а не только в симуляторе.
-- [ ] Сценарий Save → Walk away → Navigate back пройден на дистанции не менее 500 м.
+- [ ] The Android release build is signed (see [android-signing.md](android-signing.md)).
+- [ ] The iOS build builds and runs on a device.
+- [ ] Permission strings are filled in (`NSLocationWhenInUseUsageDescription`, Android permissions).
+- [ ] The app icon and splash are in place.
+- [ ] The app was checked by hand on a real device outdoors, not only in a simulator.
+- [ ] The Save → Walk away → Navigate back scenario passed over at least 500 m.
 
-MVP считается готовым, когда выполнены все пункты разделов 2, 4 и 6.
+The MVP counts as ready when every item in sections 2, 4 and 6 is done.

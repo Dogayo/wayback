@@ -11,8 +11,8 @@ Wayback — офлайн-приложение на Flutter, которое по�
 
 [Скачать последний APK](https://github.com/Dogayo/wayback/releases/latest) ·
 [Каталог дизайн-системы (онлайн)](https://dogayo.github.io/wayback/) ·
-[Продуктовое ТЗ](docs/product.md) ·
-[Архитектура](docs/architecture.md) ·
+[Продуктовое ТЗ](docs/product.ru.md) ·
+[Архитектура](docs/architecture.ru.md) ·
 [Дизайн-система](DESIGN_SYSTEM.md)
 
 <!-- Медиа: короткая GIF со стрелкой в работе ставится над скриншотами. -->
@@ -114,7 +114,7 @@ flutter test
 Каждое изменение проходит одни и те же шаги: письменный план, макеты в Penpot,
 код, проверка на реальном устройстве, затем пул-реквест. Проект разрабатывается
 вместе с AI-агентами; правила, по которым они работают, лежат в
-[`AGENTS.md`](AGENTS.md) и [`docs/architecture.md`](docs/architecture.md).
+[`AGENTS.md`](AGENTS.md) и [`docs/architecture.md`](docs/architecture.ru.md).
 
 ## Лицензия
 
