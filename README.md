@@ -11,8 +11,8 @@ left, and it keeps working in the woods without a mobile network.
 
 [Download the latest APK](https://github.com/Dogayo/wayback/releases/latest) ·
 [Design system catalog (live)](https://dogayo.github.io/wayback/) ·
-[Product spec (RU)](docs/product.md) ·
-[Architecture (RU)](docs/architecture.md) ·
+[Product spec](docs/product.md) ·
+[Architecture](docs/architecture.md) ·
 [Design system (RU)](DESIGN_SYSTEM.md)
 
 <!-- Media: a short GIF of the arrow in use goes above the screenshots. -->

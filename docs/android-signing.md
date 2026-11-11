@@ -1,65 +1,67 @@
-# Подпись Android-сборки (JKS keystore)
+<p align="right"><b>English</b> · <a href="android-signing.ru.md">Русский</a></p>
 
-Инструкция для проекта `wayback` (Flutter, Gradle Kotlin DSL, `applicationId = com.dogayo.wayback`).
+# Signing the Android build (JKS keystore)
 
-Сборка уже готова к подписи (#17): `android/app/build.gradle.kts` берёт upload-ключ из `android/key.properties`, а без этого файла подписывает release debug-ключом. CI восстанавливает ключ из секретов GitHub (§7) и не выпускает релиз, подписанный debug-ключом. Остаётся создать ключ (§1), файл `key.properties` (§2) и секреты (§7) — это делается один раз, пароли знаете только вы.
+Instructions for the `wayback` project (Flutter, Gradle Kotlin DSL, `applicationId = com.dogayo.wayback`).
+
+The build is already ready for signing (#17): `android/app/build.gradle.kts` takes the upload key from `android/key.properties`, and without that file signs the release with the debug key. CI restores the key from GitHub secrets (§7) and does not publish a release signed with the debug key. What is left is to create the key (§1), the `key.properties` file (§2) and the secrets (§7) — this is done once, and only you know the passwords.
 
 ---
 
-## 1. Создать keystore
+## 1. Create a keystore
 
-`keytool` входит в JDK, который ставится вместе с Android Studio. Проверить:
+`keytool` comes with the JDK that is installed together with Android Studio. Check:
 
 ```bash
 keytool -help
 ```
 
-На Fedora `keytool` уже есть в `/usr/bin` (пакет OpenJDK). Если команда не найдена — используйте JDK из Android Studio:
+On Fedora `keytool` is already in `/usr/bin` (the OpenJDK package). If the command is not found, use the JDK from Android Studio:
 
 ```bash
 export PATH="$HOME/android-studio/jbr/bin:$PATH"
 ```
 
-Создание ключа (файл кладём **вне репозитория**, например в `~/keys/`):
+Create the key (put the file **outside the repository**, for example in `~/keys/`):
 
 ```bash
 mkdir -p ~/keys && keytool -genkey -v -keystore ~/keys/wayback-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
 ```
 
-Что спросит `keytool`:
+What `keytool` asks for:
 
-- **Keystore password** — пароль хранилища. Запишите в менеджер паролей, восстановить нельзя.
-- **First and last name / организация / город / страна** — можно заполнить свободно (для Google Play это не проверяется), страна — двухбуквенный код, например `RU`.
-- **Key password for `<upload>`** — можно оставить тем же, что и пароль хранилища (Enter).
+- **Keystore password** — the store password. Keep it in a password manager; it cannot be recovered.
+- **First and last name / organization / city / country** — fill in freely (Google Play does not check this); the country is a two-letter code, for example `RU`.
+- **Key password for `<upload>`** — can stay the same as the store password (Enter).
 
-Проверить содержимое:
+Check the contents:
 
 ```bash
 keytool -list -v -keystore ~/keys/wayback-upload.jks -alias upload
 ```
 
-> `-validity 10000` (~27 лет) — требование Google Play: ключ должен быть валиден минимум до 22 октября 2033 года.
+> `-validity 10000` (~27 years) is a Google Play requirement: the key must stay valid at least until 22 October 2033.
 
 ---
 
-## 2. Файл `android/key.properties`
+## 2. The `android/key.properties` file
 
-Создайте `android/key.properties` (в git **не** коммитить):
+Create `android/key.properties` (do **not** commit it to git):
 
 ```properties
-storePassword=ПАРОЛЬ_ХРАНИЛИЩА
-keyPassword=ПАРОЛЬ_КЛЮЧА
+storePassword=STORE_PASSWORD
+keyPassword=KEY_PASSWORD
 keyAlias=upload
 storeFile=/home/Dogayo/keys/wayback-upload.jks
 ```
 
-`storeFile` — абсолютный путь либо путь относительно каталога `android/app/`. Обратный слэш в паролях не используйте: в формате `.properties` это экранирование.
+`storeFile` is an absolute path or a path relative to `android/app/`. Do not use a backslash in passwords: in the `.properties` format it is an escape.
 
 ---
 
 ## 3. `.gitignore`
 
-Уже настроено — в корневом и `android/.gitignore`:
+Already set up — in the root and in `android/.gitignore`:
 
 ```
 # Android signing
@@ -68,7 +70,7 @@ android/key.properties
 **/*.keystore
 ```
 
-Убедитесь, что файлы не попали в индекс:
+Make sure the files did not get into the index:
 
 ```bash
 git status --porcelain android/key.properties
@@ -76,9 +78,9 @@ git status --porcelain android/key.properties
 
 ---
 
-## 4. Подпись в `android/app/build.gradle.kts` (уже подключена)
+## 4. Signing in `android/app/build.gradle.kts` (already wired up)
 
-В начало файла, **до** блока `plugins`:
+At the top of the file, **before** the `plugins` block:
 
 ```kotlin
 import java.util.Properties
@@ -91,7 +93,7 @@ if (keystorePropertiesFile.exists()) {
 }
 ```
 
-Внутрь блока `android { ... }`, **перед** `buildTypes`:
+Inside the `android { ... }` block, **before** `buildTypes`:
 
 ```kotlin
     signingConfigs {
@@ -104,7 +106,7 @@ if (keystorePropertiesFile.exists()) {
     }
 ```
 
-И заменить блок `buildTypes`:
+And replace the `buildTypes` block:
 
 ```kotlin
     buildTypes {
@@ -118,11 +120,11 @@ if (keystorePropertiesFile.exists()) {
     }
 ```
 
-Фолбэк на debug нужен, чтобы сборка не падала на машинах без `key.properties` (CI, другой разработчик).
+The debug fallback keeps the build from failing on machines without `key.properties` (CI, another developer).
 
 ---
 
-## 5. Собрать и проверить
+## 5. Build and check
 
 ```bash
 flutter build appbundle --release
@@ -132,19 +134,19 @@ flutter build appbundle --release
 flutter build apk --release
 ```
 
-Проверить, каким ключом подписан APK:
+Check which key signed the APK:
 
 ```bash
 "$(ls ~/Android/Sdk/build-tools/*/apksigner | sort -V | tail -1)" verify --print-certs build/app/outputs/flutter-apk/app-release.apk
 ```
 
-Отпечаток SHA-256 в выводе должен совпадать с тем, что показывает `keytool -list -v` для вашего keystore. Если видите `CN=Android Debug` — подпись не подхватилась, проверьте путь в `storeFile`.
+The SHA-256 fingerprint in the output must match what `keytool -list -v` shows for your keystore. If you see `CN=Android Debug`, the signing config was not picked up — check the path in `storeFile`.
 
 ---
 
-## 6. Если ключ уже существует
+## 6. If the key already exists
 
-Ничего создавать не нужно — скопируйте `.jks` в `~/keys/`, и выполните шаги 2–5. Алиас можно узнать так:
+Nothing needs to be created — copy the `.jks` into `~/keys/` and follow steps 2–5. The alias can be found like this:
 
 ```bash
 keytool -list -keystore ~/keys/wayback-upload.jks
@@ -154,7 +156,7 @@ keytool -list -keystore ~/keys/wayback-upload.jks
 
 ## 7. CI (GitHub Actions)
 
-Keystore в репозиторий не кладём — `ci.yml` (job `build-android`) собирает его из четырёх секретов репозитория. Задать их из терминала через `gh`, ничего не копируя руками:
+The keystore does not go into the repository — `ci.yml` (job `build-android`) assembles it from four repository secrets. Set them from the terminal with `gh`, without copying anything by hand:
 
 ```bash
 base64 -w0 ~/keys/wayback-upload.jks | gh secret set ANDROID_KEYSTORE_BASE64
@@ -172,22 +174,22 @@ gh secret set ANDROID_STORE_PASSWORD
 gh secret set ANDROID_KEY_PASSWORD
 ```
 
-Последние две команды спросят значение интерактивно — так пароль не попадёт в историю shell. Проверить, что секреты на месте (значения не показываются):
+The last two commands ask for the value interactively, so the password does not end up in the shell history. Check that the secrets are in place (values are not shown):
 
 ```bash
 gh secret list
 ```
 
-Что делает CI:
+What CI does:
 
-- **Restore upload keystore** — раскодирует keystore во временный каталог раннера и пишет `android/key.properties`.
-- **Verify signature** — печатает сертификат подписи APK (`apksigner verify --print-certs`).
-- Релиз по тегу без секретов или с подписью `CN=Android Debug` **падает** — debug-подписанный APK не обновит установку, подписанную настоящим ключом. Ручной запуск (`Run workflow`) без секретов собирается с debug-ключом и предупреждением.
+- **Restore upload keystore** — decodes the keystore into a temporary runner directory and writes `android/key.properties`.
+- **Verify signature** — prints the APK signing certificate (`apksigner verify --print-certs`).
+- A tag release without the secrets, or signed with `CN=Android Debug`, **fails** — a debug-signed APK will not update an install signed with the real key. A manual run (`Run workflow`) without the secrets builds with the debug key and a warning.
 
 ---
 
-## Важное про потерю ключа
+## About losing the key
 
-- Без Play App Signing потеря `.jks` или пароля означает невозможность обновить приложение — только новая публикация с новым `applicationId`.
-- С включённым **Play App Signing** (по умолчанию для новых приложений) ваш `.jks` — это *upload key*, и его можно сбросить через поддержку Google Play. Ключ подписи релиза хранит Google.
-- Держите бэкап `.jks` и паролей в надёжном месте (менеджер паролей / зашифрованное хранилище), не в репозитории.
+- Without Play App Signing, losing the `.jks` or its password means the app can no longer be updated — only a new listing with a new `applicationId`.
+- With **Play App Signing** on (the default for new apps), your `.jks` is the *upload key*, and it can be reset through Google Play support. Google keeps the release signing key.
+- Keep a backup of the `.jks` and the passwords somewhere safe (a password manager / encrypted storage), not in the repository.

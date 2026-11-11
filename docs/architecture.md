@@ -1,184 +1,186 @@
+<p align="right"><b>English</b> · <a href="architecture.ru.md">Русский</a></p>
+
 # Architecture
 
-Документ описывает архитектуру приложения Wayback. Он рассчитан в первую очередь на AI-агентов: правила сформулированы так, чтобы по ним можно было однозначно решить, **куда положить новый код** и **что запрещено**.
+This document describes the architecture of the Wayback app. It is written mainly for AI agents: the rules are phrased so that they settle unambiguously **where new code goes** and **what is forbidden**.
 
-Продуктовый контекст — [product.md](product.md), критерии готовности — [mvp-scope.md](mvp-scope.md).
+Product context — [product.md](product.md), done criteria — [mvp-scope.md](mvp-scope.md).
 
 ---
 
-## 1. Стек
+## 1. Stack
 
-| Область | Решение |
+| Area | Choice |
 | --- | --- |
-| Платформа | Flutter (Dart SDK `^3.12.2`, Flutter `>=3.44.0`) |
-| State management | `Bloc` (`flutter_bloc` + `bloc_concurrency`) — только Bloc, один блок на действие или компонент (§3.4) |
-| Навигация | `go_router` (на текущем этапе; слой изолирован, замена возможна) |
-| Локализация | `l10n` (Flutter gen-l10n, ARB-файлы) |
-| DI | собственный пакет `app_di` |
-| Хранилище | локальное, offline-first, без backend |
-| Сеть | отсутствует в MVP-критическом пути |
+| Platform | Flutter (Dart SDK `^3.12.2`, Flutter `>=3.44.0`) |
+| State management | `Bloc` (`flutter_bloc` + `bloc_concurrency`) — Bloc only, one bloc per action or component (§3.4) |
+| Navigation | `go_router` (for now; the layer is isolated and can be replaced) |
+| Localization | `l10n` (Flutter gen-l10n, ARB files) |
+| DI | own package `app_di` |
+| Storage | local, offline-first, no backend |
+| Network | not on the MVP-critical path |
 
 ---
 
-## 2. Слои верхнего уровня
+## 2. Top-level layers
 
 ```text
 lib/
-├── main.dart          # только bootstrap
-├── app/               # композиция приложения
-├── core/              # общий фундамент, не знает о features
-└── features/          # вертикальные срезы предметной области
+├── main.dart          # bootstrap only
+├── app/               # app composition
+├── core/              # shared foundation, knows nothing about features
+└── features/          # vertical slices of the domain
 ```
 
-Правило зависимостей — стрелки идут только вниз:
+Dependency rule — arrows only point down:
 
 ```text
 app  ──►  features  ──►  core
 ```
 
-- `core` **не импортирует** ничего из `features` и `app`.
-- `features` импортируют `core`.
-- Одна feature **не импортирует** внутренности другой feature. Если нужен обмен — общий контракт выносится в `core` или в `domain` одной из features, и зависимость объявляется явно и в одну сторону.
-- `app` знает про всё и связывает.
+- `core` **does not import** anything from `features` or `app`.
+- `features` import `core`.
+- One feature **does not import** the internals of another. If they need to exchange something, the shared contract moves to `core` or to the `domain` of one of the features, and the dependency is declared explicitly and one way.
+- `app` knows about everything and wires it together.
 
 ### 2.1 `app/`
 
 ```text
 app/
-├── app.dart              # корневой виджет (MaterialApp.router)
-├── bootstrap.dart        # инициализация до runApp
-├── dependencies/         # регистрация зависимостей в app_di, модули по features
-├── navigation/           # конфигурация go_router, маршруты, guards
-├── localization/         # ARB-файлы, генерация l10n, доступ к переводам
-├── extensions/           # расширения уровня приложения (BuildContext и т.п.)
-└── theme/                # ThemeData, цвета, типографика
+├── app.dart              # root widget (MaterialApp.router)
+├── bootstrap.dart        # initialization before runApp
+├── dependencies/         # registration in app_di, one module per feature
+├── navigation/           # go_router configuration, routes, guards
+├── localization/         # ARB files, l10n generation, access to translations
+├── extensions/           # app-level extensions (BuildContext and so on)
+└── theme/                # ThemeData, colors, typography
 ```
 
-Ответственность: собрать граф зависимостей, отдать роутер, тему и локализацию в `MaterialApp.router`. Бизнес-логики здесь нет.
+Responsibility: build the dependency graph and hand the router, theme and localization to `MaterialApp.router`. There is no business logic here.
 
-Все четыре инфраструктурных механизма — DI, навигация, локализация, расширения — живут в `app/`, а не в `core/`. `core/` остаётся чистым фундаментом предметно-независимого кода.
+All four infrastructure mechanisms — DI, navigation, localization, extensions — live in `app/`, not in `core/`. `core/` stays a clean foundation of domain-independent code.
 
 ### 2.2 `core/`
 
 ```text
 core/
 ├── error/
-│   ├── exceptions.dart   # RemoteException, LocalException + подтипы
-│   └── failures.dart     # RemoteFailure, LocalFailure + подтипы
-├── result/               # Result<T> / Either-подобный тип
-├── utils/                # geo-расчёты, форматтеры
-└── widgets/              # переиспользуемые виджеты без привязки к feature
+│   ├── exceptions.dart   # RemoteException, LocalException + subtypes
+│   └── failures.dart     # RemoteFailure, LocalFailure + subtypes
+├── result/               # Result<T> / an Either-like type
+├── utils/                # geo calculations, formatters
+└── widgets/              # reusable widgets not tied to a feature
 ```
 
-`core` — это фундамент. Всё, что в нём лежит, должно быть применимо минимум в двух features или быть инфраструктурой.
+`core` is the foundation. Everything in it has to apply to at least two features or be infrastructure.
 
 ### 2.3 `features/`
 
-Каждая feature — вертикальный срез:
+Each feature is a vertical slice:
 
 ```text
 features/
 └── {area}/
     ├── data/
-    │   ├── datasources/     # источники данных (local/remote)
-    │   ├── models/          # DTO, сериализация
+    │   ├── datasources/     # data sources (local/remote)
+    │   ├── models/          # DTOs, serialization
     │   ├── mappers/         # model <-> entity
-    │   └── repositories/    # реализации репозиториев
+    │   └── repositories/    # repository implementations
     ├── domain/
-    │   ├── entities/        # чистые модели предметной области
-    │   └── repositories/    # абстрактные интерфейсы репозиториев
+    │   ├── entities/        # pure domain models
+    │   └── repositories/    # abstract repository interfaces
     └── view/
-        ├── screens/         # экраны, привязанные к маршрутам
-        ├── widgets/         # виджеты этой feature
-        └── bloc/            # блоки: *_bloc.dart + part *_event.dart / *_state.dart
+        ├── screens/         # screens bound to routes
+        ├── widgets/         # this feature's widgets
+        └── bloc/            # blocs: *_bloc.dart + part *_event.dart / *_state.dart
 ```
 
-Планируемые areas для MVP:
+Planned areas for the MVP:
 
-- `location` — разрешения, текущая позиция, точность, поток обновлений;
-- `points` — CRUD сохранённых точек, активная точка;
-- `navigation` — компас, bearing, расстояние, состояние прибытия;
-- `settings` — единицы измерения, язык, вибрация (минимально);
-- `onboarding` — первый запуск: шаги онбординга и факт их прохождения.
+- `location` — permissions, current position, accuracy, update stream;
+- `points` — CRUD of saved points, the active point;
+- `navigation` — compass, bearing, distance, arrival state;
+- `settings` — units, language, vibration (minimal);
+- `onboarding` — first launch: the onboarding steps and the fact they were completed.
 
-Журнал диагностики — пакет `packages/app_logger` (чистый Dart, запись JSONL на диск). `AppLogger` создаётся в bootstrap и приходит из DI; приватные поля записи (`private`) остаются только в локальных файлах и вырезаются при экспорте.
+The diagnostic log is the `packages/app_logger` package (plain Dart, JSONL on disk). `AppLogger` is created in bootstrap and comes from DI; the private fields of an entry (`private`) stay only in local files and are stripped on export.
 
 ---
 
-## 3. Правила слоёв внутри feature
+## 3. Layer rules inside a feature
 
 ### 3.1 `domain`
 
-- Чистый Dart. **Запрещены** импорты `flutter/*`, любых пакетов хранилища, HTTP, платформенных плагинов.
-- Содержит entity и интерфейсы репозиториев. Слоя usecase нет: сценарии на текущем масштабе тривиальны и были бы обёрткой в один метод над репозиторием. Bloc обращается к репозиторию напрямую.
-- Ничего не знает о `data` и `view`.
-- Методы репозитория возвращают `Result<T>` с `Failure` в ветке ошибки, а не бросают исключения.
-- Если сценарий однажды разрастётся (несколько репозиториев, нетривиальная координация), логика выносится в `domain/services/` — но не раньше, чем это действительно понадобится.
+- Plain Dart. Imports of `flutter/*`, any storage packages, HTTP and platform plugins are **forbidden**.
+- Holds entities and repository interfaces. There is no use-case layer: at the current scale scenarios are trivial and would be a one-method wrapper over a repository. The bloc calls the repository directly.
+- Knows nothing about `data` and `view`.
+- Repository methods return `Result<T>` with a `Failure` on the error branch instead of throwing.
+- If a scenario ever grows (several repositories, non-trivial coordination), the logic moves to `domain/services/` — but not before it is really needed.
 
 ### 3.2 `data`
 
-- Реализует интерфейсы из `domain`.
-- Datasource бросает `Exception` (`LocalException` / `RemoteException`).
-- Реализация репозитория ловит их и сама превращает в `Failure`, возвращая `Result<T>`. Маппинг ошибок живёт здесь, а не в общем хелпере.
-- Модели (DTO) живут только здесь и **не протекают** в `domain` и `view` — на границе работают mappers.
+- Implements the interfaces from `domain`.
+- A datasource throws an `Exception` (`LocalException` / `RemoteException`).
+- The repository implementation catches them and turns them into a `Failure` itself, returning `Result<T>`. Error mapping lives here, not in a shared helper.
+- Models (DTOs) live only here and **do not leak** into `domain` and `view` — mappers work at the boundary.
 
 ### 3.3 `view`
 
-- Работает только с `domain` (entity + интерфейсы репозиториев). Импорт `data` из `view` **запрещён**.
-- Управление состоянием — **Bloc** (пакет `flutter_bloc`), правила — §3.4. Файлы лежат в `view/bloc/`.
-- Экран не содержит бизнес-логики и вычислений — только отображение состояния и отправка событий в Bloc.
-- Состояние Bloc явно моделирует loading / content / empty / error — sealed-класс с вариантами, а не набор булевых флагов. Экран читает его только через `map` / `mapOrElse` / `mapOrNull`.
-- Все строки берутся из `l10n`. Хардкод пользовательского текста запрещён.
+- Works only with `domain` (entities + repository interfaces). Importing `data` from `view` is **forbidden**.
+- State management is **Bloc** (the `flutter_bloc` package), rules in §3.4. The files live in `view/bloc/`.
+- A screen holds no business logic and no calculations — it only shows state and sends events to the bloc.
+- A bloc state explicitly models loading / content / empty / error — a sealed class with variants, not a set of boolean flags. The screen reads it only through `map` / `mapOrElse` / `mapOrNull`.
+- Every string comes from `l10n`. Hard-coded user-facing text is forbidden.
 
-### 3.4 Блоки и quality gate
+### 3.4 Blocs and the quality gate
 
-**Только Bloc, Cubit запрещён**: у Bloc есть события, поэтому каждое действие видно и трассируется.
+**Bloc only, Cubit is forbidden**: a Bloc has events, so every action is visible and traceable.
 
-**Один блок — одно действие или один компонент.** Экран деталей точки — это данные (`PointDetailsBloc`) и три действия (`EditPointBloc`, `SetPointActiveBloc`, `DeletePointBloc`), а не один блок «на экран».
+**One bloc — one action or one component.** The point details screen is data (`PointDetailsBloc`) and three actions (`EditPointBloc`, `SetPointActiveBloc`, `DeletePointBloc`), not one bloc "per screen".
 
-**Базовые блоки** (`lib/core/bloc/`); блок фичи наследует один из них:
+**Base blocs** (`lib/core/bloc/`); a feature's bloc extends one of them:
 
-| Блок | Для чего | Что реализует фича | События | Конкурентность |
+| Bloc | What for | What the feature implements | Events | Concurrency |
 | --- | --- | --- | --- | --- |
-| `DataBloc<T>` | получить данные и показать: fetch, refresh, retry | `Stream<Result<T>> watch()` (разовая загрузка — `load().asStream()`) | `fetch()`, `refresh()`, `stop()` | `restartable` — новый запрос отменяет старый, `stop()` только отменяет и оставляет состояние |
-| `ActionBloc<P, T>` | одно действие пользователя | `Future<Result<T>> perform(P params)` | `run(params)`, `reset()` | `droppable` — повторный запуск во время выполнения игнорируется |
-| `ListBloc<T>` | постраничный список: fetch, refresh, fetch more | `Future<Result<ListPage<T>>> fetchPage(Object? cursor)` | `fetch()`, `refresh()`, `fetchMore()` | перезагрузка — `restartable`, подгрузка — `droppable` |
+| `DataBloc<T>` | get data and show it: fetch, refresh, retry | `Stream<Result<T>> watch()` (one-off load — `load().asStream()`) | `fetch()`, `refresh()`, `stop()` | `restartable` — a new request cancels the old one, `stop()` only cancels and keeps the state |
+| `ActionBloc<P, T>` | one user action | `Future<Result<T>> perform(P params)` | `run(params)`, `reset()` | `droppable` — a repeated run while one is in progress is ignored |
+| `ListBloc<T>` | a paged list: fetch, refresh, fetch more | `Future<Result<ListPage<T>>> fetchPage(Object? cursor)` | `fetch()`, `refresh()`, `fetchMore()` | reload — `restartable`, load more — `droppable` |
 
-Их состояния — `DataState<T>`, `ActionState<T>`, `ListState<T>`: sealed-классы с `map`, `mapOrElse`, `mapOrNull`. Исключение внутри `watch`/`perform`/`fetchPage` тоже становится `UnexpectedFailure` в состоянии, а не падением.
+Their states — `DataState<T>`, `ActionState<T>`, `ListState<T>` — are sealed classes with `map`, `mapOrElse`, `mapOrNull`. An exception inside `watch`/`perform`/`fetchPage` also becomes an `UnexpectedFailure` in the state, not a crash.
 
-**Свой блок на `Bloc`** допустим, когда форма не ложится ни в один базовый (например, `PointFormBloc`). Тогда:
+**A custom bloc on `Bloc`** is allowed when the shape fits none of the base ones (for example, `PointFormBloc`). Then:
 
-- три файла: `x_bloc.dart` — логика и импорты, `x_event.dart` и `x_state.dart` — `part of 'x_bloc.dart';`, без своих импортов;
-- корень событий — `sealed class XEvent`;
-- если корень состояния `sealed`, он объявляет `map`, `mapOrElse`, `mapOrNull`. Состояние с одной формой — `final class` без них.
+- three files: `x_bloc.dart` — logic and imports, `x_event.dart` and `x_state.dart` — `part of 'x_bloc.dart';`, without imports of their own;
+- the event root is `sealed class XEvent`;
+- if the state root is `sealed`, it declares `map`, `mapOrElse`, `mapOrNull`. A state with a single shape is a `final class` without them.
 
-**Ещё правила:** один блок на файл; имя класса оканчивается на `Bloc`, файл — на `_bloc.dart`, лежит в `view/bloc/` фичи; блок не импортирует `data/` и виджеты; блоки создаются в `BlocProvider` (§5), в DI их нет.
+**More rules:** one bloc per file; the class name ends with `Bloc`, the file with `_bloc.dart`, and it lives in the feature's `view/bloc/`; a bloc imports neither `data/` nor widgets; blocs are created in `BlocProvider` (§5) and are not in DI.
 
-**Quality gate** — архитектурные тесты в `test/architecture/`: `bloc_rules.dart` (правила как функции над исходником), `bloc_rules_test.dart` (каждое правило на правильном и неправильном примере), `bloc_gate_test.dart` (все правила по `lib/`). Они идут в обычном `flutter test`, локально и в CI; нарушение валит тест с файлом и правилом. Новое правило добавляется туда же — функцией и тестом на неё.
+**Quality gate** — architecture tests in `test/architecture/`: `bloc_rules.dart` (the rules as functions over source code), `bloc_rules_test.dart` (each rule on a correct and a wrong example), `bloc_gate_test.dart` (all rules over `lib/`). They run in the regular `flutter test`, locally and in CI; a violation fails the test with the file and the rule. A new rule goes there too — a function and a test for it.
 
 
-### 3.5 Экраны и quality gate
+### 3.5 Screens and the quality gate
 
-Правила для `view/screens/`, `view/widgets/` фич и `core/widgets/`:
+Rules for `view/screens/`, feature `view/widgets/` and `core/widgets/`:
 
-| Правило | Что значит | Чем заменить |
+| Rule | What it means | Use instead |
 | --- | --- | --- |
-| `l10n-only` | в экране нет строковых литералов, даже `'—'` или склейки `'$lat, $lon'` | ключи `context.l10n`, хелперы `l10n.distanceOrUnknown()` / `l10n.accuracy()`, форматтеры `core/utils` (`formatCoordinates`) |
-| `design-tokens` | нет `Color(0x…)`, `Colors.*`, `TextStyle(`, чисел в `EdgeInsets`, `width`/`height`/`size`/`radius`/`spacing` (ноль можно) | `context.wbColors`, `context.wbText`, `WbSpacing`, `WbIconSize`, `WbRadius` |
-| `design-system` | нет Material-виджетов, у которых есть аналог в DS (`ElevatedButton`, `AlertDialog`, `ListTile`, `SnackBar`, `TextField`…) | `WbButton`, `WbDialogs`, `WbListItem`, `WbSnackbar.show`, `WbTextField`… |
-| `thin-screens` | нет `context.di`, репозиториев, импорта `data/`, `BlocProvider` и расчётов (`distanceMeters`…) | блоки создаёт роутер; расчёты — в блоке или `core/utils`; коды ошибок (`*ErrorCodes`) использовать можно |
-| `screen-size` | файл экрана — не больше 250 строк | части экрана — в `view/widgets/` (как `PointDetailsView`) |
-| `screen-test` | у каждого экрана есть widget-тест по зеркальному пути `test/…/view/screens/x_screen_test.dart` | хелпер `pumpScreen` поднимает экран в настоящем `GoRouter`; заглушки ждут своих фич (`screensAwaitingTests`) |
+| `l10n-only` | no string literals in a screen, not even `'—'` or a join like `'$lat, $lon'` | `context.l10n` keys, the helpers `l10n.distanceOrUnknown()` / `l10n.accuracy()`, the `core/utils` formatters (`formatCoordinates`) |
+| `design-tokens` | no `Color(0x…)`, `Colors.*`, `TextStyle(`, numbers in `EdgeInsets`, `width`/`height`/`size`/`radius`/`spacing` (zero is fine) | `context.wbColors`, `context.wbText`, `WbSpacing`, `WbIconSize`, `WbRadius` |
+| `design-system` | no Material widgets that have a counterpart in the DS (`ElevatedButton`, `AlertDialog`, `ListTile`, `SnackBar`, `TextField`…) | `WbButton`, `WbDialogs`, `WbListItem`, `WbSnackbar.show`, `WbTextField`… |
+| `thin-screens` | no `context.di`, repositories, `data/` imports, `BlocProvider` or calculations (`distanceMeters`…) | the router creates blocs; calculations go to the bloc or `core/utils`; error codes (`*ErrorCodes`) are fine to use |
+| `screen-size` | a screen file is at most 250 lines | parts of the screen go to `view/widgets/` (like `PointDetailsView`) |
+| `screen-test` | every screen has a widget test at the mirrored path `test/…/view/screens/x_screen_test.dart` | the `pumpScreen` helper puts the screen into a real `GoRouter`; stubs wait for their features (`screensAwaitingTests`) |
 
-Чего нет в дизайн-системе — сначала туда (так появились `WbIconTile` и `WbSnackbar.show`).
+Whatever the design system lacks goes there first (that is how `WbIconTile` and `WbSnackbar.show` appeared).
 
-Gate — `test/architecture/screen_rules.dart`, тесты на правила в `screen_rules_test.dart`, прогон по `lib/` в `screen_gate_test.dart`; идёт в обычном `flutter test`.
+The gate is `test/architecture/screen_rules.dart`, the rule tests are in `screen_rules_test.dart`, the run over `lib/` is in `screen_gate_test.dart`; it runs in the regular `flutter test`.
 
 ---
 
-## 4. Ошибки: exceptions и failures
+## 4. Errors: exceptions and failures
 
-Две параллельные иерархии: `Exception` — язык слоя `data`, `Failure` — язык `domain` и `view`.
+Two parallel hierarchies: `Exception` is the language of the `data` layer, `Failure` the language of `domain` and `view`.
 
 ```text
 Exception (data)                    Failure (domain/view)
@@ -193,19 +195,19 @@ Exception (data)                    Failure (domain/view)
     └── ServerException                 └── ServerFailure
 ```
 
-Отдельно от двух иерархий стоит `UnexpectedFailure` (коды `unexpected` и `timeout`): так `ResultHandler` возвращает всё, что не является `AppException` — ошибку программы, неизвестную ошибку плагина, истёкший таймаут. Пользователь видит общий текст, сама ошибка уходит в `onError`.
+Apart from the two hierarchies stands `UnexpectedFailure` (codes `unexpected` and `timeout`): this is what `ResultHandler` returns for anything that is not an `AppException` — a programming error, an unknown plugin error, an expired timeout. The user sees a generic text, and the error itself goes to `onError`.
 
-`RemoteException` / `RemoteFailure` в MVP не используются (приложение offline), но иерархия заводится сразу, чтобы post-MVP функции не ломали контракт.
+`RemoteException` / `RemoteFailure` are not used in the MVP (the app is offline), but the hierarchy is set up right away so that post-MVP features do not break the contract.
 
-### 4.1 Контракт
+### 4.1 Contract
 
-Каждый `Exception` и каждый `Failure` несёт:
+Every `Exception` and every `Failure` carries:
 
-- `code` — **обязательный** строковый код ошибки. Это ключ для локализации, а не текст для пользователя;
-- `description` — **опциональное** техническое описание для логов и отладки. Пользователю не показывается;
-- `cause` / `stackTrace` — опционально, для проброса исходной ошибки.
+- `code` — a **required** string error code. It is a key for localization, not text for the user;
+- `description` — an **optional** technical description for logs and debugging. Never shown to the user;
+- `cause` / `stackTrace` — optional, to pass on the original error.
 
-Пример формы:
+Example shape:
 
 ```dart
 abstract class LocalException implements Exception {
@@ -224,46 +226,46 @@ abstract class Failure {
 }
 ```
 
-### 4.2 Коды ошибок
+### 4.2 Error codes
 
-- Код — это обычное строковое поле внутри самой ошибки. Отдельного реестра кодов (`error_codes.dart`) нет: код задаётся там, где ошибка создаётся.
-- Формат: `snake_case`, с префиксом области — `location_permission_denied`, `points_storage_write_failed`, `navigation_compass_unavailable`.
-- Отсюда следует дисциплина: код пишется осмысленно и стабильно, потому что компилятор его не проверяет. Ключ в ARB — единственная связка, и она проверяется глазами и тестом на полноту переводов.
-- Коды, которые может вернуть репозиторий или data-сервис, объявляются константами **рядом с его интерфейсом** — в том же файле `features/{area}/domain/repositories/…`, например `LocationErrorCodes` возле `LocationRepository`. Datasource бросает исключения с этими кодами, view сравнивает с ними `failure.code`. В `core` специфичные коды не выносятся.
-- Для каждого кода существует ключ в ARB-файлах локализации: `error_location_permission_denied` (заголовок) и `error_location_permission_denied_body` (пояснение) — тексты в [copy.md](copy.md) §11.2.
-- Если для кода нет перевода — показывается общее сообщение об ошибке, а сам код логируется. Приложение не показывает пользователю сырой код или технический `description`.
+- A code is a plain string field inside the error itself. There is no separate registry of codes (`error_codes.dart`): the code is set where the error is created.
+- Format: `snake_case` with an area prefix — `location_permission_denied`, `points_storage_write_failed`, `navigation_compass_unavailable`.
+- This calls for discipline: a code is written meaningfully and kept stable, because the compiler does not check it. The ARB key is the only link, and it is checked by eye and by a translation-completeness test.
+- Codes a repository or a data service may return are declared as constants **next to its interface** — in the same `features/{area}/domain/repositories/…` file, for example `LocationErrorCodes` next to `LocationRepository`. The datasource throws exceptions with these codes, the view compares `failure.code` with them. Specific codes do not move to `core`.
+- Every code has a key in the ARB localization files: `error_location_permission_denied` (title) and `error_location_permission_denied_body` (explanation) — the texts are in [copy.md](copy.md) §11.2.
+- If a code has no translation, a generic error message is shown and the code itself is logged. The app never shows the user a raw code or the technical `description`.
 
-### 4.3 Поток обработки
+### 4.3 Handling flow
 
 ```text
-datasource  →  бросает Exception (с code)
-repository  →  оборачивает вызов в handle()/handleStream() из ResultHandler
-bloc        →  переводит Failure в состояние экрана
-view        →  показывает локализованный текст по failure.code
+datasource  →  throws an Exception (with a code)
+repository  →  wraps the call in handle()/handleStream() from ResultHandler
+bloc        →  turns the Failure into a screen state
+view        →  shows localized text by failure.code
 ```
 
-Единый механизм для всех репозиториев — mixin `ResultHandler` из `core/result/result_handler.dart`. Реализация репозитория подмешивает его и оборачивает **каждый** вызов datasource:
+One mechanism for every repository — the `ResultHandler` mixin from `core/result/result_handler.dart`. A repository implementation mixes it in and wraps **every** datasource call:
 
-- `handle(() => …)` — одиночный вызов → `Result<T>`;
-- `handleStream(stream)` — поток → поток `Result<T>`.
+- `handle(() => …)` — a single call → `Result<T>`;
+- `handleStream(stream)` — a stream → a stream of `Result<T>`.
 
-Гарантия: из `handle`/`handleStream` не выходит ни одно исключение — ни `AppException`, ни ошибка программы, ни исключение внутри хука или маппера. Всё становится `Failure`. Поэтому **каждый** метод интерфейса репозитория возвращает `Result` (в том числе действия без значения — `Future<Result<void>>`).
+Guarantee: no exception leaves `handle`/`handleStream` — not an `AppException`, not a programming error, not an exception inside a hook or a mapper. Everything becomes a `Failure`. That is why **every** repository interface method returns a `Result` (actions without a value too — `Future<Result<void>>`).
 
-Поведение настраивается объектом `ResultHandlerOptions`. Общий экземпляр регистрируется в `app/dependencies/core_module.dart` и передаётся в конструктор репозитория (`resultOptions:`); для одного вызова его можно заменить параметром `options:` или `copyWith`.
+Behaviour is configured with a `ResultHandlerOptions` object. A shared instance is registered in `app/dependencies/core_module.dart` and passed to the repository constructor (`resultOptions:`); for a single call it can be replaced with the `options:` parameter or `copyWith`.
 
-| Настройка | Что делает |
+| Option | What it does |
 | --- | --- |
-| `onError` | видит каждую пойманную ошибку со стеком — логирование, crash-репортер |
-| `onFailure` | видит каждый `Failure`, который вернул обработчик |
-| `mapException` | свой маппинг `AppException → Failure`; `null` — маппинг по умолчанию |
-| `mapUnexpected` | свой маппинг остальных ошибок; `null` — `UnexpectedFailure` |
-| `timeout` | лимит одной попытки `handle`; по истечении — код `timeout` |
-| `maxAttempts`, `retryIf`, `retryDelay` | повтор вызова, пока `retryIf` разрешает и попытки не кончились |
-| `cancelStreamOnFailure` | закрыть поток после первого `Failure` вместо продолжения |
+| `onError` | sees every caught error with its stack — logging, a crash reporter |
+| `onFailure` | sees every `Failure` the handler returned |
+| `mapException` | custom `AppException → Failure` mapping; `null` — the default mapping |
+| `mapUnexpected` | custom mapping of other errors; `null` — `UnexpectedFailure` |
+| `timeout` | limit for one `handle` attempt; on expiry — code `timeout` |
+| `maxAttempts`, `retryIf`, `retryDelay` | retry the call while `retryIf` allows it and attempts remain |
+| `cancelStreamOnFailure` | close the stream after the first `Failure` instead of going on |
 
-Маппинг по умолчанию (методы `mapException` / `mapUnexpected` миксина) сохраняет `code` и `description` и выбирает `Failure` того же вида; репозиторий может переопределить их целиком.
+The default mapping (the mixin's `mapException` / `mapUnexpected` methods) keeps `code` and `description` and picks a `Failure` of the same kind; a repository can override them entirely.
 
-Типичная форма:
+Typical shape:
 
 ```dart
 final class PointsRepositoryImpl with ResultHandler implements PointsRepository {
@@ -273,124 +275,124 @@ final class PointsRepositoryImpl with ResultHandler implements PointsRepository 
 }
 ```
 
-Ключевое правило: **исключения не пересекают границу `data`**. Выше репозитория живут только `Failure`.
+The key rule: **exceptions do not cross the `data` boundary**. Above the repository there are only `Failure`s.
 
 ---
 
 ## 5. Dependency Injection (`app_di`)
 
-- Единственный механизм получения зависимостей — собственный пакет `app_di`.
-- Регистрация — в `app/dependencies/`, разбитая по модулям на каждую feature (`location_module`, `points_module`, ...).
-- Инфраструктурные регистрации (storage, logger, форматтеры) — тоже в `app/dependencies/`; `core` только предоставляет реализации, но сам ничего не регистрирует.
-- Запрещено: глобальные синглтоны, статические фабрики, обращение к контейнеру из `domain`. Домен получает зависимости через конструктор.
-- Блоки **не регистрируются в DI**. Их создаёт `BlocProvider` на уровне экрана, а зависимости (репозитории) берёт из контейнера: `BlocProvider(create: (context) => PointsBloc(context.di<PointsRepository>()))`. Виджеты глубже получают Bloc через `context.read` / `context.watch` или данные через параметры.
+- The only way to get dependencies is the own `app_di` package.
+- Registration is in `app/dependencies/`, split into one module per feature (`location_module`, `points_module`, ...).
+- Infrastructure registrations (storage, logger, formatters) are in `app/dependencies/` too; `core` only provides implementations and registers nothing itself.
+- Forbidden: global singletons, static factories, access to the container from `domain`. The domain gets its dependencies through constructors.
+- Blocs are **not registered in DI**. `BlocProvider` creates them at the screen level and takes their dependencies (repositories) from the container: `BlocProvider(create: (context) => PointsBloc(context.di<PointsRepository>()))`. Deeper widgets get the bloc through `context.read` / `context.watch` or the data through parameters.
 
-Порядок инициализации в `bootstrap.dart`:
+Initialization order in `bootstrap.dart`:
 
 1. `WidgetsFlutterBinding.ensureInitialized()`
-2. инициализация локального хранилища и других async-зависимостей
-3. регистрация модулей в `app_di`
+2. initialize local storage and other async dependencies
+3. register the modules in `app_di`
 4. `runApp(App())`
 
 ---
 
-## 6. Навигация (`go_router`)
+## 6. Navigation (`go_router`)
 
-- Вся конфигурация — в `app/navigation/`. Маршруты внутри features не объявляются.
-- Имена и пути маршрутов — константы в одном файле (`app/navigation/routes.dart`), без строковых литералов по месту вызова.
-- Навигация вызывается из `view`. Из `domain` и `data` навигация **запрещена**.
-- Deep links должны работать на экран конкретной точки (`/points/:id`).
-- `wayback://app/import?...` открывает экран приёма точки; данные ссылки проверяются, сохранение всегда с подтверждением. Координаты — только в параметрах запроса: журнал пишет путь маршрута без них.
-- Слой изолирован: смена роутера в будущем не должна затрагивать features.
+- All configuration is in `app/navigation/`. Routes are not declared inside features.
+- Route names and paths are constants in one file (`app/navigation/routes.dart`), with no string literals at the call site.
+- Navigation is called from `view`. Navigation from `domain` and `data` is **forbidden**.
+- Deep links have to work for a specific point screen (`/points/:id`).
+- `wayback://app/import?...` opens the screen for receiving a point; the link data is validated, and saving always asks for confirmation. Coordinates go only in query parameters: the log records the route path without them.
+- The layer is isolated: replacing the router later must not touch features.
 
-Ориентировочная карта маршрутов MVP:
+Rough MVP route map:
 
 ```text
-/                    главный экран (сохранить / активная точка)
-/points/new          создание точки по текущей позиции
-/points              список сохранённых точек
-/points/:id          детали точки
-/navigate/:id        экран навигации на точку
-/settings            настройки
-/onboarding          онбординг первого запуска (вне стека `/`)
+/                    home screen (save / active point)
+/points/new          create a point from the current position
+/points              list of saved points
+/points/:id          point details
+/navigate/:id        navigation to the point
+/settings            settings
+/onboarding          first-launch onboarding (outside the `/` stack)
 ```
 
-Пока онбординг не пройден, `redirect` роутера ведёт любой маршрут на `/onboarding`; после прохождения `/onboarding` недоступен и ведёт на `/`.
+Until onboarding is completed, the router `redirect` sends any route to `/onboarding`; afterwards `/onboarding` is unavailable and leads to `/`.
 
 ---
 
-## 7. Локализация (`l10n`)
+## 7. Localization (`l10n`)
 
-- ARB-файлы в `app/localization/`, генерация через `flutter gen-l10n`.
-- Языки MVP: `ru`, `en`.
-- Все пользовательские строки, включая тексты ошибок, только через сгенерированные классы.
-- Ключи ошибок формируются как `error_<code>` (см. 4.2).
-- Форматирование чисел, расстояний и дат — через локаль-зависимые форматтеры в `core/utils`, а не конкатенацией строк.
+- ARB files in `app/localization/`, generated with `flutter gen-l10n`.
+- MVP languages: `ru`, `en`.
+- Every user-facing string, error texts included, goes only through the generated classes.
+- Error keys are built as `error_<code>` (see 4.2).
+- Numbers, distances and dates are formatted through locale-aware formatters in `core/utils`, not by joining strings.
 
 ---
 
-## 8. Геовычисления
+## 8. Geo calculations
 
-Живут в `core/utils` как чистые функции — они не привязаны к feature и должны быть покрыты тестами:
+They live in `core/utils` as pure functions — they are not tied to a feature and have to be covered by tests:
 
 ```text
-distance(current, target)          // haversine, метры
-bearing(current, target)           // градусы, 0..360, от севера
-arrowRotation = bearing - heading  // нормализуется в 0..360
+distance(current, target)          // haversine, metres
+bearing(current, target)           // degrees, 0..360, from north
+arrowRotation = bearing - heading  // normalized to 0..360
 ```
 
-Правила:
+Rules:
 
-- функции чистые, без обращения к плагинам и времени;
-- вращение стрелки интерполируется по кратчайшей дуге (переход 359° → 1° не должен давать оборот на 358°);
-- пороги (радиус прибытия, минимальная приемлемая точность) — именованные константы, не магические числа.
+- the functions are pure, with no access to plugins or the clock;
+- the arrow rotation is interpolated along the shortest arc (going from 359° to 1° must not make a 358° turn);
+- thresholds (arrival radius, minimum acceptable accuracy) are named constants, not magic numbers.
 
-Где лежат пороги:
+Where the thresholds live:
 
-| Порог | Константа | Значение |
+| Threshold | Constant | Value |
 | --- | --- | --- |
-| радиус прибытия | `arrivalRadiusMeters` (`core/utils/geo/arrival.dart`) | 20 м |
-| сколько точность GPS может расширить радиус | `arrivalAccuracyAllowanceMeters` | до 10 м: `hasArrived` = расстояние ≤ 20 + min(точность, 10) |
-| запас на выход из радиуса | `arrivalExitMarginMeters` | 15 м: прибывший считается ушедшим только дальше порога входа + 15 м |
-| слабый сигнал GPS | `weakSignalAccuracyMeters` (`location/domain`) | точность хуже 30 м |
-| ненадёжный компас | `unreliableCompassAccuracyDegrees` (`navigation/domain`) | погрешность больше 30° или неизвестна |
+| arrival radius | `arrivalRadiusMeters` (`core/utils/geo/arrival.dart`) | 20 m |
+| how much GPS accuracy may widen the radius | `arrivalAccuracyAllowanceMeters` | up to 10 m: `hasArrived` = distance ≤ 20 + min(accuracy, 10) |
+| margin for leaving the radius | `arrivalExitMarginMeters` | 15 m: someone who arrived counts as gone only beyond the entry threshold + 15 m |
+| weak GPS signal | `weakSignalAccuracyMeters` (`location/domain`) | accuracy worse than 30 m |
+| unreliable compass | `unreliableCompassAccuracyDegrees` (`navigation/domain`) | error above 30° or unknown |
 
-Угол стрелки считает `NavigationGuidanceBloc` через `continuousRotationDegrees`: значение не сворачивается в 0..360, поэтому `WbDirectionDial` анимирует поворот по кратчайшей дуге.
+`NavigationGuidanceBloc` computes the arrow angle through `continuousRotationDegrees`: the value is not wrapped into 0..360, so `WbDirectionDial` animates the turn along the shortest arc.
 
 ---
 
-## 9. Правила для AI-агентов
+## 9. Rules for AI agents
 
-При добавлении кода:
+When adding code:
 
-1. Определи area. Новый функционал почти всегда идёт в существующую или новую `features/{area}/`, а не в `core`.
-2. Начни с `domain`: entity → интерфейс репозитория.
-3. Затем `data`: datasource → model → mapper → реализация репозитория.
-4. Затем `view`: выбрать базовый блок (`DataBloc` / `ActionBloc` / `ListBloc`, §3.4) на каждые данные и каждое действие → экран → виджеты.
-5. Зарегистрируй новое в соответствующем модуле в `app/dependencies/`.
-6. Маршрут — только в `app/navigation/`.
-7. Любая новая ошибка — строковый `code` в месте её создания **и** ключ `error_<code>` в ARB. Забыл ключ — пользователь увидит общее сообщение вместо внятного.
+1. Pick the area. New functionality almost always goes into an existing or new `features/{area}/`, not into `core`.
+2. Start with `domain`: entity → repository interface.
+3. Then `data`: datasource → model → mapper → repository implementation.
+4. Then `view`: pick a base bloc (`DataBloc` / `ActionBloc` / `ListBloc`, §3.4) for each piece of data and each action → screen → widgets.
+5. Register the new parts in the matching module in `app/dependencies/`.
+6. Routes go only in `app/navigation/`.
+7. Any new error is a string `code` where it is created **and** an `error_<code>` key in the ARB. Forget the key and the user sees a generic message instead of a clear one.
 
-Запреты (нарушение = ошибка ревью):
+Forbidden (a violation is a review error):
 
-- импорт `flutter/*` в `domain`;
-- импорт `data` из `view`;
-- импорт одной feature из другой напрямую;
-- импорт `features` из `core`;
-- хардкод пользовательских строк, цветов и размеров в экранах, Material-виджеты в обход дизайн-системы (§3.5);
-- `throw` выше слоя `data`;
-- сетевые вызовы в MVP-критическом пути;
-- глобальные синглтоны в обход `app_di`;
-- Cubit вместо Bloc и один блок «на весь экран» вместо блока на действие или компонент;
-- регистрация блоков в `app_di` вместо создания в `BlocProvider`;
-- `is`/`switch` по конкретным состояниям базовых блоков в экране вместо `map` / `mapOrElse` / `mapOrNull`;
-- `try/catch` с ручным маппингом в репозитории вместо `ResultHandler`;
-- метод репозитория, который возвращает не `Result` или вызывает datasource мимо `handle`/`handleStream`;
-- магические числа в геовычислениях и порогах;
-- бизнес-логика и вычисления внутри `build()` виджета вместо Bloc;
-- состояние экрана набором отдельных булевых флагов вместо sealed-состояния.
+- importing `flutter/*` in `domain`;
+- importing `data` from `view`;
+- importing one feature from another directly;
+- importing `features` from `core`;
+- hard-coded user-facing strings, colors and sizes in screens, Material widgets that bypass the design system (§3.5);
+- `throw` above the `data` layer;
+- network calls on the MVP-critical path;
+- global singletons that bypass `app_di`;
+- Cubit instead of Bloc, and one bloc "for the whole screen" instead of a bloc per action or component;
+- registering blocs in `app_di` instead of creating them in `BlocProvider`;
+- `is`/`switch` over concrete base-bloc states in a screen instead of `map` / `mapOrElse` / `mapOrNull`;
+- `try/catch` with hand-written mapping in a repository instead of `ResultHandler`;
+- a repository method that returns something other than `Result` or calls the datasource outside `handle`/`handleStream`;
+- magic numbers in geo calculations and thresholds;
+- business logic and calculations inside a widget's `build()` instead of the bloc;
+- a screen state as a set of separate boolean flags instead of a sealed state.
 
-Проверка перед завершением задачи:
+Check before finishing a task:
 
 ```bash
 flutter analyze && dart format --set-exit-if-changed . && flutter test
@@ -398,22 +400,22 @@ flutter analyze && dart format --set-exit-if-changed . && flutter test
 
 ---
 
-## 10. Тестирование
+## 10. Testing
 
-| Слой | Что тестируем | Тип |
+| Layer | What is tested | Type |
 | --- | --- | --- |
-| `core/utils` | distance, bearing, rotation, форматтеры | unit |
-| `core/error` | контракт ошибок, полнота ключей ARB для используемых кодов | unit |
-| `view/bloc` | переходы состояний на фейковых репозиториях | unit |
-| `test/architecture` | правила блоков и экранов (quality gate, §3.4, §3.5) | unit по исходникам |
-| `view/screens` | каждый экран: состояния и навигация (`pumpScreen`) | widget |
-| `data` | репозиторий: успех, ошибка, маппинг Exception → Failure, маппинг DTO | unit + фейковые datasource |
-| `view` | отрисовка состояний, реакция на Failure | widget |
+| `core/utils` | distance, bearing, rotation, formatters | unit |
+| `core/error` | the error contract, ARB key completeness for the codes in use | unit |
+| `view/bloc` | state transitions on fake repositories | unit |
+| `test/architecture` | bloc and screen rules (quality gate, §3.4, §3.5) | unit over source code |
+| `view/screens` | every screen: states and navigation (`pumpScreen`) | widget |
+| `data` | the repository: success, error, Exception → Failure mapping, DTO mapping | unit + fake datasources |
+| `view` | rendering states, reacting to a Failure | widget |
 
-Структура `test/` зеркалит `lib/`.
+The `test/` structure mirrors `lib/`.
 
 ---
 
-## 11. Открытые вопросы
+## 11. Open questions
 
-- Конкретная реализация локального хранилища точек (не зафиксирована; выбор изолирован в `features/points/data/datasources`).
+- The exact local storage implementation for points (not fixed; the choice is isolated in `features/points/data/datasources`).
