@@ -1,3 +1,5 @@
+<p align="right"><b>English</b> · <a href="README.ru.md">Русский</a></p>
+
 # Wayback
 
 > Save a place. Find your way back.
