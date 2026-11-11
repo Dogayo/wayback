@@ -24,11 +24,11 @@ Wayback — офлайн-приложение на Flutter, которое по�
 <!-- Медиа: короткая GIF со стрелкой в работе ставится над скриншотами. -->
 
 <p align="center">
-  <img src="docs/media/home.png" width="180" alt="Главный экран с сохранёнными точками">
-  <img src="docs/media/navigate.png" width="180" alt="Стрелка и расстояние до точки">
-  <img src="docs/media/arrived.png" width="180" alt="Прибытие к точке">
-  <img src="docs/media/navigate-dark.png" width="180" alt="Навигация в тёмной теме">
-  <img src="docs/media/lock-screen.png" width="180" alt="Навигация продолжается на экране блокировки">
+  <img src="docs/media/ru/home.png" width="180" alt="Главный экран с сохранёнными точками">
+  <img src="docs/media/ru/navigate.png" width="180" alt="Стрелка и расстояние до точки">
+  <img src="docs/media/ru/arrived.png" width="180" alt="Прибытие к точке">
+  <img src="docs/media/ru/navigate-dark.png" width="180" alt="Навигация в тёмной теме">
+  <img src="docs/media/ru/lock-screen.png" width="180" alt="Навигация продолжается на экране блокировки">
 </p>
 
 <p align="center"><sub>Главный экран · Навигация · Прибытие · Тёмная тема · Экран блокировки</sub></p>

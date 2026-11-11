@@ -24,14 +24,14 @@ left, and it keeps working in the woods without a mobile network.
 <!-- Media: a short GIF of the arrow in use goes above the screenshots. -->
 
 <p align="center">
-  <img src="docs/media/home.png" width="180" alt="Home screen with saved points">
-  <img src="docs/media/navigate.png" width="180" alt="Arrow and distance to the point">
-  <img src="docs/media/arrived.png" width="180" alt="Arrival at the point">
-  <img src="docs/media/navigate-dark.png" width="180" alt="Navigation in the dark theme">
-  <img src="docs/media/lock-screen.png" width="180" alt="Navigation keeps going on the lock screen">
+  <img src="docs/media/en/home.png" width="180" alt="Home screen with saved points">
+  <img src="docs/media/en/navigate.png" width="180" alt="Arrow and distance to the point">
+  <img src="docs/media/en/arrived.png" width="180" alt="Arrival at the point">
+  <img src="docs/media/en/navigate-dark.png" width="180" alt="Navigation in the dark theme">
+  <img src="docs/media/en/lock-screen.png" width="180" alt="Navigation keeps going on the lock screen">
 </p>
 
-<p align="center"><sub>Home · Navigation · Arrival · Dark theme · Lock screen. Screens are shown in Russian; the app also speaks English.</sub></p>
+<p align="center"><sub>Home · Navigation · Arrival · Dark theme · Lock screen. The app speaks English and Russian.</sub></p>
 
 ## Features
 
