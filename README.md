@@ -7,6 +7,7 @@
 <p align="center">
   <a href="https://github.com/Dogayo/wayback/releases/latest"><img alt="Download APK" src="https://img.shields.io/badge/Download-APK-C24812?style=for-the-badge&logo=android&logoColor=white"></a>
   <a href="https://dogayo.github.io/wayback/"><img alt="Live design system" src="https://img.shields.io/badge/Live-Design_system-1B2025?style=for-the-badge&logo=flutter&logoColor=white"></a>
+  <a href="https://design.penpot.app/?screen=viewer&amp;file-id=19c47d73-0a5d-8067-8008-be027d34cca0&amp;page-id=19c47d73-0a5d-8067-8008-be027d34cca1&amp;section=interactions&amp;frame-id=1891fb5b-b3e9-8060-8008-edb627103af7&amp;index=0&amp;share-id=89c7d7f8-4438-4ec1-82f2-cce2f2e07e56"><img alt="Mockups in Penpot" src="https://img.shields.io/badge/Mockups-Penpot-1B2025?style=for-the-badge&logo=penpot&logoColor=white"></a>
 </p>
 
 <p align="center">
@@ -83,6 +84,7 @@ left, and it keeps working in the woods without a mobile network.
 | [Architecture](docs/architecture.md) | layers, blocs, errors, DI, rules for AI agents |
 | [Screens](SCREENS.md) | every screen, its transitions and states |
 | [Design system](DESIGN_SYSTEM.md) | tokens, motion, haptics, components |
+| [Mockups in Penpot](https://design.penpot.app/?screen=viewer&file-id=19c47d73-0a5d-8067-8008-be027d34cca0&page-id=19c47d73-0a5d-8067-8008-be027d34cca1&section=interactions&frame-id=1891fb5b-b3e9-8060-8008-edb627103af7&index=0&share-id=89c7d7f8-4438-4ec1-82f2-cce2f2e07e56) | screens, components, app icon and motion; view only |
 | [Interface copy](docs/copy.md) | voice, terms and every UI string in ru and en |
 
 ## Tech stack
