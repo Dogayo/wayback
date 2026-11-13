@@ -3,6 +3,8 @@ import UIKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
+  private var liveActivity: LiveActivityBridge?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -12,6 +14,9 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    liveActivity = LiveActivityBridge(
+      messenger: engineBridge.applicationRegistrar.messenger()
+    )
     FlutterMethodChannel(
       name: "com.dogayo.wayback/screen",
       binaryMessenger: engineBridge.applicationRegistrar.messenger()

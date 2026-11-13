@@ -152,4 +152,39 @@ void main() {
       expect(normalizeDegrees(-1e-14), 0);
     });
   });
+
+  group('cardinalDirection', () {
+    test('each direction sits at the middle of its sector', () {
+      expect(cardinalDirection(0), CardinalDirection.north);
+      expect(cardinalDirection(45), CardinalDirection.northEast);
+      expect(cardinalDirection(90), CardinalDirection.east);
+      expect(cardinalDirection(135), CardinalDirection.southEast);
+      expect(cardinalDirection(180), CardinalDirection.south);
+      expect(cardinalDirection(225), CardinalDirection.southWest);
+      expect(cardinalDirection(270), CardinalDirection.west);
+      expect(cardinalDirection(315), CardinalDirection.northWest);
+    });
+
+    test('a sector spans 45 degrees, ends included on the lower side', () {
+      expect(cardinalDirection(22.4), CardinalDirection.north);
+      expect(cardinalDirection(22.5), CardinalDirection.northEast);
+      expect(cardinalDirection(67.4), CardinalDirection.northEast);
+      expect(cardinalDirection(67.5), CardinalDirection.east);
+    });
+
+    test('north wraps around zero', () {
+      expect(cardinalDirection(337.5), CardinalDirection.north);
+      expect(cardinalDirection(359.9), CardinalDirection.north);
+      expect(cardinalDirection(360), CardinalDirection.north);
+    });
+
+    test('angles outside 0..360 are wrapped first', () {
+      expect(cardinalDirection(-90), CardinalDirection.west);
+      expect(cardinalDirection(450), CardinalDirection.east);
+    });
+
+    test('the mockup bearing reads north-west', () {
+      expect(cardinalDirection(320), CardinalDirection.northWest);
+    });
+  });
 }

@@ -65,3 +65,23 @@ double normalizeDegrees(double degrees) {
 double _radians(double degrees) => degrees * math.pi / _halfTurnDegrees;
 
 double _degrees(double radians) => radians * _halfTurnDegrees / math.pi;
+
+/// One of the eight compass sectors a bearing can fall into.
+enum CardinalDirection {
+  north,
+  northEast,
+  east,
+  southEast,
+  south,
+  southWest,
+  west,
+  northWest,
+}
+
+/// The sector [degrees] falls into, measured clockwise from true north.
+/// Each sector spans 45° and is centred on its own direction, so north runs
+/// from 337.5° to 22.5°.
+CardinalDirection cardinalDirection(double degrees) {
+  final sector = ((normalizeDegrees(degrees) + 22.5) ~/ 45) % 8;
+  return CardinalDirection.values[sector];
+}
