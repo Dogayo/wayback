@@ -222,6 +222,7 @@
 | `settingsLanguageSystem` | Как в системе | System default | |
 | `settingsLanguageRu` | Русский | Русский | самоназвание, одинаково в обеих локалях |
 | `settingsLanguageEn` | English | English | самоназвание |
+| `settingsThemeToggle` | Сменить тему | Switch theme | иконка в шапке: солнце в светлой теме, луна в тёмной |
 | `settingsVibration` | Вибрация при прибытии | Vibrate on arrival | Switch |
 | `settingsTouchFeedback` | Отклик при нажатиях | Haptic feedback | Switch, включён по умолчанию |
 | `settingsVibrationPattern` | Вид вибрации | Vibration type | ListItem, заголовок экрана |

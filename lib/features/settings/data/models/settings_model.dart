@@ -5,6 +5,7 @@ final class SettingsModel {
   const SettingsModel({
     this.units,
     this.language,
+    this.themeMode,
     this.vibrationOnArrival,
     this.vibrationPattern,
     this.touchFeedback,
@@ -13,6 +14,7 @@ final class SettingsModel {
   factory SettingsModel.fromJson(Map<String, dynamic> json) => SettingsModel(
     units: json['units'] as String?,
     language: json['language'] as String?,
+    themeMode: json['themeMode'] as String?,
     vibrationOnArrival: json['vibrationOnArrival'] as bool?,
     vibrationPattern: json['vibrationPattern'] as String?,
     touchFeedback: json['touchFeedback'] as bool?,
@@ -20,6 +22,7 @@ final class SettingsModel {
 
   final String? units;
   final String? language;
+  final String? themeMode;
   final bool? vibrationOnArrival;
   final String? vibrationPattern;
   final bool? touchFeedback;
@@ -27,6 +30,7 @@ final class SettingsModel {
   Map<String, dynamic> toJson() => {
     if (units != null) 'units': units,
     if (language != null) 'language': language,
+    if (themeMode != null) 'themeMode': themeMode,
     if (vibrationOnArrival != null) 'vibrationOnArrival': vibrationOnArrival,
     if (vibrationPattern != null) 'vibrationPattern': vibrationPattern,
     if (touchFeedback != null) 'touchFeedback': touchFeedback,

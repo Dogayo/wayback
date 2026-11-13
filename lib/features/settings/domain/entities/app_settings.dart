@@ -8,11 +8,15 @@ export 'package:wayback/core/utils/vibration/vibration_pattern.dart';
 /// for a language the app does not have.
 enum AppLanguage { system, ru, en }
 
+/// Light or dark appearance; [system] follows the phone.
+enum AppThemeMode { system, light, dark }
+
 /// The user's preferences (mvp-scope.md §2).
 final class AppSettings {
   const AppSettings({
     this.units = UnitSystem.metric,
     this.language = AppLanguage.system,
+    this.themeMode = AppThemeMode.system,
     this.vibrationOnArrival = true,
     this.vibrationPattern = VibrationPattern.standard,
     this.touchFeedback = true,
@@ -23,6 +27,7 @@ final class AppSettings {
 
   final UnitSystem units;
   final AppLanguage language;
+  final AppThemeMode themeMode;
   final bool vibrationOnArrival;
   final VibrationPattern vibrationPattern;
 
@@ -32,12 +37,14 @@ final class AppSettings {
   AppSettings copyWith({
     UnitSystem? units,
     AppLanguage? language,
+    AppThemeMode? themeMode,
     bool? vibrationOnArrival,
     VibrationPattern? vibrationPattern,
     bool? touchFeedback,
   }) => AppSettings(
     units: units ?? this.units,
     language: language ?? this.language,
+    themeMode: themeMode ?? this.themeMode,
     vibrationOnArrival: vibrationOnArrival ?? this.vibrationOnArrival,
     vibrationPattern: vibrationPattern ?? this.vibrationPattern,
     touchFeedback: touchFeedback ?? this.touchFeedback,
@@ -48,6 +55,7 @@ final class AppSettings {
       other is AppSettings &&
       other.units == units &&
       other.language == language &&
+      other.themeMode == themeMode &&
       other.vibrationOnArrival == vibrationOnArrival &&
       other.vibrationPattern == vibrationPattern &&
       other.touchFeedback == touchFeedback;
@@ -56,6 +64,7 @@ final class AppSettings {
   int get hashCode => Object.hash(
     units,
     language,
+    themeMode,
     vibrationOnArrival,
     vibrationPattern,
     touchFeedback,
