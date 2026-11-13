@@ -1,2 +1,2 @@
 /* Shown by iOS when Wayback asks for location access (docs/copy.md, permissionBody). */
-"NSLocationWhenInUseUsageDescription" = "Wayback remembers where you've been and shows the way back. Your data stays on your phone.";
+"NSLocationWhenInUseUsageDescription" = "Wayback remembers where you've been and shows the way back. While navigation is open it keeps following the distance with the screen off. Your data stays on your phone.";

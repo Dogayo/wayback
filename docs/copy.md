@@ -222,6 +222,7 @@ The background navigation notification (mvp-scope.md §2.8): the title is the po
 | `settingsLanguageSystem` | Как в системе | System default | |
 | `settingsLanguageRu` | Русский | Русский | endonym, the same in both locales |
 | `settingsLanguageEn` | English | English | endonym |
+| `settingsThemeToggle` | Сменить тему | Switch theme | app bar icon: the sun in the light theme, the moon in the dark one |
 | `settingsVibration` | Вибрация при прибытии | Vibrate on arrival | Switch |
 | `settingsTouchFeedback` | Отклик при нажатиях | Haptic feedback | Switch, on by default |
 | `settingsVibrationPattern` | Вид вибрации | Vibration type | ListItem, screen title |
@@ -242,7 +243,8 @@ The background navigation notification (mvp-scope.md §2.8): the title is the po
 | Key | ru | en | Note |
 | --- | --- | --- | --- |
 | `permissionTitle` | Доступ к геолокации | Location access | explainer screen before the system dialog |
-| `permissionBody` | Wayback запоминает, где вы были, и показывает дорогу обратно. Данные остаются на телефоне. | Wayback remembers where you've been and shows the way back. Your data stays on your phone. | the same text goes into `NSLocationWhenInUseUsageDescription` (#18) |
+| `permissionBody` | Wayback запоминает, где вы были, и показывает дорогу обратно. Данные остаются на телефоне. | Wayback remembers where you've been and shows the way back. Your data stays on your phone. | the explainer screen before the system dialog; the iOS `NSLocationWhenInUseUsageDescription` is a longer string of its own, see below |
+| `iosLocationUsage` | Wayback запоминает, где вы были, и показывает дорогу обратно. Пока открыта навигация, он следит за расстоянием и с погашенным экраном. Данные остаются на телефоне. | Wayback remembers where you've been and shows the way back. While navigation is open it keeps following the distance with the screen off. Your data stays on your phone. | `NSLocationWhenInUseUsageDescription`; lives in `ios/Runner/Info.plist` and the `InfoPlist.strings`, not in the ARB |
 
 ### 11.2 Errors by code
 

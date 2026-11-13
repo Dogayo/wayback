@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wayback/app/extensions/navigation_context.dart';
+import 'package:wayback/app/localization/direction_l10n.dart';
 import 'package:wayback/app/localization/distance_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
 import 'package:wayback/app/settings/settings_scope.dart';
@@ -33,6 +34,7 @@ class _NavigationNoticeListenerState extends State<NavigationNoticeListener> {
   final _sinceUpdate = Stopwatch();
   String? _shownText;
   bool? _shownArrived;
+  String? _shownDirection;
 
   void _update(NavigationGuidance guidance) {
     final l10n = context.l10n;
@@ -40,13 +42,17 @@ class _NavigationNoticeListenerState extends State<NavigationNoticeListener> {
         // The title already names the point.
         ? l10n.navigateArrivedNotice
         : l10n.distance(guidance.distanceMeters, units: context.settings.units);
-    if (text == _shownText) return;
+    final direction = guidance.arrived
+        ? null
+        : l10n.noticeDirection(guidance.bearingDegrees);
+    if (text == _shownText && direction == _shownDirection) return;
     if (guidance.arrived == _shownArrived &&
         _sinceUpdate.elapsed < NavigationNoticeListener.updateInterval) {
       return;
     }
     _shownText = text;
     _shownArrived = guidance.arrived;
+    _shownDirection = direction;
     _sinceUpdate
       ..reset()
       ..start();
@@ -56,6 +62,9 @@ class _NavigationNoticeListenerState extends State<NavigationNoticeListener> {
         text: text,
         stopLabel: l10n.navigateNotificationStop,
         channelName: l10n.navigateNotificationChannel,
+        direction: direction,
+        bearingDegrees: guidance.arrived ? null : guidance.bearingDegrees,
+        arrived: guidance.arrived,
       ),
     );
   }

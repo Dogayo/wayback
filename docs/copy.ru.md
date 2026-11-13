@@ -222,6 +222,7 @@
 | `settingsLanguageSystem` | Как в системе | System default | |
 | `settingsLanguageRu` | Русский | Русский | самоназвание, одинаково в обеих локалях |
 | `settingsLanguageEn` | English | English | самоназвание |
+| `settingsThemeToggle` | Сменить тему | Switch theme | иконка в шапке: солнце в светлой теме, луна в тёмной |
 | `settingsVibration` | Вибрация при прибытии | Vibrate on arrival | Switch |
 | `settingsTouchFeedback` | Отклик при нажатиях | Haptic feedback | Switch, включён по умолчанию |
 | `settingsVibrationPattern` | Вид вибрации | Vibration type | ListItem, заголовок экрана |
@@ -242,7 +243,8 @@
 | Ключ | ru | en | Примечание |
 | --- | --- | --- | --- |
 | `permissionTitle` | Доступ к геолокации | Location access | экран-пояснение перед системным диалогом |
-| `permissionBody` | Wayback запоминает, где вы были, и показывает дорогу обратно. Данные остаются на телефоне. | Wayback remembers where you've been and shows the way back. Your data stays on your phone. | тот же текст — в `NSLocationWhenInUseUsageDescription` (#18) |
+| `permissionBody` | Wayback запоминает, где вы были, и показывает дорогу обратно. Данные остаются на телефоне. | Wayback remembers where you've been and shows the way back. Your data stays on your phone. | экран-пояснение перед системным диалогом; iOS-строка `NSLocationWhenInUseUsageDescription` теперь своя, длиннее, см. ниже |
+| `iosLocationUsage` | Wayback запоминает, где вы были, и показывает дорогу обратно. Пока открыта навигация, он следит за расстоянием и с погашенным экраном. Данные остаются на телефоне. | Wayback remembers where you've been and shows the way back. While navigation is open it keeps following the distance with the screen off. Your data stays on your phone. | `NSLocationWhenInUseUsageDescription`; lives in `ios/Runner/Info.plist` and the `InfoPlist.strings`, not in the ARB |
 
 ### 11.2 Ошибки по кодам
 

@@ -8,6 +8,8 @@ extension SettingsModelMapper on SettingsModel {
     return AppSettings(
       units: UnitSystem.values.asNameMap()[units] ?? defaults.units,
       language: AppLanguage.values.asNameMap()[language] ?? defaults.language,
+      themeMode:
+          AppThemeMode.values.asNameMap()[themeMode] ?? defaults.themeMode,
       vibrationOnArrival: vibrationOnArrival ?? defaults.vibrationOnArrival,
       vibrationPattern:
           VibrationPattern.values.asNameMap()[vibrationPattern] ??
@@ -21,6 +23,7 @@ extension AppSettingsMapper on AppSettings {
   SettingsModel toModel() => SettingsModel(
     units: units.name,
     language: language.name,
+    themeMode: themeMode.name,
     vibrationOnArrival: vibrationOnArrival,
     vibrationPattern: vibrationPattern.name,
     touchFeedback: touchFeedback,

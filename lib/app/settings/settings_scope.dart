@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
 
 export 'package:wayback/features/settings/domain/entities/app_settings.dart';
@@ -26,6 +26,15 @@ class SettingsScope extends InheritedWidget {
 
 extension SettingsContext on BuildContext {
   AppSettings get settings => SettingsScope.of(this);
+}
+
+extension AppThemeModeTheme on AppThemeMode {
+  /// What `MaterialApp` is given; [AppThemeMode.system] follows the phone.
+  ThemeMode get themeMode => switch (this) {
+    AppThemeMode.system => ThemeMode.system,
+    AppThemeMode.light => ThemeMode.light,
+    AppThemeMode.dark => ThemeMode.dark,
+  };
 }
 
 extension AppLanguageLocale on AppLanguage {

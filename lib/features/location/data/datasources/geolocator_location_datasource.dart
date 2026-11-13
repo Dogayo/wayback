@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:wayback/core/error/exceptions.dart' hide TimeoutException;
@@ -16,6 +17,24 @@ const _serviceBindGrace = Duration(seconds: 3);
 
 /// Smallest movement, meters, that produces a new fix while navigating.
 const _distanceFilterMeters = 1;
+
+/// Settings for the navigation stream. On iOS the fix has to keep coming
+/// with the screen off, which needs the location background mode; the
+/// "while using the app" permission covers it, "always" is not asked for
+/// (mvp-scope.md §2.8). Android keeps its fix alive through the
+/// foreground service instead.
+///
+/// What actually switches background updates on is `UIBackgroundModes`
+/// in `Info.plist`: the plugin already allows them by default, and its
+/// defaults for the activity type and for never pausing updates are what
+/// walking back to a point needs. Only the blue status bar indicator has
+/// to be asked for, so the user can see the app is still following them.
+LocationSettings get _streamSettings => Platform.isIOS
+    ? AppleSettings(
+        distanceFilter: _distanceFilterMeters,
+        showBackgroundLocationIndicator: true,
+      )
+    : const LocationSettings(distanceFilter: _distanceFilterMeters);
 
 final class GeolocatorLocationDatasource implements LocationDatasource {
   const GeolocatorLocationDatasource();
@@ -78,9 +97,7 @@ final class GeolocatorLocationDatasource implements LocationDatasource {
     void listen({required bool retryOnSilence}) {
       subscription =
           Geolocator.getPositionStream(
-            locationSettings: const LocationSettings(
-              distanceFilter: _distanceFilterMeters,
-            ),
+            locationSettings: _streamSettings,
           ).listen(
             (position) {
               silence?.cancel();

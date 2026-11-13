@@ -90,6 +90,7 @@ final class NavigationGuidanceBloc extends DataBloc<NavigationGuidance> {
         weakSignal: here.isWeakSignal,
         arrived: arrived,
         compass: status,
+        bearingDegrees: bearing,
         arrowDegrees: status == CompassStatus.unavailable ? null : arrow,
         compassAccuracyDegrees: compass?.valueOrNull?.accuracyDegrees,
       );
