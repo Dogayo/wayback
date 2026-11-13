@@ -26,6 +26,14 @@
   "actionSave": "Сохранить",
   "appTitle": "Wayback",
   "diagnosticsShareSubject": "Журнал Wayback",
+  "directionShortNorth": "С",
+  "directionShortNorthEast": "СВ",
+  "directionShortEast": "В",
+  "directionShortSouthEast": "ЮВ",
+  "directionShortSouth": "Ю",
+  "directionShortSouthWest": "ЮЗ",
+  "directionShortWest": "З",
+  "directionShortNorthWest": "СЗ",
   "distanceFeet": "{value} фт",
   "@distanceFeet": {
     "placeholders": {
@@ -108,6 +116,17 @@
     "placeholders": {
       "name": {
         "type": "String"
+      }
+    }
+  },
+  "navigateNoticeDirection": "{cardinal} · {degrees}°",
+  "@navigateNoticeDirection": {
+    "placeholders": {
+      "cardinal": {
+        "type": "String"
+      },
+      "degrees": {
+        "type": "int"
       }
     }
   },

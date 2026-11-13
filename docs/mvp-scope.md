@@ -113,7 +113,7 @@ It does not catch native Android and iOS crashes; it writes only while the app i
 
 Done when: after a walk the log can be read through `adb`, and the sent file contains no coordinates.
 
-### 2.8 Background navigation (Android)
+### 2.8 Background navigation (Android and iOS)
 
 Navigation does not stop when the screen goes off or the app is in the background.
 
@@ -129,7 +129,20 @@ Required:
 
 Done when: on a real device with the screen locked the distance updates, and entering the radius vibrates.
 
-A Live Activity on iOS is a separate task; on iOS navigation works only while the app is open for now.
+On iOS the same job is done by a Live Activity — a banner on the lock screen and in the Dynamic Island.
+
+Required:
+
+- the banner shows the point name, the distance and which way the point lies against north ("NW · 320°"); on arrival "Close by" takes the place of the distance and the direction;
+- the arrow shows where the point is relative to north, not where the phone is pointing: the banner refreshes once every few seconds, and a compass arrow would be showing a direction that is already gone;
+- the banner needs iOS 16.2: updates go through `ActivityContent`, which starts there;
+- an "End navigation" button on the banner (iOS 17+); on 16.2–16.7 the banner has no button and navigation is closed in the app;
+- background location through `UIBackgroundModes: location`; as on Android, only the "while using the app" permission is used, "always" is not requested;
+- arrival in the background: vibration by the same setting and the same radius-entry rule as on Android (§2.4); the isolate stays alive through background location, so no separate notification is needed;
+- the banner lives as long as the navigation screen and goes away with it;
+- Live Activities turned off in Settings do not get in the way of on-screen navigation.
+
+Done when: on an iPhone with the screen locked the distance on the banner updates, entering the radius vibrates, and "End navigation" takes the banner away and closes navigation.
 
 ---
 

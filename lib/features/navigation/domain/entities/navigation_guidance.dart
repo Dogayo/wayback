@@ -20,6 +20,7 @@ final class NavigationGuidance {
     required this.weakSignal,
     required this.arrived,
     required this.compass,
+    required this.bearingDegrees,
     this.arrowDegrees,
     this.compassAccuracyDegrees,
   });
@@ -30,6 +31,11 @@ final class NavigationGuidance {
   final bool weakSignal;
   final bool arrived;
   final CompassStatus compass;
+
+  /// Where the point lies, degrees clockwise from true north. Unlike
+  /// [arrowDegrees] it does not depend on how the phone is held, so the
+  /// background notice can show it even with no compass.
+  final double bearingDegrees;
 
   /// Arrow rotation, degrees, not wrapped: it changes along the shortest arc
   /// from the previous value, so the arrow never spins round at north.
@@ -51,6 +57,7 @@ final class NavigationGuidance {
       other.weakSignal == weakSignal &&
       other.arrived == arrived &&
       other.compass == compass &&
+      other.bearingDegrees == bearingDegrees &&
       other.arrowDegrees == arrowDegrees &&
       other.compassAccuracyDegrees == compassAccuracyDegrees;
 
@@ -62,6 +69,7 @@ final class NavigationGuidance {
     weakSignal,
     arrived,
     compass,
+    bearingDegrees,
     arrowDegrees,
     compassAccuracyDegrees,
   );

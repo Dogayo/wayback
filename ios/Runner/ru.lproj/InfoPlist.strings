@@ -1,2 +1,2 @@
 /* Shown by iOS when Wayback asks for location access (docs/copy.md, permissionBody). */
-"NSLocationWhenInUseUsageDescription" = "Wayback запоминает, где вы были, и показывает дорогу обратно. Данные остаются на телефоне.";
+"NSLocationWhenInUseUsageDescription" = "Wayback запоминает, где вы были, и показывает дорогу обратно. Пока открыта навигация, он следит за расстоянием и с погашенным экраном. Данные остаются на телефоне.";

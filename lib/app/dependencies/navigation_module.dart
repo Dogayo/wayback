@@ -6,6 +6,7 @@ import 'package:wayback/features/navigation/data/datasources/background_navigati
 import 'package:wayback/features/navigation/data/datasources/compass_datasource.dart';
 import 'package:wayback/features/navigation/data/datasources/flutter_compass_datasource.dart';
 import 'package:wayback/features/navigation/data/datasources/foreground_service_navigation_datasource.dart';
+import 'package:wayback/features/navigation/data/datasources/live_activity_navigation_datasource.dart';
 import 'package:wayback/features/navigation/data/datasources/no_background_navigation_datasource.dart';
 import 'package:wayback/features/navigation/data/datasources/plugin_vibration_datasource.dart';
 import 'package:wayback/features/navigation/data/datasources/vibration_datasource.dart';
@@ -32,12 +33,13 @@ final class NavigationModule extends DependencyCollection {
       ),
       isSingleton: true,
     ),
-    RegFactory<BackgroundNavigationDatasource>(
-      (_) => Platform.isAndroid
-          ? const ForegroundServiceNavigationDatasource()
-          : const NoBackgroundNavigationDatasource(),
-      isSingleton: true,
-    ),
+    RegFactory<BackgroundNavigationDatasource>((_) {
+      if (Platform.isAndroid) {
+        return const ForegroundServiceNavigationDatasource();
+      }
+      if (Platform.isIOS) return LiveActivityNavigationDatasource();
+      return const NoBackgroundNavigationDatasource();
+    }, isSingleton: true),
     RegFactory<BackgroundNavigationRepository>(
       (i) => BackgroundNavigationRepositoryImpl(
         i.get<BackgroundNavigationDatasource>(),
