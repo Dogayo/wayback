@@ -7,18 +7,15 @@ void main() {
 
   setUp(() => played = []);
 
-  Widget host(
-    Widget child, {
-    ThemeData? theme,
-    bool animations = true,
-  }) => MaterialApp(
-    theme: theme ?? WbTheme.light,
-    builder: (_, app) => WbHapticsScope(player: played.add, child: app!),
-    home: MediaQuery(
-      data: MediaQueryData(disableAnimations: !animations),
-      child: Scaffold(body: child),
-    ),
-  );
+  Widget host(Widget child, {ThemeData? theme, bool animations = true}) =>
+      MaterialApp(
+        theme: theme ?? WbTheme.light,
+        builder: (_, app) => WbHapticsScope(player: played.add, child: app!),
+        home: MediaQuery(
+          data: MediaQueryData(disableAnimations: !animations),
+          child: Scaffold(body: child),
+        ),
+      );
 
   Widget toggle({required bool dark, VoidCallback? onPressed}) =>
       WbThemeToggle(dark: dark, label: 'Сменить тему', onPressed: onPressed);
@@ -30,9 +27,7 @@ void main() {
     expect(find.byIcon(Icons.light_mode_outlined), findsOneWidget);
     expect(find.byIcon(Icons.dark_mode_outlined), findsNothing);
 
-    await tester.pumpWidget(
-      host(toggle(dark: true), theme: WbTheme.dark),
-    );
+    await tester.pumpWidget(host(toggle(dark: true), theme: WbTheme.dark));
     await tester.pumpAndSettle();
     expect(find.byIcon(Icons.dark_mode_outlined), findsOneWidget);
     expect(find.byIcon(Icons.light_mode_outlined), findsNothing);
