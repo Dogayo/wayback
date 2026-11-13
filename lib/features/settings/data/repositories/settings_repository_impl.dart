@@ -37,6 +37,11 @@ final class SettingsRepositoryImpl
   );
 
   @override
+  Future<Result<void>> setThemeMode(AppThemeMode themeMode) => handle(
+    () => _update((settings) => settings.copyWith(themeMode: themeMode)),
+  );
+
+  @override
   Future<Result<void>> setVibrationOnArrival({required bool enabled}) => handle(
     () => _update((settings) => settings.copyWith(vibrationOnArrival: enabled)),
   );

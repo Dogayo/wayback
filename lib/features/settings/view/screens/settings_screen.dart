@@ -4,8 +4,10 @@ import 'package:wayback/app/extensions/navigation_context.dart';
 import 'package:wayback/app/feedback/action_result_listener.dart';
 import 'package:wayback/app/localization/error_l10n.dart';
 import 'package:wayback/app/localization/localization.dart';
+import 'package:wayback/app/settings/settings_scope.dart';
 import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_theme_mode_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_touch_feedback_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
@@ -16,7 +18,8 @@ import 'package:wayback_design_system/wayback_design_system.dart';
 /// Units, language and vibration on arrival (SCREENS.md §4.6).
 ///
 /// Needs [SettingsBloc], [SetUnitsBloc], [SetLanguageBloc],
-/// [SetVibrationOnArrivalBloc] and [SendLogBloc] above it.
+/// [SetThemeModeBloc], [SetVibrationOnArrivalBloc] and [SendLogBloc]
+/// above it.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -30,6 +33,7 @@ class SettingsScreen extends StatelessWidget {
       listeners: [
         ActionResultListener<SetUnitsBloc, void>(successHaptic: null),
         ActionResultListener<SetLanguageBloc, void>(successHaptic: null),
+        ActionResultListener<SetThemeModeBloc, void>(successHaptic: null),
         ActionResultListener<SetVibrationOnArrivalBloc, void>(
           successHaptic: null,
         ),
@@ -37,12 +41,34 @@ class SettingsScreen extends StatelessWidget {
         ActionResultListener<SendLogBloc, void>(successHaptic: null),
       ],
       child: Scaffold(
-        appBar: WbAppBar(title: l10n.settingsTitle, onBack: context.back),
+        appBar: WbAppBar(
+          title: l10n.settingsTitle,
+          onBack: context.back,
+          actions: const [_ThemeToggle()],
+        ),
         body: state.mapOrElse(
           success: (s) => SettingsList(s.data),
           failure: (s) => _Failure(s.failure.code),
           orElse: (_) => const _Loading(),
         ),
+      ),
+    );
+  }
+}
+
+/// Switches the theme from the app bar. The icon shows the theme that is on
+/// now; the first tap pins it, so the app stops following the phone.
+class _ThemeToggle extends StatelessWidget {
+  const _ThemeToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return WbThemeToggle(
+      dark: dark,
+      label: context.l10n.settingsThemeToggle,
+      onPressed: () => context.read<SetThemeModeBloc>().run(
+        dark ? AppThemeMode.light : AppThemeMode.dark,
       ),
     );
   }

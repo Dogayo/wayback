@@ -141,6 +141,7 @@
   "settingsLanguageSystem": "System default",
   "settingsSendLog": "Send log",
   "settingsSendLogHint": "To look into problems, no coordinates",
+  "settingsThemeToggle": "Switch theme",
   "settingsTitle": "Settings",
   "settingsUnits": "Units",
   "settingsUnitsImperial": "Feet & miles",

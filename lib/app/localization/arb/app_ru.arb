@@ -299,6 +299,10 @@
   "settingsLanguageSystem": "Как в системе",
   "settingsSendLog": "Отправить журнал",
   "settingsSendLogHint": "Для разбора ошибок, без координат",
+  "settingsThemeToggle": "Сменить тему",
+  "@settingsThemeToggle": {
+    "description": "Подпись и тултип переключателя темы в шапке настроек"
+  },
   "settingsTitle": "Настройки",
   "settingsUnits": "Единицы измерения",
   "settingsUnitsImperial": "Футы и мили",

@@ -222,6 +222,7 @@ The background navigation notification (mvp-scope.md §2.8): the title is the po
 | `settingsLanguageSystem` | Как в системе | System default | |
 | `settingsLanguageRu` | Русский | Русский | endonym, the same in both locales |
 | `settingsLanguageEn` | English | English | endonym |
+| `settingsThemeToggle` | Сменить тему | Switch theme | app bar icon: the sun in the light theme, the moon in the dark one |
 | `settingsVibration` | Вибрация при прибытии | Vibrate on arrival | Switch |
 | `settingsTouchFeedback` | Отклик при нажатиях | Haptic feedback | Switch, on by default |
 | `settingsVibrationPattern` | Вид вибрации | Vibration type | ListItem, screen title |

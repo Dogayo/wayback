@@ -5,11 +5,13 @@ import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
 import 'package:wayback/features/settings/view/bloc/send_log_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_theme_mode_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_touch_feedback_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/settings_bloc.dart';
 import 'package:wayback/features/settings/view/screens/settings_screen.dart';
+import 'package:wayback_design_system/wayback_design_system.dart';
 
 import '../../../points/view/screens/screen_host.dart';
 import '../../fake_diagnostics_repository.dart';
@@ -27,6 +29,7 @@ Future<void> _pump(
         BlocProvider(create: (_) => SettingsBloc(repository)..fetch()),
         BlocProvider(create: (_) => SetUnitsBloc(repository)),
         BlocProvider(create: (_) => SetLanguageBloc(repository)),
+        BlocProvider(create: (_) => SetThemeModeBloc(repository)),
         BlocProvider(create: (_) => SetVibrationOnArrivalBloc(repository)),
         BlocProvider(create: (_) => SetTouchFeedbackBloc(repository)),
         BlocProvider(
@@ -77,6 +80,32 @@ void main() {
       ),
     );
     expect(tester.widget<Switch>(find.byType(Switch).first).value, isFalse);
+  });
+
+  testWidgets('the app bar switches the theme', (tester) async {
+    final repository = FakeSettingsRepository();
+    await _pump(tester, repository);
+
+    // The test host runs the light theme, so the sun is on screen.
+    expect(find.byIcon(Icons.light_mode_outlined), findsOneWidget);
+    expect(repository.settings.themeMode, AppThemeMode.system);
+
+    await tester.tap(find.byType(WbThemeToggle));
+    await settle(tester);
+
+    expect(repository.settings.themeMode, AppThemeMode.dark);
+  });
+
+  testWidgets('a failed theme change says so', (tester) async {
+    final repository = FakeSettingsRepository()
+      ..failNext = const StorageFailure(code: 'settings_storage_failed');
+    await _pump(tester, repository);
+
+    await tester.tap(find.byType(WbThemeToggle));
+    await settle(tester);
+
+    expect(find.text('Не удалось сохранить настройки'), findsOneWidget);
+    expect(repository.settings.themeMode, AppThemeMode.system);
   });
 
   testWidgets('haptic feedback has its own switch, on by default', (

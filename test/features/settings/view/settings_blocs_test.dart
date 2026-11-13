@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:wayback/core/error/failures.dart';
 import 'package:wayback/features/settings/domain/entities/app_settings.dart';
 import 'package:wayback/features/settings/view/bloc/set_language_bloc.dart';
+import 'package:wayback/features/settings/view/bloc/set_theme_mode_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_units_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_on_arrival_bloc.dart';
 import 'package:wayback/features/settings/view/bloc/set_vibration_pattern_bloc.dart';
@@ -49,6 +50,16 @@ void main() {
       ),
     );
     expect(units.state.mapOrNull(success: (_) => true), isTrue);
+  });
+
+  test('SetThemeModeBloc saves the theme', () async {
+    final bloc = SetThemeModeBloc(repository);
+    addTearDown(bloc.close);
+
+    bloc.run(AppThemeMode.dark);
+    await pumpEventQueue();
+
+    expect(repository.settings.themeMode, AppThemeMode.dark);
   });
 
   test('SetVibrationPatternBloc saves the pattern', () async {

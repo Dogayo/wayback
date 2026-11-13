@@ -94,6 +94,7 @@ class _AppState extends State<App> {
             onGenerateTitle: (context) => context.l10n.appTitle,
             theme: AppTheme.light,
             darkTheme: AppTheme.dark,
+            themeMode: settings.themeMode.themeMode,
             locale: settings.language.locale,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,

@@ -15,6 +15,8 @@ abstract interface class SettingsRepository {
 
   Future<Result<void>> setLanguage(AppLanguage language);
 
+  Future<Result<void>> setThemeMode(AppThemeMode themeMode);
+
   Future<Result<void>> setVibrationOnArrival({required bool enabled});
 
   Future<Result<void>> setVibrationPattern(VibrationPattern pattern);

@@ -44,6 +44,10 @@ final class FakeSettingsRepository implements SettingsRepository {
       _update(settings.copyWith(language: language));
 
   @override
+  Future<Result<void>> setThemeMode(AppThemeMode themeMode) =>
+      _update(settings.copyWith(themeMode: themeMode));
+
+  @override
   Future<Result<void>> setVibrationOnArrival({required bool enabled}) =>
       _update(settings.copyWith(vibrationOnArrival: enabled));
 

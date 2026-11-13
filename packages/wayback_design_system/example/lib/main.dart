@@ -55,6 +55,7 @@ class _CatalogState extends State<_Catalog> {
   String units = 'metric';
   WbPointType pointType = WbPointType.car;
   bool carChip = true;
+  bool specimenDark = false;
   int tab = 0;
   int nav = 0;
 
@@ -153,17 +154,13 @@ class _CatalogState extends State<_Catalog> {
                         pinned: true,
                         title: const _BrandLockup(),
                         actions: [
-                          IconButton(
+                          WbThemeToggle(
+                            dark: widget.themeMode == ThemeMode.dark,
+                            label: 'Сменить тему',
                             onPressed: () => widget.onThemeChanged(
                               widget.themeMode == ThemeMode.light
                                   ? ThemeMode.dark
                                   : ThemeMode.light,
-                            ),
-                            tooltip: 'Сменить тему',
-                            icon: Icon(
-                              widget.themeMode == ThemeMode.light
-                                  ? Icons.dark_mode_outlined
-                                  : Icons.light_mode_outlined,
                             ),
                           ),
                           PopupMenuButton<TargetPlatform>(
@@ -965,7 +962,7 @@ class _NavigationSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Section(
     title: 'Navigation',
-    components: 'AppBar · BackButton · SegmentedTabs · BottomNav',
+    components: 'AppBar · BackButton · SegmentedTabs · BottomNav · ThemeToggle',
     children: [
       _Specimen(
         title: 'AppBar',
@@ -976,10 +973,17 @@ class _NavigationSection extends StatelessWidget {
                 border: Border.all(color: context.wbColors.borderSubtle),
                 borderRadius: WbRadius.medium,
               ),
-              child: const WbAppBar(
+              child: WbAppBar(
                 title: 'Сохранённые точки',
                 actions: [
-                  WbIconButton(
+                  WbThemeToggle(
+                    dark: state.specimenDark,
+                    label: 'Сменить тему',
+                    onPressed: () => state.update(
+                      () => state.specimenDark = !state.specimenDark,
+                    ),
+                  ),
+                  const WbIconButton(
                     icon: Icons.settings_outlined,
                     label: 'Настройки',
                     onPressed: _CatalogState._noop,
